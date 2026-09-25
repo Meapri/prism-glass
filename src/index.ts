@@ -5,6 +5,8 @@ export type { GlassController, GlassOptions, GlassPatch, GlassDiagnostics } from
 export { lensFor } from './optics.js';
 export { getGlassPreset, type GlassPreset } from './presets.js';
 export type { Lens, LensShape, SurfaceProfile, BlurMode } from './optics.js';
+export { getGlassMaterial, materialOptics, observeGlassPreferences, type GlassMaterial, type GlassVariant, type GlassAppearance, type GlassPreferences } from './materials.js';
+export { bindGlassInteraction, stepSpring, type GlassInteraction, type GlassInteractionController, type SpringState } from './motion.js';
 type Normalized = Required<Omit<GlassOptions, 'onStatus'>> & Pick<GlassOptions, 'onStatus'>;
 const owners = new WeakSet<HTMLElement>();
 const defaults = { strength: 24, ior: 1.5, bevel: 24, blur: 0, highlight: 0.55,
@@ -37,8 +39,7 @@ export function createGlass(source: HTMLElement, options: GlassOptions): GlassCo
   const initialFilter = source.style.getPropertyValue('filter');
   const initialPriority = source.style.getPropertyPriority('filter');
   const id = `prism-${Math.random().toString(36).slice(2)}`;
-  // The SVG image load can complete after the HTML pre-decode. Repaint (and on
-  // WebKit rotate the ID) when that resource actually enters the SVG graph.
+  // Repaint when decoded resources enter the SVG graph, including WebKit ID refresh.
   const graph = createFilter(doc, id, schedule);
   owners.add(source);
   const webkit = /AppleWebKit/i.test(win.navigator.userAgent) && !/Chrome|Chromium|Edg|OPR/i.test(win.navigator.userAgent);

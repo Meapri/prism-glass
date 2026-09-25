@@ -1,77 +1,75 @@
-# Prism Glass · 초기 알파
+# Prism Glass · 0.2 알파
 
-Aave의 웹 글라스 렌더링 구조에서 착안해 독립적으로 작성한 TypeScript 라이브러리입니다. 원본 DOM에 일반 SVG 필터를 적용해 렌즈 안의 픽셀을 굴절시킵니다. 이름은 가칭이며 npm에 공개하지 않았습니다.
+Aave의 공개 렌더링 방식과 Apple의 Liquid Glass 디자인 원칙을 바탕으로 만든 웹 라이브러리입니다. TypeScript 코어와 선택형 React 컴포넌트를 제공합니다. npm에는 아직 공개하지 않았습니다.
 
-## 바로 확인하기
-
-`demo/index.html`을 브라우저에서 열면 됩니다. 필요한 코드가 들어 있어 CDN이 필요 없습니다. 포인터나 위치 슬라이더로 렌즈를 움직이고, `Refraction on/off`로 굴절 전후를 비교하세요. 하단의 `Run browser checks`로 생명주기를 검사할 수 있습니다.
-
-## 설치와 사용
-
-저장소를 내려받았다면 먼저 아래 명령으로 패키지를 생성합니다.
+## 실행
 
 ```sh
 npm ci
 npm run build
-npm pack
-```
-
-생성된 파일이나 소스 압축 안에 제공된 npm 패키지를 사용할 프로젝트에 설치합니다.
-
-```sh
-npm install ./meapri-prism-glass-0.1.0-alpha.1.tgz
-```
-
-```ts
-import { createGlass } from '@meapri/prism-glass';
-
-const glass = createGlass(document.querySelector<HTMLElement>('#source')!, {
-  lens: { x: 60, y: 40, width: 220, height: 120, radius: 30 },
-  strength: 24,
-  bevel: 28,
-});
-
-glass.update({ lens: { x: 100 } });
-glass.destroy(); // 컴포넌트를 제거할 때 호출
-```
-
-React에서는 `@meapri/prism-glass/react`의 `GlassSource` 또는 `useGlass`를 사용합니다. 전체 API와 예제는 [README.md](README.md)에 있습니다.
-
-## 형태와 재질
-
-원형·타원형·캡슐형·둥근 사각형을 지원합니다. 형태에 맞춰 굴절 방향을 계산하며, 중앙이 평평한 표면·전체가 볼록한 표면·오목한 표면을 선택할 수 있습니다. 블러는 전체·중앙·가장자리에 적용할 수 있습니다.
-
-```ts
-import { createGlass, lensFor, getGlassPreset } from '@meapri/prism-glass';
-
-const lens = lensFor('circle', { x: 20, y: 20, width: 96, height: 96 });
-const glass = createGlass(source, getGlassPreset('button', lens));
-```
-
-`button`, `switch`, `slider`, `tab`, `panel` 프리셋은 용도와 렌즈 크기에 맞춰 강도·깊이·블러를 설정합니다. Aave의 비공개 설정을 복제한 값은 아닙니다. 데모의 `Component preset`에서 비교하고, 아래의 원형 버튼·스위치·슬라이더도 직접 조작할 수 있습니다. 주 렌즈에 겹쳐 있던 CSS 테두리는 제거했으며, 가장자리 광택은 `Edge light`로 조절합니다.
-
-## 이 구조가 맞는 경우
-
-- 탭, 선택 표시, 작은 카드처럼 굴절할 원본 영역을 직접 지정할 수 있는 UI
-- 원본 DOM과 이벤트를 유지하면서 글자와 배경이 렌즈 가장자리에서 휘는 효과
-- 위치와 강도 변경 시 맵을 재사용하고, 모양 변경 시에만 맵을 새로 만드는 구조
-
-비어 있는 유리 요소를 임의의 웹페이지 위에 올린다고 뒤의 페이지가 굴절되지는 않습니다. `source`에 굴절할 콘텐츠를 넣어야 합니다. 또렷한 라벨이나 버튼은 원본과 형제인 상위 레이어에 두세요. 필터는 실제 클릭 좌표를 이동시키지 않습니다.
-
-## 현재 확인한 범위
-
-순수 계산·SSR 테스트 16개, Chromium·Firefox·WebKit 자동 검사 12개, macOS 네이티브 Safari 26.6.2의 실제 굴절·컨트롤·생명주기 검사를 통과했습니다. Safari에서 굴절 픽셀 변화가 0이던 기존 오류를 재현한 뒤 수정했습니다. iOS 실기기, React 클라이언트 통합, GPU 성능은 추가 검증이 필요합니다. 전 브라우저·전 기기에서 성능 문제가 없다고 보증하는 버전은 아닙니다.
-
-작은 렌즈라도 원본 전체를 필터링하므로 앱 전체를 `source`로 감싸지 마세요. 이 알파는 원본 하나당 렌즈 하나를 지원하며, 다중 렌즈 합성·자동 배경 복제·영상용 WebGL 렌더러는 포함하지 않습니다.
-
-[검증 기록](docs/VALIDATION.md) · [렌더링 구조](docs/ARCHITECTURE.md)
-
-## 개발
-
-```sh
-npm ci
-npm test
 npm run dev
 ```
 
-데모는 빌드 시 하나의 HTML로 묶입니다. 소스를 수정한 뒤에는 `npm run build`를 실행해 데모를 갱신하세요.
+- `/`: 컴포넌트 라이브러리와 실제 영상 플레이어
+- `/optics.html`: 기존 광학 파라미터 실험실과 생명주기 검사
+
+자바스크립트와 CSS는 빌드에 포함되며, 영상은 로컬 `demo/assets/flower.mp4`를 사용합니다. 영상 데모는 `file://` 대신 HTTP 서버에서 실행하세요.
+
+## 설치
+
+```sh
+npm pack
+npm install ./meapri-prism-glass-0.2.0-alpha.1.tgz
+```
+
+## React 컴포넌트
+
+```tsx
+import { GlassProvider, GlassButton, GlassSwitch, GlassSlider }
+  from '@meapri/prism-glass/react';
+import '@meapri/prism-glass/styles.css';
+
+<GlassProvider variant="regular" appearance="auto">
+  <GlassButton refractionTarget={<DecorativeArtwork />}>추가</GlassButton>
+  <GlassSwitch aria-label="알림" checked={enabled}
+    onCheckedChange={setEnabled} />
+  <GlassSlider aria-label="음량" value={volume}
+    onValueChange={setVolume} />
+</GlassProvider>
+```
+
+버튼, 스위치, 슬라이더, 탭, 툴바, 팝오버, 일반 표면과 미디어 장면을 제공합니다. 탭은 방향키·Home·End와 RTL을 지원하고, 팝오버는 Escape·바깥 클릭·포커스 복귀를 처리합니다. 툴바 내부의 버튼은 유리를 다시 겹치지 않습니다.
+
+`regular`는 일반 조작부와 글자 가독성에, `clear`는 사진·영상 위의 밝고 굵은 조작부에 맞춥니다. 한 그룹의 재질을 일관되게 유지하세요. 동작 줄이기, 투명도 줄이기, 대비 증가, 강제 색상 설정에 대응하는 스타일을 포함합니다.
+
+## 굴절할 원본을 명시합니다
+
+- `refractionTarget`: 직접 제공한 장식용 DOM을 굴절합니다. 전경의 실제 버튼·라벨과 분리하며, 원본 레이어는 포커스나 클릭을 받지 않습니다.
+- `GlassMediaScene`: 하나의 영상·이미지·캔버스에서 여러 렌즈를 렌더링합니다. 재생 중인 영상을 복제하지 않습니다.
+- 둘 다 없는 표면은 CSS 블러·색조 재질로 동작합니다. 임의의 웹페이지 배경을 자동으로 굴절한다고 표시하지 않습니다.
+
+기존 `createGlass`, `GlassSource`, `useGlass` API도 유지합니다. SVG 원본 하나당 렌즈 하나이고, 미디어 렌더러는 원본 하나에 최대 64개 렌즈를 지원합니다. 작은 원본 영역을 사용하고 앱 전체를 SVG 필터로 감싸지 마세요.
+
+## 프레임워크 독립형 미디어 API
+
+```ts
+import { createMediaGlass } from '@meapri/prism-glass/media';
+
+const glass = createMediaGlass(overlayCanvas, video, {
+  lenses: [{ id: 'play', variant: 'clear',
+    lens: { x: 80, y: 60, width: 120, height: 120,
+      radius: 60, shape: 'circle' } }],
+});
+glass.updateLens('play', { lens: { x: 160 }, press: 0.5 });
+glass.destroy();
+```
+
+영상의 `object-fit`, 위치, 배경색을 렌더러와 맞추세요. 위치·눌림·밝기 변경은 맵을 재사용하고, 영상 프레임은 모든 렌즈가 공유합니다. 일시정지·화면 밖에서는 불필요한 반복 렌더링을 멈춥니다. 외부 영상은 CORS 허용이 필요하며, WebGL 실패는 진단 상태와 불투명 조작부로 처리합니다.
+
+DOM 원본에는 내부 `overflow: hidden; isolation: isolate` 레이어를 사용합니다. `translateZ(0)`을 강제하면 Safari에서 SVG 필터가 생략될 수 있습니다. PNG 광학 맵을 위해 CSP의 `img-src`에는 `data:` 허용이 필요합니다.
+
+## 검증과 구현 범위
+
+[검증 기록](docs/VALIDATION.md)에 실제 실행한 브라우저와 테스트 결과를 구분해 기록합니다. Apple/Aave의 비공개 셰이더를 복제한 구현은 아니며, 물리적인 iOS 기기와 장시간 GPU 성능을 자동 WebKit 결과만으로 보증하지 않습니다.
+
+[전체 API](README.md) · [디자인 원칙과 지원 범위](docs/LIQUID_GLASS.md) · [렌더링 구조](docs/ARCHITECTURE.md)

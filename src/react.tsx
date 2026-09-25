@@ -1,5 +1,6 @@
 import { createElement, forwardRef, useEffect, useRef, type HTMLAttributes, type RefObject } from 'react';
 import { createGlass, type GlassController, type GlassOptions } from './index.js';
+export * from './components/index.js';
 
 /** The core is created after mount and cleaned up on every unmount (including StrictMode). */
 export function useGlass(source: RefObject<HTMLElement | null>, options: GlassOptions) {

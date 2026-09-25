@@ -56,12 +56,9 @@ export function roundedDistance(x: number, y: number, shape: OpticalShape): numb
 }
 const smoothstep = (t: number) => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
 
-/** A single-interface optical approximation, not Apple's material/shader. */
-export function sampleDisplacement(x: number, y: number, shape: OpticalShape): {
-  dx: number; dy: number; mask: number; shine: number; frost: number;
-} {
+function sampleSurface(x: number, y: number, shape: OpticalShape) {
   const d = roundedDistance(x, y, shape);
-  if (d >= 0) return { dx: 0, dy: 0, mask: 0, shine: 0, frost: 0 };
+  if (d >= 0) return { dx: 0, dy: 0, mask: 0, shine: 0, frost: 0, nx: 0, ny: 0, edge: 0 };
   const surface = shape.surface ?? 'rim';
   const bevel = surface === 'rim' ? shape.bevel : Math.min(shape.width, shape.height) / 2;
   const u = clamp(-d / bevel, 0, 1);
@@ -83,8 +80,16 @@ export function sampleDisplacement(x: number, y: number, shape: OpticalShape): {
   const returnLight = Math.max(0, sign * (nx * 0.6 + ny * 0.8));
   const interior = smoothstep(-d / shape.bevel);
   const frost = shape.blurMode === 'center' ? interior : shape.blurMode === 'edge' ? 1 - interior : 1;
-  return { dx: -nx * bend, dy: -ny * bend, mask,
-    shine: mask * Math.exp(-Math.max(0, -d - 0.6) / 2) * (0.85 * light + 0.2 * returnLight), frost };
+  const edge = mask * Math.exp(-Math.max(0, -d - 0.6) / 2);
+  return { dx: -nx * bend, dy: -ny * bend, mask, shine: edge * (0.85 * light + 0.2 * returnLight), frost, nx, ny, edge };
+}
+
+/** A single-interface optical approximation, not Apple's material/shader. */
+export function sampleDisplacement(x: number, y: number, shape: OpticalShape): {
+  dx: number; dy: number; mask: number; shine: number; frost: number;
+} {
+  const { dx, dy, mask, shine, frost } = sampleSurface(x, y, shape);
+  return { dx, dy, mask, shine, frost };
 }
 
 export function generateMaps(input: OpticalShape, resolution = 256): PixelMaps {
@@ -106,13 +111,22 @@ export function generateMaps(input: OpticalShape, resolution = 256): PixelMaps {
   const mask = new Uint8ClampedArray(length);
   const highlight = new Uint8ClampedArray(length);
   const frost = input.blurMode && input.blurMode !== 'uniform' ? new Uint8ClampedArray(length) : undefined;
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-    const s = sampleDisplacement((x + 0.5) * shape.width / width, (y + 0.5) * shape.height / height, shape);
-    const i = (y * width + x) * 4;
-    displacement.set([128 + 127 * s.dx, 128 + 127 * s.dy, 128, 255], i);
-    mask.set([255, 255, 255, s.mask * 255], i);
-    highlight.set([255, 255, 255, s.shine * 255], i);
-    frost?.set([255, 255, 255, s.frost * 255], i);
+  const sign = shape.surface === 'concave' ? -1 : 1;
+  // Geometry is symmetric; directional lighting is not. Evaluate one quadrant,
+  // reflect the normals/displacement, then light each mirrored sample separately.
+  for (let y = 0; y < Math.ceil(height / 2); y++) for (let x = 0; x < Math.ceil(width / 2); x++) {
+    const s = sampleSurface((x + 0.5) * shape.width / width, (y + 0.5) * shape.height / height, shape);
+    for (let yy = 0; yy < 2; yy++) for (let xx = 0; xx < 2; xx++) {
+      const px = xx ? width - 1 - x : x, py = yy ? height - 1 - y : y;
+      if ((xx && px === x) || (yy && py === y)) continue;
+      const sx = xx ? -1 : 1, sy = yy ? -1 : 1, i = (py * width + px) * 4;
+      const light = sign * (s.nx * sx * -0.6 + s.ny * sy * -0.8);
+      const shine = s.edge * (0.85 * Math.max(0, light) + 0.2 * Math.max(0, -light));
+      displacement.set([128 + 127 * s.dx * sx, 128 + 127 * s.dy * sy, 128, 255], i);
+      mask.set([255, 255, 255, s.mask * 255], i);
+      highlight.set([255, 255, 255, shine * 255], i);
+      frost?.set([255, 255, 255, s.frost * 255], i);
+    }
   }
   return { width, height, displacement, mask, highlight, frost };
 }

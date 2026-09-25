@@ -17,8 +17,7 @@ export async function buildAssets(doc: Document, shape: OpticalShape, resolution
       image.data.set(bytes); ctx.putImageData(image, 0, 0);
       const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(
         b => b ? resolve(b) : reject(new Error('PNG encoding failed')), 'image/png'));
-      // Bounded, embedded PNGs avoid a second blob-resource loader inside SVG.
-      // In particular, an HTML Image decode does not warm WebKit's feImage loader.
+      // Keep feImage inputs self-contained across Safari's image loading paths.
       const url = await new Promise<string>((resolve, reject) => {
         const reader = new doc.defaultView!.FileReader();
         reader.onload = () => resolve(String(reader.result));
@@ -33,7 +32,7 @@ export async function buildAssets(doc: Document, shape: OpticalShape, resolution
       dispose: () => { urls.length = 0; } };
   } catch (error) { urls.length = 0; throw error; }
 }
-export function createFilter(doc: Document, id: string, onImageLoad?: () => void) {
+export function createFilter(doc: Document, id: string, onImageLoad: () => void) {
   function el<K extends keyof SVGElementTagNameMap>(name: K, attrs: Record<string, string | number> = {}) {
     const node = doc.createElementNS(NS, name);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
@@ -43,12 +42,13 @@ export function createFilter(doc: Document, id: string, onImageLoad?: () => void
   svg.dataset.prismDefs = id;
   svg.style.cssText = 'position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none';
   const defs = el('defs'); svg.append(defs);
-  const filter = el('filter', { id, x: 0, y: 0, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse', 'color-interpolation-filters': 'sRGB' });
+  // Reference CSS filters in WebKit offset userSpaceOnUse by the source's page
+  // position. Keep every region in the source's bounding-box coordinate system.
+  const filter = el('filter', { id, x: 0, y: 0, width: 1, height: 1,
+    filterUnits: 'objectBoundingBox', primitiveUnits: 'objectBoundingBox', 'color-interpolation-filters': 'sRGB' });
   defs.append(filter);
   const map = el('feImage', { result: 'mapRaw', preserveAspectRatio: 'none' });
-  // 128/255 -> exactly 0.5. Both X/Y channels share the same decode.
-  const correct = el('feColorMatrix', { in: 'mapRaw', result: 'map', type: 'matrix',
-    values: `${255 / 254} 0 0 0 ${-1 / 254} 0 ${255 / 254} 0 0 ${-1 / 254} 0 0 1 0 0 0 0 0 1 0` });
+  const correct = el('feColorMatrix', { in: 'mapRaw', result: 'map', type: 'matrix' });
   const mask = el('feImage', { result: 'lensMask', preserveAspectRatio: 'none' });
   const blur = el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: 0, result: 'softSource' });
   const displacement = el('feDisplacementMap', { in: 'SourceGraphic', in2: 'map', scale: 48, xChannelSelector: 'R', yChannelSelector: 'G', result: 'bent' });
@@ -64,23 +64,23 @@ export function createFilter(doc: Document, id: string, onImageLoad?: () => void
   const light = el('feComponentTransfer', { in: 'shine', result: 'light' });
   const alpha = el('feFuncA', { type: 'linear', slope: 0.55 }); light.append(alpha);
   const finish = el('feComposite', { in: 'light', in2: 'reunited', operator: 'over' });
+  // Do not leave an unused, unloaded feImage in the graph: WebKit can reject
+  // the entire filter even when that image is not part of the output branch.
   filter.append(map, correct, mask, displacement, inside, outside, reunite, highlight, light, finish);
-  for (const node of [map, mask, highlight, frost]) {
-    if (onImageLoad) node.addEventListener('load', onImageLoad);
-  }
+  const images = [map, mask, highlight, frost];
+  for (const node of images) node.addEventListener('load', onImageLoad);
   let pipeline = 'clear';
   doc.body.append(svg);
   return {
     svg, filter,
     maps(assets: MapAssets) {
-      [map, mask, highlight, frost].forEach((node, i) => {
+      images.forEach((node, i) => {
         const url = assets.urls[i] ?? assets.urls[1];
         node.setAttribute('href', url);
         node.setAttributeNS(XLINK, 'xlink:href', url);
       });
     },
     layout(lens: Lens, width: number, height: number, strength: number, softness: number, shine: number, mode: BlurMode = 'uniform') {
-      filter.setAttribute('width', String(width)); filter.setAttribute('height', String(height));
       const nextPipeline = softness === 0 ? 'clear' : mode;
       if (nextPipeline !== pipeline) {
         pipeline = nextPipeline;
@@ -91,19 +91,23 @@ export function createFilter(doc: Document, id: string, onImageLoad?: () => void
         }
         filter.replaceChildren(...nodes, inside, outside, reunite, highlight, light, finish);
       }
-      // Keep intermediate images in the source coordinate system. Cropping the
-      // displacement primitive itself can offset sampling in WebKit's renderer.
       for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, inside, outside, reunite, light, finish]) {
-        for (const [key, value] of Object.entries({ x: 0, y: 0, width, height })) node.setAttribute(key, String(value));
+        for (const [key, value] of Object.entries({ x: 0, y: 0, width: 1, height: 1 })) node.setAttribute(key, String(value));
       }
-      for (const node of [map, mask, highlight, frost]) {
-        for (const [key, value] of Object.entries({ x: lens.x, y: lens.y, width: lens.width, height: lens.height })) node.setAttribute(key, String(value));
+      for (const node of images) {
+        for (const [key, value] of Object.entries({ x: lens.x / width, y: lens.y / height,
+          width: lens.width / width, height: lens.height / height })) node.setAttribute(key, String(value));
       }
-      displacement.setAttribute('scale', String(strength * 2));
-      softDisplacement.setAttribute('scale', String(strength * 2));
+      // Bounding-box units scale X/Y by different dimensions. Attenuate each
+      // channel so strength stays in CSS pixels on non-square sources, while
+      // encoded 128 still decodes to the exact neutral value 0.5.
+      const unit = Math.min(width, height), sx = unit / width, sy = unit / height;
+      correct.setAttribute('values', `${255 / 254 * sx} 0 0 0 ${0.5 - 128 / 254 * sx} 0 ${255 / 254 * sy} 0 0 ${0.5 - 128 / 254 * sy} 0 0 1 0 0 0 0 0 1 0`);
+      displacement.setAttribute('scale', String(strength * 2 / unit));
+      softDisplacement.setAttribute('scale', String(strength * 2 / unit));
       inside.setAttribute('in', softness === 0 ? 'bent' : mode === 'uniform' ? 'bentSoft' : 'mixed');
-      blur.setAttribute('stdDeviation', String(softness)); alpha.setAttribute('slope', String(shine));
+      blur.setAttribute('stdDeviation', `${softness / width} ${softness / height}`); alpha.setAttribute('slope', String(shine));
     },
-    destroy() { svg.remove(); },
+    destroy() { for (const node of images) node.removeEventListener('load', onImageLoad); svg.remove(); },
   };
 }

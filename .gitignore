@@ -3,6 +3,7 @@ test-results/
 playwright-report/
 *.tgz
 demo/index.html
+demo/optics.html
 dist/
 .env
 .env.*

@@ -1,8 +1,89 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { PNG } from 'pngjs';
 
+async function expectAlignedRefraction(page: Page) {
+  const stage = page.locator('#stage');
+  await stage.scrollIntoViewIfNeeded();
+  await expect(page.locator('#status')).toHaveText('SVG source');
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  const lens = await page.locator('#lens').evaluate(element => {
+    const style = (element as HTMLElement).style;
+    return { x: parseFloat(style.left), y: parseFloat(style.top), width: parseFloat(style.width), height: parseFloat(style.height) };
+  });
+  const bent = PNG.sync.read(await stage.screenshot({ scale: 'css' }));
+  // Dispatch the real control's event without scrolling a mobile scene offscreen.
+  await page.locator('#effect').dispatchEvent('click');
+  await expect(page.locator('#status')).toHaveText('disabled');
+  const flat = PNG.sync.read(await stage.screenshot({ scale: 'css' }));
+  expect([bent.width, bent.height]).toEqual([flat.width, flat.height]);
+  let inside = 0, outside = 0;
+  const difference = (a: number, b: number) => [0, 1, 2].reduce((sum, channel) =>
+    sum + Math.abs(bent.data[a + channel] - flat.data[b + channel]), 0);
+  for (let y = 2; y < bent.height - 2; y++) for (let x = 2; x < bent.width - 2; x++) {
+    const i = (y * bent.width + x) * 4;
+    if (difference(i, i) <= 35) continue;
+    if (x >= lens.x - 2 && x <= lens.x + lens.width + 2 && y >= lens.y - 2 && y <= lens.y + lens.height + 2) {
+      inside++;
+    } else {
+      // A filter can change text/grid antialiasing at fractional DPR positions.
+      // Allow a one-pixel rasterization tolerance, never a shifted/clipped scene.
+      let nearest = Infinity;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        nearest = Math.min(nearest, difference(i, ((y + dy) * flat.width + x + dx) * 4));
+      }
+      if (nearest > 35) outside++;
+    }
+  }
+  expect(inside, 'the lens must actually refract source pixels').toBeGreaterThan(100);
+  // Permit sparse antialiasing differences (under 0.5% of the scene). The
+  // Safari regression clips most of the scene; an offset lens also exceeds this.
+  expect(outside, 'pixels outside the lens must retain the source').toBeLessThan(bent.width * bent.height * 0.005);
+  await page.locator('#effect').dispatchEvent('click');
+  await expect(page.locator('#status')).toHaveText('SVG source');
+}
+
+test('desktop refraction remains inside the lens across frost pipelines', async ({ page }) => {
+  await page.goto('/optics.html');
+  await page.locator('#pin').dispatchEvent('click');
+  await expectAlignedRefraction(page);
+  for (const preset of ['panel', 'button', 'custom']) {
+    await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption(preset);
+    await expectAlignedRefraction(page);
+  }
+  await page.locator('#blur').evaluate(element => {
+    (element as HTMLInputElement).value = '3';
+    element.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  await expectAlignedRefraction(page);
+});
+
+test.describe('mobile Safari layout regression', () => {
+  test.use({ viewport: { width: 420, height: 900 }, deviceScaleFactor: 3 });
+  test('refraction follows the box after movement, scrolling, and resizing', async ({ page }) => {
+    await page.goto('/optics.html');
+    await page.locator('#pin').dispatchEvent('click');
+    await expectAlignedRefraction(page);
+    const builds = await page.locator('#builds').textContent();
+    await page.locator('#x').evaluate(element => {
+      (element as HTMLInputElement).value = '15';
+      element.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await page.locator('#y').evaluate(element => {
+      (element as HTMLInputElement).value = '80';
+      element.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await page.evaluate(() => window.scrollTo(0, 150));
+    await expectAlignedRefraction(page);
+    await expect(page.locator('#builds')).toHaveText(builds!);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expectAlignedRefraction(page);
+    await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption('button');
+    await expectAlignedRefraction(page);
+  });
+});
+
 test('source refraction changes scene pixels, preserves DOM, and toggles off', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/optics.html');
   await expect(page.locator('#status')).toHaveText('SVG source');
   await page.getByRole('button', { name: 'Follow pointer' }).click();
   await page.mouse.move(0, 0);
@@ -30,14 +111,14 @@ test('source refraction changes scene pixels, preserves DOM, and toggles off', a
 });
 
 test('lifecycle and ownership checks', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/optics.html');
   await page.getByText('Compatibility, limitations & interactive checks', { exact: true }).click();
   await page.getByRole('button', { name: 'Run browser checks' }).click();
   await expect(page.locator('#test-results')).toHaveAttribute('data-result', 'passed', { timeout: 30000 });
 });
 
 test('keyboard selection uses live controls', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/optics.html');
   await page.getByRole('tab', { name: 'Overview', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
   await expect(page.getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
@@ -45,7 +126,7 @@ test('keyboard selection uses live controls', async ({ page }) => {
 });
 
 test('shape and material presets drive the live lens and component controls', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/optics.html');
   await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption('button');
   await expect(page.locator('#map-size')).toHaveText('160 × 160');
   await expect(page.getByRole('combobox', { name: 'Surface', exact: true })).toHaveValue('dome');

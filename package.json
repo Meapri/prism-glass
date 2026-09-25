@@ -1,10 +1,10 @@
 {
   "name": "@meapri/prism-glass",
-  "version": "0.1.0-alpha.1",
-  "description": "A source-first liquid glass lens for live DOM, with a framework-independent core.",
+  "version": "0.2.0-alpha.1",
+  "description": "Source-first liquid glass for DOM and media, with a TypeScript core and accessible React controls.",
   "type": "module",
   "license": "MIT",
-  "sideEffects": false,
+  "sideEffects": ["./dist/styles.css"],
   "files": [
     "dist",
     "README.md",
@@ -27,7 +27,9 @@
     "./optics": {
       "types": "./dist/optics.d.ts",
       "import": "./dist/optics.js"
-    }
+    },
+    "./media": { "types": "./dist/media.d.ts", "import": "./dist/media.js" },
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
     "build": "tsc && node scripts/build.mjs",
