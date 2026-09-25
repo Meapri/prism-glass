@@ -1,0 +1,38 @@
+import { test, expect } from '@playwright/test';
+import { PNG } from 'pngjs';
+
+test('source refraction changes scene pixels, preserves DOM, and toggles off', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('#status')).toHaveText('SVG source');
+  await page.getByRole('button', { name: 'Follow pointer' }).click();
+  await page.mouse.move(0, 0);
+  const scene = page.locator('#source');
+  const bent = PNG.sync.read(await scene.screenshot());
+  await page.getByRole('button', { name: 'Refraction on', exact: true }).click();
+  await expect(page.locator('#status')).toHaveText('disabled');
+  const flat = PNG.sync.read(await scene.screenshot());
+  expect(bent.width).toBe(flat.width); expect(bent.height).toBe(flat.height);
+  let changed = 0;
+  for (let i = 0; i < bent.data.length; i += 4) {
+    if (Math.abs(bent.data[i] - flat.data[i]) + Math.abs(bent.data[i+1] - flat.data[i+1]) + Math.abs(bent.data[i+2] - flat.data[i+2]) > 35) changed++;
+  }
+  expect(changed).toBeGreaterThan(300);
+  await expect(scene.locator('.word')).toHaveText('See through.');
+  await page.getByRole('button', { name: 'Refraction off', exact: true }).click();
+  await expect(page.locator('#status')).toHaveText('SVG source');
+});
+
+test('lifecycle and ownership checks', async ({ page }) => {
+  await page.goto('/');
+  await page.getByText('Compatibility, limitations & interactive checks', { exact: true }).click();
+  await page.getByRole('button', { name: 'Run browser checks' }).click();
+  await expect(page.locator('#test-results')).toHaveAttribute('data-result', 'passed', { timeout: 30000 });
+});
+
+test('keyboard selection uses live controls', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'Overview', exact: true }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: 'Details', exact: true })).toBeFocused();
+});
