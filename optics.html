@@ -1,0 +1,1050 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prism Glass · Optical playground</title>
+<meta name="description" content="Explore a refractive lens over live HTML. Adjust the optics and compare the original source with SVG displacement.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='8' y='7' width='22' height='22' rx='6' fill='%2396c3ac'/%3E%3Crect x='3' y='3' width='22' height='22' rx='6' fill='%23f6f7f5' stroke='%23225d4c' stroke-width='2'/%3E%3C/svg%3E">
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1b2527;background:#f6f7f5;font-synthesis:none;color-scheme:light}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #246c58;outline-offset:4px}header{max-width:1360px;margin:auto;padding:30px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #dfe4df}.brand{font-weight:650;font-size:22px;letter-spacing:-1px;display:flex;gap:12px;align-items:center}.mark{width:24px;height:24px;border:2px solid #225d4c;transform:rotate(-18deg);border-radius:7px;box-shadow:5px 4px 0 #aad1b7}.version{font-size:12px;color:#64716c;font-family:ui-monospace,monospace}.intro{max-width:1360px;margin:0 auto;padding:44px 48px 32px;display:flex;gap:30px;align-items:end;justify-content:space-between}h1{font-weight:500;font-size:clamp(36px,4vw,54px);line-height:1.04;letter-spacing:-2.4px;margin:0 0 14px}.intro p{color:#65706c;max-width:570px;line-height:1.6;margin:0;font-size:15px}.intro a{color:#225d4c;text-decoration:none;font-size:13px;white-space:nowrap}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:26px;max-width:1360px;margin:auto;padding:0 48px 34px}.canvas-wrap{min-width:0}.stage{height:430px;position:relative;overflow:hidden;border-radius:18px;background:#dce7df;isolation:isolate;touch-action:pan-y}.scene{position:absolute;inset:0;overflow:hidden;background:linear-gradient(130deg,#ecede0 0%,#c7dbcd 40%,#6e9985 100%)}.lines{position:absolute;inset:0;background-image:linear-gradient(90deg,#183d3625 1px,transparent 1px),linear-gradient(#183d3625 1px,transparent 1px);background-size:28px 28px;opacity:.8}.orb{position:absolute;left:4%;top:16%;width:270px;height:270px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#f7dba2,#e38a55 54%,#9f613f 85%);box-shadow:20px 30px 60px #23493225}.ribbon{position:absolute;width:230px;height:530px;background:linear-gradient(90deg,#083f37,#5b9278 48%,#d1e4bd);transform:rotate(34deg);top:-85px;right:10%;border-radius:120px;box-shadow:-12px 6px 30px #1b443a25}.word{position:absolute;left:28px;top:142px;font-weight:650;font-size:clamp(50px,7.2vw,112px);line-height:1;letter-spacing:-8px;color:#fafbea;white-space:nowrap;text-shadow:0 1px 0 #fff4}.scene-label{position:absolute;bottom:28px;left:30px;color:#1c4334;font-size:11px;font-weight:600;letter-spacing:2px}.scene-detail{position:absolute;right:22px;top:24px;width:105px;font-size:10px;line-height:1.6;color:#173c30;border-top:1px solid #315647;padding-top:8px}.lens-ui{position:absolute;left:180px;top:140px;width:236px;height:140px;border-radius:36px;box-shadow:0 12px 25px #132e331c;background:linear-gradient(145deg,#fff1,#fff0 52%,#244a4210);pointer-events:none}.lens-label{position:absolute;left:0;right:0;bottom:20px;text-align:center;font-size:10px;letter-spacing:2px;color:#143e32;text-shadow:0 1px 2px #fff8}.scene-caption{display:flex;justify-content:space-between;gap:15px;font-size:11px;line-height:1.5;color:#73817a;margin:12px 0 0}.controls{padding:6px 0 0 6px}.control-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;font-weight:600;font-size:15px}.live-status{font:10px ui-monospace,monospace;color:#246c58;display:flex;gap:6px;align-items:center}.live-status:before{content:"";width:5px;height:5px;background:currentColor;border-radius:50%}.control{display:block;margin:0 0 19px;font-size:12px;color:#495b52}.control-top{display:flex;justify-content:space-between;margin-bottom:9px}.control output{font:11px ui-monospace,monospace;color:#263d32}input[type=range]{width:100%;accent-color:#366c55;height:4px;display:block;cursor:pointer}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:22px}.actions button,.quiet-btn{border:1px solid #ccd6ce;border-radius:8px;background:transparent;color:#375848;padding:10px 8px;font-size:11px}.actions button[aria-pressed=true]{background:#245640;color:white;border-color:#245640}.diagnostics{margin-top:22px;border-top:1px solid #dce2dc;padding-top:16px}.diagnostics div{display:flex;justify-content:space-between;font-size:10px;color:#6b7e72;margin-bottom:8px}.diagnostics output{font:10px ui-monospace,monospace;color:#284d3a}.lower{max-width:1360px;padding:0 48px 40px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:36px}.spec{border-top:1px solid #dfe4df;padding-top:24px}.spec h2{font-size:17px;letter-spacing:-.4px;font-weight:550;margin:0 0 10px}.spec p{font-size:12px;color:#6c7870;line-height:1.7;margin:0 0 14px;max-width:500px}.tabs-stage{position:relative;width:min(100%,360px);height:54px;border-radius:14px;overflow:hidden;background:#e7ece5;border:1px solid #ced9ce}.tab-source{position:absolute;inset:0;display:flex;align-items:center;justify-content:space-around;padding:0 8px;background:repeating-linear-gradient(100deg,transparent 0 9px,#40775417 10px 12px),linear-gradient(90deg,#c6d8c0,#e1e8d7)}.tab-source span{width:30px;height:30px;border-radius:50%;background:#94b08b55}.tab-shell{position:absolute;top:5px;left:6px;width:112px;height:42px;border-radius:11px;box-shadow:inset 0 1px 1px #fffd,0 2px 8px #2a5c3020;border:1px solid #fff8;background:#ffffff18;pointer-events:none}.tabs{position:relative;height:100%;display:flex;padding:0 6px}.tabs button{flex:1;border:0;background:transparent;font-size:12px;color:#416044}.tabs button[aria-selected=true]{color:#123f24;font-weight:650}pre{font:11px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;background:#eaf0e8;border:1px solid #d8e2d6;padding:16px;border-radius:9px;overflow:auto;color:#2e5140;margin:0}.notes{max-width:1360px;padding:0 48px 30px;margin:auto;color:#69776d;font-size:11px;line-height:1.6}.notes summary{cursor:pointer;padding:14px 0;border-top:1px solid #dfe4df}.test-results{white-space:pre-wrap;font:11px/1.8 ui-monospace,monospace;margin-top:12px}.test-fixture{width:240px;height:120px;background:repeating-linear-gradient(90deg,#152d23 0 8px,#e3edbe 8px 16px);position:relative;margin:16px 0}.test-fixture button{position:absolute;top:35px;left:75px;padding:8px}.test-fixture span{position:absolute;bottom:7px;left:7px;background:white;color:black}.mobile-note{display:none}@media(max-width:850px){header{padding:24px}.intro{padding:30px 24px 24px}.intro a{display:none}.workspace{grid-template-columns:1fr;padding:0 24px 26px}.stage{height:350px}.controls{padding:0;display:grid;grid-template-columns:1fr 1fr;gap:0 22px}.control-head,.actions,.diagnostics{grid-column:1/-1}.control-head{margin:8px 0 22px}.actions{margin-top:4px}.diagnostics{display:flex;gap:22px;flex-wrap:wrap}.diagnostics div{gap:12px}.lower{padding:0 24px 26px;gap:24px;grid-template-columns:1fr}.notes{padding:0 24px 26px}.word{letter-spacing:-4px;top:136px;font-size:68px}.orb{width:220px;height:220px}.ribbon{right:-30px}.scene-detail{display:none}.scene-caption span:last-child{display:none}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+.canvas-wrap{position:sticky;top:24px;align-self:start}.material-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px;grid-column:1/-1}.material-grid label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#495b52}.material-grid select{width:100%;min-width:0;border:1px solid #ccd6ce;border-radius:7px;padding:8px 6px;background:#fff8;color:#244638;font-size:12px}.advanced{grid-column:1/-1;margin-top:18px}.advanced summary{cursor:pointer;color:#495b52;font-size:12px;margin-bottom:16px}.advanced-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.components{max-width:1360px;padding:0 48px 40px;margin:auto;color:#202126;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.components-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px;gap:20px}.components h2{font-size:24px;font-weight:600;letter-spacing:-.7px;margin:0}.components-head p{font-size:14px;color:#71747b;margin:0}.component-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.component-card{min-width:0}.component-card h3{font-size:14px;font-weight:500;margin:16px 0 6px;color:#555b66}.component-card p{font-size:14px;line-height:1.5;color:#757980;margin:0}.component-stage{position:relative;height:208px;overflow:hidden;border-radius:28px;background:#eef0f5}.component-source{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 12% 100%,#a9c7ef 0%,transparent 55%),radial-gradient(ellipse at 100% 0%,#ddd9f4 0%,transparent 65%),#f2f4f8}.button-backdrop{position:absolute;left:calc(50% - 70px);top:35px;width:96px;height:110px;background:linear-gradient(140deg,#97b5e1,#cfdef2);border-radius:35px;transform:rotate(-32deg)}.glass-surface{position:absolute;pointer-events:none;border-radius:999px;background:linear-gradient(160deg,#ffffff50,#ffffff12 55%,#ffffff28);box-shadow:inset 0 1px 1px #ffffffbd,inset 0 -1px 1px #ffffff4d,0 3px 9px #28334b16,0 12px 22px #28334b0b}.round-action{position:absolute;left:50%;top:54px;width:68px;height:68px;margin-left:-34px;border:0;border-radius:50%;background:transparent;color:#303b54;padding:22px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}.round-action svg{width:24px;height:24px;display:block;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;fill:none}.round-action .check-icon{display:none}.round-action[aria-pressed=true] .plus-icon{display:none}.round-action[aria-pressed=true] .check-icon{display:block}.round-action:active{transform:scale(.94)}.button-glass{left:calc(50% - 34px);top:54px;width:68px;height:68px}.component-caption{position:absolute;top:143px;left:0;right:0;text-align:center;font-size:15px;font-weight:500;color:#4d5565}.setting-copy{position:absolute;left:26px;top:71px;font-size:16px;line-height:1.4;pointer-events:none}.setting-copy small{display:block;font-size:13px;color:#727987;margin-top:4px;font-weight:400}.switch-track{position:absolute;right:24px;top:74px;width:76px;height:42px;border-radius:999px;background:#b2bac92f;box-shadow:inset 0 1px 3px #27354d0c;overflow:hidden}.switch-fill{position:absolute;inset:0;background:#34c759;opacity:0}.switch-thumb{width:40px;height:34px;background:linear-gradient(150deg,#ffffffc9,#ffffff73);box-shadow:inset 0 1px 1px #fff,0 2px 5px #192a4930}.switch-action{position:absolute;right:20px;top:70px;width:84px;height:50px;border:0;border-radius:999px;background:transparent;touch-action:pan-y;-webkit-tap-highlight-color:transparent}.volume-label{position:absolute;left:26px;right:26px;top:45px;display:flex;justify-content:space-between;font-size:16px;font-weight:500}.volume-label output{font-size:14px;font-weight:400;font-variant-numeric:tabular-nums;color:#727987}.slider-track{position:absolute;left:30px;right:30px;top:101px;height:6px;border-radius:999px;background:#6b788721;overflow:hidden}.slider-fill{height:100%;background:#3485f7;border-radius:inherit;width:50%}.slider-thumb{width:38px;height:26px;background:linear-gradient(150deg,#ffffffc7,#ffffff82);box-shadow:inset 0 1px 1px #fff,0 2px 5px #192a4924}.component-range{appearance:none;-webkit-appearance:none;position:absolute;left:11px;top:82px;width:calc(100% - 22px)!important;height:44px!important;margin:0;opacity:0;cursor:ew-resize;touch-action:pan-y}.component-range::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:38px;height:26px;border:0}.component-range::-moz-range-thumb{width:38px;height:26px;border:0}.component-range:focus-visible{outline:none}.component-stage:has(.component-range:focus-visible){outline:3px solid #007aff;outline-offset:4px}.range-icons{position:absolute;left:28px;right:27px;top:142px;display:flex;justify-content:space-between;pointer-events:none;color:#737e91}.range-icons svg{width:18px;height:18px;fill:currentColor}.component-state-note{font-size:12px!important;color:#737a85!important}.components button:focus-visible{outline:3px solid #007aff;outline-offset:4px}@media(max-width:850px){.canvas-wrap{position:static}.components{padding:0 24px 30px}.components-head{align-items:start;flex-direction:column;gap:8px}.component-grid{grid-template-columns:1fr}.component-stage{height:208px}}
+
+/* Keep clipped artwork in a separate stacking context for Safari filter bounds. */
+.source-viewport{position:absolute;inset:0;overflow:hidden}
+.source-viewport>.scene,.source-viewport>.tab-source,.source-viewport>.component-source{isolation:isolate}
+</style></head><body>
+<header><a class="brand" href="./" style="color:inherit;text-decoration:none"><span class="mark" aria-hidden="true"></span>Prism Glass</a><span class="version">0.2.0 · alpha / Safari fix</span></header>
+<section class="intro"><div><h1>Light, with a little bend.</h1><p>A real refractive lens over live HTML. Move across the scene, change the optics, and see the pixels shift.</p></div><a href="#implementation">Explore the source-first API ↘</a></section>
+<main class="workspace"><div class="canvas-wrap"><div class="stage" id="stage" aria-label="Live refraction scene">
+<div class="source-viewport" id="source"><div class="scene"><div class="lines"></div><div class="orb"></div><div class="ribbon"></div><div class="word">See through.</div><div class="scene-label">LIVE HTML / NO SNAPSHOT</div><div class="scene-detail">SURFACE STUDY<br>Light • shape • motion<br>001 — Verdant</div></div></div>
+<div class="lens-ui" id="lens"><span class="lens-label">PRISM</span></div></div><p class="scene-caption"><span>Move the pointer to explore. Use position controls on touch screens.</span><span>Original DOM · SVG displacement</span></p></div>
+<aside class="controls" aria-label="Lens controls"><div class="material-grid">
+<label>Component preset<select id="preset" aria-label="Component preset"><option value="custom">Custom</option><option value="button">Round button</option><option value="switch">Switch thumb</option><option value="slider">Slider thumb</option><option value="tab">Selected tab</option><option value="panel">Frosted panel</option></select></label>
+<label>Lens shape<select id="shape" aria-label="Lens shape"><option value="rounded-rect">Rounded rectangle</option><option value="circle">Circle</option><option value="capsule">Capsule</option><option value="ellipse">Ellipse</option></select></label>
+<label>Surface<select id="surface" aria-label="Surface"><option value="rim">Curved rim</option><option value="dome">Full dome</option><option value="concave">Concave</option></select></label>
+<label>Frost distribution<select id="blur-mode" aria-label="Frost distribution"><option value="uniform">Uniform</option><option value="center">Frosted center</option><option value="edge">Frosted edge</option></select></label>
+</div>
+<div class="control-head">Optics <span class="live-status" id="status" role="status">Loading</span></div>
+<label class="control"><span class="control-top">Refraction <output id="strength-value">24 px</output></span><input id="strength" aria-label="Refraction" type="range" min="0" max="48" value="24"></label>
+<label class="control"><span class="control-top">Edge width <output id="bevel-value">30 px</output></span><input id="bevel" aria-label="Edge width" type="range" min="8" max="64" value="30"></label>
+<label class="control"><span class="control-top">Corner radius <output id="radius-value">36 px</output></span><input id="radius" aria-label="Corner radius" type="range" min="0" max="70" value="36"></label>
+<label class="control"><span class="control-top">Frost <output id="blur-value">0 px</output></span><input id="blur" aria-label="Frost" type="range" min="0" max="6" step="0.25" value="0"></label>
+<label class="control"><span class="control-top">Horizontal position <output id="x-value">50%</output></span><input id="x" aria-label="Horizontal position" type="range" min="0" max="100" value="50"></label>
+<label class="control"><span class="control-top">Vertical position <output id="y-value">50%</output></span><input id="y" aria-label="Vertical position" type="range" min="0" max="100" value="50"></label>
+<div class="actions"><button id="effect" aria-pressed="true">Refraction on</button><button id="motion" aria-pressed="false">Animate lens</button><button id="pin" aria-pressed="false">Follow pointer</button><button id="reset">Reset optics</button></div>
+<div class="diagnostics"><div>Map builds <output id="builds">0</output></div><div>Map size <output id="map-size">—</output></div><div>Last map preparation <output id="map-time">—</output></div><div>Source pixel budget <output id="pixel-count">—</output></div></div><details class="advanced"><summary>Shape size &amp; surface depth</summary><div class="advanced-grid">
+<label class="control"><span class="control-top">Width <output id="width-value">236 px</output></span><input id="width" aria-label="Lens width" type="range" min="80" max="360" step="1" value="236"></label>
+<label class="control"><span class="control-top">Height <output id="height-value">140 px</output></span><input id="height" aria-label="Lens height" type="range" min="60" max="260" step="1" value="140"></label>
+<label class="control"><span class="control-top">Depth <output id="depth-value">1</output></span><input id="depth" aria-label="Surface depth" type="range" min="0" max="3" step="0.1" value="1"></label>
+<label class="control"><span class="control-top">Edge light <output id="highlight-value">0.55</output></span><input id="highlight" aria-label="Edge light" type="range" min="0" max="1" step="0.05" value="0.55"></label>
+<label class="control"><span class="control-top">Curvature <output id="curvature-value">4</output></span><input id="curvature" aria-label="Surface curvature" type="range" min="2" max="8" step="0.1" value="4"></label>
+</div></details>
+</aside></main>
+<section class="lower" id="implementation"><div class="spec"><h2>One lens. Three destinations.</h2><p>The selection lens moves without rebuilding its optical map. Labels stay crisp in a separate, interactive layer.</p><div class="tabs-stage"><div class="source-viewport" id="tab-source"><div class="tab-source"><span></span><span></span><span></span></div></div><div id="tab-shell" class="tab-shell"></div><div class="tabs" role="tablist" aria-label="Glass examples"><button role="tab" aria-selected="true" tabindex="0">Overview</button><button role="tab" aria-selected="false" tabindex="-1">Details</button><button role="tab" aria-selected="false" tabindex="-1">Activity</button></div></div><p id="tab-description" style="margin-top:12px">Overview selected. Source pixels remain live.</p></div>
+<div class="spec"><h2>Your DOM is the material.</h2><p>No automatic page capture. Choose a small source and position a lens inside it.</p><pre>const glass = createGlass(source, {
+  lens: { x: 80, y: 40,
+          width: 236, height: 140, radius: 36 },
+  strength: 24, bevel: 30
+});
+
+glass.update({ lens: { x: 140 } });
+glass.destroy();</pre></div></section>
+<section class="components"><div class="components-head"><h2>Made to be touched.</h2><p>Press, toggle, slide.</p></div><div class="component-grid">
+<article class="component-card"><div class="component-stage" id="button-stage"><div class="source-viewport" id="button-source"><div class="component-source"><div class="button-backdrop"></div></div></div><div class="glass-surface button-glass" id="button-shell" aria-hidden="true"></div><button class="round-action" id="glass-button" aria-label="Press glass button" aria-pressed="false"><svg class="plus-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M4 12h16"/></svg><svg class="check-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4.5 4.5L19 7"/></svg></button><span class="component-caption" id="button-value">Add</span></div><h3>Button</h3><p>A clear, rounded surface with a soft press.</p></article>
+<article class="component-card"><div class="component-stage" id="switch-stage"><div class="source-viewport" id="switch-source"><div class="component-source"><div class="switch-track"><div class="switch-fill" id="switch-fill"></div></div></div></div><div class="setting-copy">Wireless<small id="switch-value">Off</small></div><div class="glass-surface switch-thumb" id="switch-shell" aria-hidden="true"></div><button class="switch-action" id="glass-switch" role="switch" aria-label="Glass switch" aria-checked="false"></button></div><h3>Switch</h3><p>A glass thumb that follows the track.</p></article>
+<article class="component-card"><div class="component-stage" id="slider-stage"><div class="source-viewport" id="slider-source"><div class="component-source"><div class="slider-track"><div class="slider-fill" id="slider-fill"></div></div></div></div><div class="volume-label"><span>Volume</span><span><output id="slider-value" for="glass-slider">50</output>%</span></div><div class="glass-surface slider-thumb" id="slider-shell" aria-hidden="true"></div><input class="component-range" id="glass-slider" aria-label="Glass slider" type="range" min="0" max="100" value="50"><div class="range-icons" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3z"/></svg><svg viewBox="0 0 24 24"><path d="M2 9h4l5-4v14l-5-4H2z"/><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div></div><h3>Slider</h3><p>Precise movement, with a lighter refraction.</p></article>
+</div></section>
+<section class="notes"><details><summary>Compatibility, limitations &amp; interactive checks</summary><p>This alpha uses regular SVG source filters. It does not use SVG backdrop-filter, a DOM mirror, or html2canvas. Refraction checks pass in Chromium, Firefox, WebKit, and native macOS Safari 26.6.2. iOS device and performance testing are still pending. This SVG playground uses DOM sources; the component library demonstrates the separate media renderer. Transformed sources remain outside this contract. Map preparation includes PNG encoding and decoding; it is not GPU time.</p><button id="run-tests" class="quiet-btn">Run browser checks</button><div id="test-host"></div><div class="test-results" id="test-results" role="status">Checks have not run.</div></details></section>
+<script>"use strict";
+(() => {
+  // src/optics.ts
+  function finite(value, name) {
+    if (!Number.isFinite(value)) throw new TypeError(`${name} must be finite`);
+    return value;
+  }
+  var clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  function normalizeLens(lens) {
+    for (const key of ["x", "y", "width", "height", "radius"]) finite(lens[key], `lens.${key}`);
+    if (!(lens.width > 0 && lens.height > 0) || lens.width > 8192 || lens.height > 8192) {
+      throw new RangeError("Lens dimensions must be in (0, 8192] CSS pixels");
+    }
+    const shape2 = lens.shape ?? "rounded-rect";
+    if (!["rounded-rect", "circle", "capsule", "ellipse"].includes(shape2)) throw new TypeError("Invalid lens shape");
+    if (shape2 === "circle" && lens.width !== lens.height) throw new RangeError("A circle needs equal width and height; use lensFor to fit bounds");
+    return { ...lens, shape: shape2, radius: shape2 === "rounded-rect" ? clamp(lens.radius, 0, Math.min(lens.width, lens.height) / 2) : Math.min(lens.width, lens.height) / 2 };
+  }
+  function lensFor(shape2, bounds) {
+    const { width, height } = bounds;
+    const radius2 = bounds.radius ?? Math.min(24, width / 4, height / 4);
+    normalizeLens({ ...bounds, radius: radius2, shape: shape2 === "circle" ? "rounded-rect" : shape2 });
+    if (shape2 !== "circle") return normalizeLens({ ...bounds, radius: radius2, shape: shape2 });
+    const size = Math.min(width, height);
+    return normalizeLens({
+      ...bounds,
+      shape: shape2,
+      radius: size / 2,
+      width: size,
+      height: size,
+      x: bounds.x + (width - size) / 2,
+      y: bounds.y + (height - size) / 2
+    });
+  }
+  function roundedDistance(x2, y2, shape2) {
+    if (shape2.shape === "circle" || shape2.shape === "ellipse") {
+      const rx = shape2.width / 2, ry = shape2.height / 2;
+      const px = x2 - rx, py = y2 - ry;
+      if (rx === ry) return Math.hypot(px, py) - rx;
+      const k0 = Math.hypot(px / rx, py / ry);
+      const k1 = Math.hypot(px / (rx * rx), py / (ry * ry));
+      return k1 === 0 ? -Math.min(rx, ry) : k0 * (k0 - 1) / k1;
+    }
+    const qx = Math.abs(x2 - shape2.width / 2) - (shape2.width / 2 - shape2.radius);
+    const qy = Math.abs(y2 - shape2.height / 2) - (shape2.height / 2 - shape2.radius);
+    return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - shape2.radius;
+  }
+  var smoothstep = (t) => {
+    t = clamp(t, 0, 1);
+    return t * t * (3 - 2 * t);
+  };
+  function sampleSurface(x2, y2, shape2) {
+    const d = roundedDistance(x2, y2, shape2);
+    if (d >= 0) return { dx: 0, dy: 0, mask: 0, shine: 0, frost: 0, nx: 0, ny: 0, edge: 0 };
+    const surface = shape2.surface ?? "rim";
+    const bevel = surface === "rim" ? shape2.bevel : Math.min(shape2.width, shape2.height) / 2;
+    const u = clamp(-d / bevel, 0, 1);
+    const e = 0.05;
+    let nx = roundedDistance(x2 + e, y2, shape2) - roundedDistance(x2 - e, y2, shape2);
+    let ny = roundedDistance(x2, y2 + e, shape2) - roundedDistance(x2, y2 - e, shape2);
+    const n = Math.hypot(nx, ny);
+    if (n > 0) {
+      nx /= n;
+      ny /= n;
+    }
+    const q = 1 - u;
+    const power = shape2.curvature ?? 4;
+    const slope = (shape2.depth ?? 1) * Math.min(32, q ** (power - 1) / Math.max(1e-6, (1 - q ** power) ** ((power - 1) / power)));
+    const incidence = Math.atan(slope);
+    const transmission = Math.asin(Math.sin(incidence) / shape2.ior);
+    const sign = surface === "concave" ? -1 : 1;
+    const bend = Math.sin(incidence - transmission) * sign;
+    const mask = smoothstep(-d / 0.8);
+    const light = Math.max(0, sign * (nx * -0.6 + ny * -0.8));
+    const returnLight = Math.max(0, sign * (nx * 0.6 + ny * 0.8));
+    const interior = smoothstep(-d / shape2.bevel);
+    const frost = shape2.blurMode === "center" ? interior : shape2.blurMode === "edge" ? 1 - interior : 1;
+    const edge = mask * Math.exp(-Math.max(0, -d - 0.6) / 2);
+    return { dx: -nx * bend, dy: -ny * bend, mask, shine: edge * (0.85 * light + 0.2 * returnLight), frost, nx, ny, edge };
+  }
+  function generateMaps(input, resolution = 256) {
+    const lens = normalizeLens({ ...input, x: 0, y: 0 });
+    finite(input.bevel, "bevel");
+    finite(input.ior, "ior");
+    finite(resolution, "resolution");
+    if (input.bevel <= 0 || input.ior < 1 || input.ior > 3) throw new RangeError("Invalid optical shape");
+    const depth = input.depth ?? 1, curvature = input.curvature ?? 4;
+    finite(depth, "depth");
+    finite(curvature, "curvature");
+    if (depth < 0 || depth > 4 || curvature < 2 || curvature > 8) throw new RangeError("Invalid surface parameters");
+    if (!["rim", "dome", "concave"].includes(input.surface ?? "rim") || !["uniform", "center", "edge"].includes(input.blurMode ?? "uniform")) throw new TypeError("Invalid material profile");
+    const shape2 = {
+      ...input,
+      shape: lens.shape,
+      radius: lens.radius,
+      depth,
+      curvature,
+      bevel: Math.min(input.bevel, input.width / 2, input.height / 2)
+    };
+    const max = clamp(Math.round(resolution), 32, 512);
+    const scale = Math.min(1, max / Math.max(shape2.width, shape2.height));
+    const width = Math.max(2, Math.round(shape2.width * scale));
+    const height = Math.max(2, Math.round(shape2.height * scale));
+    const length = width * height * 4;
+    const displacement = new Uint8ClampedArray(length);
+    const mask = new Uint8ClampedArray(length);
+    const highlight = new Uint8ClampedArray(length);
+    const frost = input.blurMode && input.blurMode !== "uniform" ? new Uint8ClampedArray(length) : void 0;
+    const sign = shape2.surface === "concave" ? -1 : 1;
+    for (let y2 = 0; y2 < Math.ceil(height / 2); y2++) for (let x2 = 0; x2 < Math.ceil(width / 2); x2++) {
+      const s = sampleSurface((x2 + 0.5) * shape2.width / width, (y2 + 0.5) * shape2.height / height, shape2);
+      for (let yy = 0; yy < 2; yy++) for (let xx = 0; xx < 2; xx++) {
+        const px = xx ? width - 1 - x2 : x2, py = yy ? height - 1 - y2 : y2;
+        if (xx && px === x2 || yy && py === y2) continue;
+        const sx = xx ? -1 : 1, sy = yy ? -1 : 1, i = (py * width + px) * 4;
+        const light = sign * (s.nx * sx * -0.6 + s.ny * sy * -0.8);
+        const shine = s.edge * (0.85 * Math.max(0, light) + 0.2 * Math.max(0, -light));
+        displacement.set([128 + 127 * s.dx * sx, 128 + 127 * s.dy * sy, 128, 255], i);
+        mask.set([255, 255, 255, s.mask * 255], i);
+        highlight.set([255, 255, 255, shine * 255], i);
+        frost?.set([255, 255, 255, s.frost * 255], i);
+      }
+    }
+    return { width, height, displacement, mask, highlight, frost };
+  }
+
+  // src/svg.ts
+  var NS = "http://www.w3.org/2000/svg";
+  var XLINK = "http://www.w3.org/1999/xlink";
+  async function buildAssets(doc, shape2, resolution) {
+    const pixels = generateMaps(shape2, resolution);
+    const urls = [];
+    try {
+      const channels = [pixels.displacement, pixels.mask, pixels.highlight];
+      if (pixels.frost) channels.push(pixels.frost);
+      for (const bytes of channels) {
+        const canvas = doc.createElement("canvas");
+        canvas.width = pixels.width;
+        canvas.height = pixels.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("A 2D canvas is required to generate the lens map");
+        const image = ctx.createImageData(pixels.width, pixels.height);
+        image.data.set(bytes);
+        ctx.putImageData(image, 0, 0);
+        const blob = await new Promise((resolve, reject) => canvas.toBlob(
+          (b) => b ? resolve(b) : reject(new Error("PNG encoding failed")),
+          "image/png"
+        ));
+        const url = await new Promise((resolve, reject) => {
+          const reader = new doc.defaultView.FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error("PNG data URL encoding failed"));
+          reader.readAsDataURL(blob);
+        });
+        urls.push(url);
+        const img = doc.createElement("img");
+        img.src = url;
+        await img.decode();
+      }
+      return {
+        urls,
+        width: pixels.width,
+        height: pixels.height,
+        dispose: () => {
+          urls.length = 0;
+        }
+      };
+    } catch (error) {
+      urls.length = 0;
+      throw error;
+    }
+  }
+  function createFilter(doc, id, onImageLoad) {
+    function el(name, attrs = {}) {
+      const node = doc.createElementNS(NS, name);
+      for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+      return node;
+    }
+    const svg = el("svg", { "aria-hidden": "true", focusable: "false", width: 1, height: 1 });
+    svg.dataset.prismDefs = id;
+    svg.style.cssText = "position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none";
+    const defs = el("defs");
+    svg.append(defs);
+    const filter = el("filter", {
+      id,
+      x: 0,
+      y: 0,
+      width: 1,
+      height: 1,
+      filterUnits: "objectBoundingBox",
+      primitiveUnits: "objectBoundingBox",
+      "color-interpolation-filters": "sRGB"
+    });
+    defs.append(filter);
+    const map = el("feImage", { result: "mapRaw", preserveAspectRatio: "none" });
+    const correct = el("feColorMatrix", { in: "mapRaw", result: "map", type: "matrix" });
+    const mask = el("feImage", { result: "lensMask", preserveAspectRatio: "none" });
+    const blur = el("feGaussianBlur", { in: "SourceGraphic", stdDeviation: 0, result: "softSource" });
+    const displacement = el("feDisplacementMap", { in: "SourceGraphic", in2: "map", scale: 48, xChannelSelector: "R", yChannelSelector: "G", result: "bent" });
+    const softDisplacement = el("feDisplacementMap", { in: "softSource", in2: "map", scale: 48, xChannelSelector: "R", yChannelSelector: "G", result: "bentSoft" });
+    const frost = el("feImage", { result: "frostMask", preserveAspectRatio: "none" });
+    const frostedPart = el("feComposite", { in: "bentSoft", in2: "frostMask", operator: "in", result: "frostedPart" });
+    const clearPart = el("feComposite", { in: "bent", in2: "frostMask", operator: "out", result: "clearPart" });
+    const mixed = el("feComposite", { in: "frostedPart", in2: "clearPart", operator: "arithmetic", k1: 0, k2: 1, k3: 1, k4: 0, result: "mixed" });
+    const inside = el("feComposite", { in: "bent", in2: "lensMask", operator: "in", result: "inside" });
+    const outside = el("feComposite", { in: "SourceGraphic", in2: "lensMask", operator: "out", result: "outside" });
+    const reunite = el("feComposite", { in: "inside", in2: "outside", operator: "arithmetic", k1: 0, k2: 1, k3: 1, k4: 0, result: "reunited" });
+    const highlight = el("feImage", { result: "shine", preserveAspectRatio: "none" });
+    const light = el("feComponentTransfer", { in: "shine", result: "light" });
+    const alpha = el("feFuncA", { type: "linear", slope: 0.55 });
+    light.append(alpha);
+    const finish = el("feComposite", { in: "light", in2: "reunited", operator: "over" });
+    filter.append(map, correct, mask, displacement, inside, outside, reunite, highlight, light, finish);
+    const images = [map, mask, highlight, frost];
+    for (const node of images) node.addEventListener("load", onImageLoad);
+    let pipeline = "clear";
+    doc.body.append(svg);
+    return {
+      svg,
+      filter,
+      maps(assets) {
+        images.forEach((node, i) => {
+          const url = assets.urls[i] ?? assets.urls[1];
+          node.setAttribute("href", url);
+          node.setAttributeNS(XLINK, "xlink:href", url);
+        });
+      },
+      layout(lens, width, height, strength, softness, shine, mode = "uniform") {
+        const nextPipeline = softness === 0 ? "clear" : mode;
+        if (nextPipeline !== pipeline) {
+          pipeline = nextPipeline;
+          const nodes = [map, correct, mask, displacement];
+          if (softness > 0) {
+            nodes.push(blur, softDisplacement);
+            if (mode !== "uniform") nodes.push(frost, frostedPart, clearPart, mixed);
+          }
+          filter.replaceChildren(...nodes, inside, outside, reunite, highlight, light, finish);
+        }
+        for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, inside, outside, reunite, light, finish]) {
+          for (const [key, value] of Object.entries({ x: 0, y: 0, width: 1, height: 1 })) node.setAttribute(key, String(value));
+        }
+        for (const node of images) {
+          for (const [key, value] of Object.entries({
+            x: lens.x / width,
+            y: lens.y / height,
+            width: lens.width / width,
+            height: lens.height / height
+          })) node.setAttribute(key, String(value));
+        }
+        const unit = Math.min(width, height), sx = unit / width, sy = unit / height;
+        correct.setAttribute("values", `${255 / 254 * sx} 0 0 0 ${0.5 - 128 / 254 * sx} 0 ${255 / 254 * sy} 0 0 ${0.5 - 128 / 254 * sy} 0 0 1 0 0 0 0 0 1 0`);
+        displacement.setAttribute("scale", String(strength * 2 / unit));
+        softDisplacement.setAttribute("scale", String(strength * 2 / unit));
+        inside.setAttribute("in", softness === 0 ? "bent" : mode === "uniform" ? "bentSoft" : "mixed");
+        blur.setAttribute("stdDeviation", `${softness / width} ${softness / height}`);
+        alpha.setAttribute("slope", String(shine));
+      },
+      destroy() {
+        for (const node of images) node.removeEventListener("load", onImageLoad);
+        svg.remove();
+      }
+    };
+  }
+
+  // src/presets.ts
+  function getGlassPreset(preset, lens) {
+    const half = Math.min(lens.width, lens.height) / 2;
+    const base = {
+      lens,
+      ior: 1.5,
+      depth: 1,
+      curvature: 4,
+      surface: "rim",
+      blurMode: "uniform",
+      strength: 24,
+      bevel: Math.min(30, half),
+      blur: 0,
+      highlight: 0.4
+    };
+    switch (preset) {
+      case "button":
+        return {
+          ...base,
+          surface: "dome",
+          curvature: 2.4,
+          depth: 1.2,
+          strength: Math.min(20, half * 0.4),
+          bevel: half * 0.55,
+          blur: 0.75,
+          blurMode: "edge"
+        };
+      case "switch":
+        return {
+          ...base,
+          surface: "dome",
+          curvature: 3,
+          depth: 1.3,
+          strength: Math.min(22, half * 0.55),
+          bevel: half * 0.65,
+          blur: 1,
+          blurMode: "center",
+          highlight: 0.5
+        };
+      case "slider":
+        return {
+          ...base,
+          surface: "dome",
+          curvature: 3,
+          strength: Math.min(8, half * 0.18),
+          bevel: half * 0.4,
+          blur: 0.5,
+          blurMode: "edge"
+        };
+      case "tab":
+        return {
+          ...base,
+          strength: Math.min(12, half * 0.3),
+          bevel: half * 0.4,
+          blur: 0.5,
+          blurMode: "center",
+          highlight: 0.3
+        };
+      case "panel":
+        return {
+          ...base,
+          strength: Math.min(24, half * 0.35),
+          blur: 3,
+          blurMode: "center",
+          highlight: 0.25
+        };
+      default:
+        throw new TypeError("Unknown glass preset");
+    }
+  }
+
+  // src/index.ts
+  var owners = /* @__PURE__ */ new WeakSet();
+  var defaults = {
+    strength: 24,
+    ior: 1.5,
+    bevel: 24,
+    blur: 0,
+    highlight: 0.55,
+    surface: "rim",
+    depth: 1,
+    curvature: 4,
+    blurMode: "uniform",
+    resolution: 256,
+    maxSourcePixels: 4e6,
+    enabled: true,
+    live: false,
+    respectReducedTransparency: true,
+    refreshFilterId: "auto"
+  };
+  function normalize(options) {
+    const o = { ...defaults, ...options, lens: normalizeLens(options.lens) };
+    const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 16], depth: [0, 4], curvature: [2, 8], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [1e4, 64e6] };
+    for (const key of Object.keys(ranges)) {
+      const [min, max] = ranges[key];
+      o[key] = clamp(finite(o[key], key), min, max);
+    }
+    o.resolution = Math.round(o.resolution);
+    for (const name of ["enabled", "live", "respectReducedTransparency"]) {
+      if (typeof o[name] !== "boolean") throw new TypeError(`${name} must be boolean`);
+    }
+    if (!["auto", "always", "never"].includes(o.refreshFilterId)) throw new TypeError("Invalid refreshFilterId");
+    if (!["rim", "dome", "concave"].includes(o.surface)) throw new TypeError("Invalid surface");
+    if (!["uniform", "center", "edge"].includes(o.blurMode)) throw new TypeError("Invalid blurMode");
+    return o;
+  }
+  function createGlass(source2, options) {
+    const doc = source2.ownerDocument, win = doc.defaultView;
+    if (!win || !doc.body || !source2.isConnected) throw new Error("Mount the source in a document before creating glass");
+    if (owners.has(source2)) throw new Error("This source already has a glass controller");
+    if (win.getComputedStyle(source2).filter !== "none") throw new Error("Use a dedicated source wrapper without an existing CSS filter");
+    let config = normalize(options);
+    const initialFilter = source2.style.getPropertyValue("filter");
+    const initialPriority = source2.style.getPropertyPriority("filter");
+    const id = `prism-${Math.random().toString(36).slice(2)}`;
+    const graph = createFilter(doc, id, schedule);
+    owners.add(source2);
+    const webkit = /AppleWebKit/i.test(win.navigator.userAgent) && !/Chrome|Chromium|Edg|OPR/i.test(win.navigator.userAgent);
+    const transparency = win.matchMedia("(prefers-reduced-transparency: reduce)");
+    let dead = false, visible = true, frame2 = 0, revision = 0, generation = 0;
+    let key = "", pendingKey = "", ownedFilter = "", assets;
+    let lastWidth = 0, lastHeight = 0;
+    let diagnostic = {
+      state: "loading",
+      reason: "initializing",
+      renderer: "svg-source",
+      mapBuilds: 0,
+      renders: 0,
+      mapGenerationMs: 0,
+      sourcePixels: 0,
+      mapSize: [0, 0],
+      visualSupportVerified: false
+    };
+    const snapshot = () => ({ ...diagnostic, mapSize: [...diagnostic.mapSize] });
+    function status(state, reason) {
+      const changed = state !== diagnostic.state || reason !== diagnostic.reason;
+      diagnostic.state = state;
+      diagnostic.reason = reason;
+      if (changed) config.onStatus?.(snapshot());
+    }
+    function restoreFilter() {
+      if (ownedFilter && source2.style.getPropertyValue("filter") === ownedFilter) {
+        if (initialFilter) source2.style.setProperty("filter", initialFilter, initialPriority);
+        else source2.style.removeProperty("filter");
+      }
+      ownedFilter = "";
+    }
+    function schedule() {
+      if (!dead && !frame2) frame2 = win.requestAnimationFrame(render);
+    }
+    function write() {
+      graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight, config.blurMode);
+      if (config.refreshFilterId === "always" || config.refreshFilterId === "auto" && webkit) {
+        graph.filter.id = `${id}-${++revision}`;
+      }
+      ownedFilter = `url("#${graph.filter.id}")`;
+      source2.style.setProperty("filter", ownedFilter);
+      ownedFilter = source2.style.getPropertyValue("filter");
+      diagnostic.renders++;
+      status("ready", "svg-source-selected");
+    }
+    function render() {
+      frame2 = 0;
+      if (dead) return;
+      if (!config.enabled || config.respectReducedTransparency && transparency.matches) {
+        restoreFilter();
+        status("disabled", config.enabled ? "reduced-transparency" : "effect-disabled");
+        return;
+      }
+      if (!source2.isConnected || !visible || doc.hidden) {
+        restoreFilter();
+        status("paused", "not-visible");
+        return;
+      }
+      lastWidth = source2.offsetWidth;
+      lastHeight = source2.offsetHeight;
+      diagnostic.sourcePixels = Math.round(lastWidth * lastHeight * win.devicePixelRatio ** 2);
+      if (!lastWidth || !lastHeight) {
+        restoreFilter();
+        status("paused", "empty-source");
+        return;
+      }
+      if (diagnostic.sourcePixels > config.maxSourcePixels) {
+        restoreFilter();
+        status("limited", "source-pixel-budget");
+        return;
+      }
+      const { width, height, radius: radius2, shape: shape2 } = config.lens;
+      const nextKey = [width, height, radius2, shape2, config.bevel, config.ior, config.resolution, config.surface, config.depth, config.curvature, config.blurMode].join(":");
+      if (key === nextKey && pendingKey && pendingKey !== nextKey) {
+        generation++;
+        pendingKey = "";
+      }
+      if (key !== nextKey) {
+        if (pendingKey !== nextKey) {
+          pendingKey = nextKey;
+          const ticket = ++generation;
+          const start = win.performance.now();
+          status("loading", "building-map");
+          void buildAssets(doc, {
+            width,
+            height,
+            radius: radius2,
+            shape: shape2,
+            bevel: config.bevel,
+            ior: config.ior,
+            surface: config.surface,
+            depth: config.depth,
+            curvature: config.curvature,
+            blurMode: config.blurMode
+          }, config.resolution).then((next) => {
+            if (dead || ticket !== generation) {
+              next.dispose();
+              return;
+            }
+            const previous = assets;
+            assets = next;
+            graph.maps(next);
+            key = nextKey;
+            pendingKey = "";
+            diagnostic.mapBuilds++;
+            diagnostic.mapGenerationMs = win.performance.now() - start;
+            diagnostic.mapSize = [next.width, next.height];
+            previous?.dispose();
+            schedule();
+          }).catch((error) => {
+            if (dead || ticket !== generation) return;
+            pendingKey = "";
+            restoreFilter();
+            status("error", error instanceof Error ? error.message : "map-generation-failed");
+          });
+        }
+        return;
+      }
+      write();
+      if (config.live) schedule();
+    }
+    const resize = new win.ResizeObserver(schedule);
+    resize.observe(source2);
+    const intersection = "IntersectionObserver" in win ? new win.IntersectionObserver((entries) => {
+      visible = entries[0]?.isIntersecting ?? true;
+      schedule();
+    }) : void 0;
+    intersection?.observe(source2);
+    transparency.addEventListener("change", schedule);
+    doc.addEventListener("visibilitychange", schedule);
+    win.addEventListener("resize", schedule);
+    schedule();
+    return {
+      update(patch) {
+        if (dead) throw new Error("Cannot update a destroyed glass controller");
+        config = normalize({ ...config, ...patch, lens: { ...config.lens, ...patch.lens } });
+        schedule();
+      },
+      refresh() {
+        if (!dead) schedule();
+      },
+      getDiagnostics: snapshot,
+      destroy() {
+        if (dead) return;
+        dead = true;
+        generation++;
+        if (frame2) win.cancelAnimationFrame(frame2);
+        resize.disconnect();
+        intersection?.disconnect();
+        transparency.removeEventListener("change", schedule);
+        doc.removeEventListener("visibilitychange", schedule);
+        win.removeEventListener("resize", schedule);
+        restoreFilter();
+        graph.destroy();
+        assets?.dispose();
+        owners.delete(source2);
+        status("destroyed", "disposed");
+      }
+    };
+  }
+
+  // demo/checks.ts
+  var nextFrame = () => new Promise((r) => requestAnimationFrame(() => r()));
+  async function waitFor(test, message) {
+    const start = performance.now();
+    while (!test()) {
+      if (performance.now() - start > 8e3) throw new Error(`Timeout: ${message}`);
+      await nextFrame();
+    }
+  }
+  async function runChecks(host, output, button) {
+    button.disabled = true;
+    output.textContent = "Running lifecycle checks\u2026";
+    const source2 = document.createElement("div");
+    source2.className = "test-fixture";
+    const child = document.createElement("button");
+    child.textContent = "Live button";
+    const counter = document.createElement("span");
+    counter.textContent = "Clicks: 0";
+    let clicks = 0;
+    child.addEventListener("click", () => {
+      clicks++;
+      counter.textContent = `Clicks: ${clicks}`;
+    });
+    source2.append(child, counter);
+    host.replaceChildren(source2);
+    source2.scrollIntoView({ block: "center" });
+    const lens = { x: 60, y: 20, width: 120, height: 80, radius: 25 };
+    let glass;
+    const lines = [];
+    const assert = (condition, message) => {
+      if (!condition) throw new Error(message);
+      lines.push(`PASS  ${message}`);
+      output.textContent = lines.join("\n");
+    };
+    const defsBefore = document.querySelectorAll("[data-prism-defs]").length;
+    try {
+      glass = createGlass(source2, { lens, respectReducedTransparency: false });
+      await waitFor(() => glass.getDiagnostics().state === "ready", "initial render");
+      assert(source2.style.filter.includes("url("), "A source filter is applied");
+      assert(source2.querySelector("button") === child, "The original DOM node is preserved");
+      assert(source2.children.length === 2, "No source subtree is cloned");
+      child.click();
+      assert(clicks === 1, "Original event handlers remain connected");
+      const builds = glass.getDiagnostics().mapBuilds;
+      for (let i = 0; i < 20; i++) glass.update({ lens: { x: i * 2 } });
+      await nextFrame();
+      await nextFrame();
+      assert(glass.getDiagnostics().mapBuilds === builds, "Position updates reuse the map");
+      glass.update({ strength: 0 });
+      await nextFrame();
+      await nextFrame();
+      assert(glass.getDiagnostics().mapBuilds === builds, "Strength updates reuse the map");
+      glass.update({ lens: { radius: 18 } });
+      await waitFor(() => glass.getDiagnostics().mapBuilds > builds && glass.getDiagnostics().state === "ready", "shape update");
+      assert(glass.getDiagnostics().mapBuilds === builds + 1, "A shape change builds one new map");
+      let rejected = false;
+      try {
+        glass.update({ lens: { width: NaN } });
+      } catch {
+        rejected = true;
+      }
+      assert(rejected && glass.getDiagnostics().state === "ready", "Invalid geometry is rejected atomically");
+      rejected = false;
+      try {
+        createGlass(source2, { lens });
+      } catch {
+        rejected = true;
+      }
+      assert(rejected, "Duplicate ownership is rejected");
+      glass.update({ enabled: false });
+      await nextFrame();
+      await nextFrame();
+      assert(source2.style.filter === "" && glass.getDiagnostics().state === "disabled", "Disable restores the source");
+      glass.update({ enabled: true });
+      await waitFor(() => glass.getDiagnostics().state === "ready", "enable");
+      assert(glass.getDiagnostics().mapBuilds === builds + 1, "Re-enable reuses decoded maps");
+      glass.update({ maxSourcePixels: 1e4 });
+      await nextFrame();
+      await nextFrame();
+      assert(glass.getDiagnostics().state === "limited" && source2.style.filter === "", "Source pixel budget suspends rendering");
+      glass.destroy();
+      glass.destroy();
+      assert(document.querySelectorAll("[data-prism-defs]").length === defsBefore && source2.style.filter === "", "Destroy is idempotent and removes owned DOM");
+      glass = createGlass(source2, { lens, respectReducedTransparency: false });
+      glass.destroy();
+      await nextFrame();
+      await nextFrame();
+      assert(document.querySelectorAll("[data-prism-defs]").length === defsBefore, "Immediate destroy leaves no filter definitions");
+      source2.style.filter = "none";
+      glass = createGlass(source2, { lens, respectReducedTransparency: false });
+      await waitFor(() => glass.getDiagnostics().state === "ready", "remount");
+      glass.destroy();
+      assert(source2.style.filter === "none", "Remount works and restores the original inline value");
+      source2.style.filter = "";
+      glass = createGlass(source2, { lens, refreshFilterId: "always", respectReducedTransparency: false });
+      await waitFor(() => glass.getDiagnostics().state === "ready", "cache mode");
+      const old = source2.style.filter;
+      glass.refresh();
+      await nextFrame();
+      await nextFrame();
+      assert(source2.style.filter !== old, "Explicit cache invalidation changes the filter ID");
+      source2.style.filter = "contrast(1.1)";
+      glass.destroy();
+      assert(source2.style.filter === "contrast(1.1)", "Cleanup preserves a later external filter edit");
+      source2.style.filter = "";
+      glass = createGlass(source2, {
+        lens: lensFor("circle", { x: 60, y: 20, width: 80, height: 80 }),
+        surface: "dome",
+        blurMode: "center",
+        blur: 2,
+        respectReducedTransparency: false
+      });
+      await waitFor(() => glass.getDiagnostics().state === "ready", "circle material");
+      assert(glass.getDiagnostics().mapSize[0] === glass.getDiagnostics().mapSize[1], "A circular material generates a square map");
+      const materialBuilds = glass.getDiagnostics().mapBuilds;
+      glass.update({ blur: 6 });
+      await nextFrame();
+      await nextFrame();
+      assert(glass.getDiagnostics().mapBuilds === materialBuilds, "Spatial frost strength reuses the material map");
+      glass.update({ blurMode: "edge" });
+      await waitFor(() => glass.getDiagnostics().mapBuilds === materialBuilds + 1 && glass.getDiagnostics().state === "ready", "frost distribution");
+      assert(glass.getDiagnostics().mapBuilds === materialBuilds + 1, "Changing frost distribution regenerates its mask");
+      lines.push(`
+${lines.length} checks passed. Visual fidelity and GPU timing require separate checks.`);
+      output.dataset.result = "passed";
+      output.textContent = lines.join("\n");
+    } catch (error) {
+      output.dataset.result = "failed";
+      output.textContent = [...lines, `FAIL  ${error instanceof Error ? error.message : String(error)}`].join("\n");
+    } finally {
+      glass?.destroy();
+      button.disabled = false;
+    }
+  }
+
+  // demo/main.ts
+  var $ = (id) => document.getElementById(id);
+  var source = $("source");
+  var stage = $("stage");
+  var lensUI = $("lens");
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)");
+  var x = 50;
+  var y = 50;
+  var pinned = false;
+  var animated = false;
+  var enabled = true;
+  var radius = 36;
+  var frame = 0;
+  var controller;
+  var shape = "rounded-rect";
+  var lensWidth = 236;
+  var lensHeight = 140;
+  function geometry() {
+    let w = Math.min(lensWidth, stage.clientWidth - 32), h = Math.min(lensHeight, stage.clientHeight - 24);
+    if (shape === "circle") w = h = Math.min(w, h);
+    return lensFor(shape, {
+      x: 12 + (stage.clientWidth - w - 24) * x / 100,
+      y: 12 + (stage.clientHeight - h - 24) * y / 100,
+      width: w,
+      height: h,
+      radius
+    });
+  }
+  function diagnostics() {
+    const d = controller.getDiagnostics();
+    $("status").textContent = d.state === "ready" ? "SVG source" : d.state;
+    $("status").title = d.reason;
+    $("builds").textContent = String(d.mapBuilds);
+    $("map-size").textContent = d.mapSize.join(" \xD7 ");
+    $("map-time").textContent = `${d.mapGenerationMs.toFixed(1)} ms`;
+    $("pixel-count").textContent = `${(d.sourcePixels / 1e6).toFixed(2)} MP`;
+  }
+  function move() {
+    const lens = geometry();
+    Object.assign(lensUI.style, { left: `${lens.x}px`, top: `${lens.y}px`, width: `${lens.width}px`, height: `${lens.height}px`, borderRadius: shape === "ellipse" ? "50%" : `${lens.radius}px` });
+    $("radius").disabled = shape !== "rounded-rect";
+    $("radius").value = String(lens.radius);
+    $("radius-value").textContent = `${lens.radius} px`;
+    controller?.update({ lens });
+    $("x").value = String(x);
+    $("y").value = String(y);
+    $("x-value").textContent = `${Math.round(x)}%`;
+    $("y-value").textContent = `${Math.round(y)}%`;
+    requestAnimationFrame(() => requestAnimationFrame(diagnostics));
+  }
+  controller = createGlass(source, {
+    lens: geometry(),
+    strength: 24,
+    bevel: 30,
+    onStatus: () => requestAnimationFrame(diagnostics)
+  });
+  move();
+  for (const key of ["strength", "bevel", "radius", "blur", "depth", "curvature", "highlight"]) {
+    $(key).addEventListener("input", () => {
+      const value = Number($(key).value);
+      $("preset").value = "custom";
+      $(`${key}-value`).textContent = `${value}${key === "depth" || key === "curvature" || key === "highlight" ? "" : " px"}`;
+      if (key === "radius") {
+        radius = value;
+        move();
+      } else controller.update({ [key]: value });
+      requestAnimationFrame(() => requestAnimationFrame(diagnostics));
+    });
+  }
+  for (const key of ["width", "height"]) $(key).addEventListener("input", () => {
+    const value = Number($(key).value);
+    if (key === "width") lensWidth = value;
+    else lensHeight = value;
+    if (shape === "circle") lensWidth = lensHeight = value;
+    for (const [name, n] of Object.entries({ width: lensWidth, height: lensHeight })) {
+      $(name).value = String(n);
+      $(`${name}-value`).textContent = `${n} px`;
+    }
+    $("preset").value = "custom";
+    move();
+  });
+  $("shape").addEventListener("change", () => {
+    shape = $("shape").value;
+    $("preset").value = "custom";
+    move();
+  });
+  $("surface").addEventListener("change", () => {
+    controller.update({ surface: $("surface").value });
+    $("preset").value = "custom";
+  });
+  $("blur-mode").addEventListener("change", () => {
+    controller.update({ blurMode: $("blur-mode").value });
+    $("preset").value = "custom";
+  });
+  function applyPreset(name) {
+    shape = name === "button" || name === "slider" ? "circle" : name === "switch" || name === "tab" ? "capsule" : "rounded-rect";
+    lensWidth = shape === "circle" ? 160 : 236;
+    lensHeight = shape === "circle" ? 160 : name === "tab" ? 100 : 140;
+    radius = 36;
+    const options = name === "custom" ? { lens: geometry(), strength: 24, bevel: 30, blur: 0, depth: 1, curvature: 4, surface: "rim", blurMode: "uniform", highlight: 0.55 } : getGlassPreset(name, geometry());
+    controller.update(options);
+    $("shape").value = shape;
+    $("surface").value = options.surface;
+    $("blur-mode").value = options.blurMode;
+    for (const [key, value] of Object.entries({ strength: options.strength, bevel: options.bevel, blur: options.blur, depth: options.depth, curvature: options.curvature, highlight: options.highlight, radius, width: lensWidth, height: lensHeight })) {
+      $(key).value = String(value);
+      $(`${key}-value`).textContent = `${Math.round(value * 100) / 100}${key === "depth" || key === "curvature" || key === "highlight" ? "" : " px"}`;
+    }
+    move();
+  }
+  $("preset").addEventListener("change", () => applyPreset($("preset").value));
+  for (const key of ["x", "y"]) $(key).addEventListener("input", () => {
+    if (key === "x") x = Number($(key).value);
+    else y = Number($(key).value);
+    move();
+  });
+  stage.addEventListener("pointermove", (event) => {
+    if (pinned || animated || event.pointerType !== "mouse") return;
+    const r = stage.getBoundingClientRect(), g = geometry();
+    x = Math.max(0, Math.min(100, (event.clientX - r.left - g.width / 2 - 12) / (r.width - g.width - 24) * 100));
+    y = Math.max(0, Math.min(100, (event.clientY - r.top - g.height / 2 - 12) / (r.height - g.height - 24) * 100));
+    move();
+  });
+  $("pin").addEventListener("click", () => {
+    pinned = !pinned;
+    $("pin").setAttribute("aria-pressed", String(pinned));
+    $("pin").textContent = pinned ? "Position pinned" : "Follow pointer";
+  });
+  $("effect").addEventListener("click", () => {
+    enabled = !enabled;
+    controller.update({ enabled });
+    $("effect").setAttribute("aria-pressed", String(enabled));
+    $("effect").textContent = enabled ? "Refraction on" : "Refraction off";
+    requestAnimationFrame(() => requestAnimationFrame(diagnostics));
+  });
+  function stopAnimation() {
+    animated = false;
+    cancelAnimationFrame(frame);
+    $("motion").setAttribute("aria-pressed", "false");
+    $("motion").textContent = "Animate lens";
+  }
+  $("motion").addEventListener("click", () => {
+    if (animated) {
+      stopAnimation();
+      return;
+    }
+    if (reduced.matches) {
+      $("motion").textContent = "Reduced motion on";
+      return;
+    }
+    animated = true;
+    $("motion").setAttribute("aria-pressed", "true");
+    $("motion").textContent = "Pause motion";
+    const start = performance.now();
+    function tick(t) {
+      if (!animated) return;
+      x = 50 + 42 * Math.sin((t - start) / 1800);
+      y = 50 + 26 * Math.cos((t - start) / 2300);
+      move();
+      frame = requestAnimationFrame(tick);
+    }
+    frame = requestAnimationFrame(tick);
+  });
+  reduced.addEventListener("change", () => {
+    if (reduced.matches) stopAnimation();
+  });
+  $("reset").addEventListener("click", () => {
+    stopAnimation();
+    x = 50;
+    y = 50;
+    radius = 36;
+    enabled = true;
+    $("preset").value = "custom";
+    applyPreset("custom");
+    controller.update({ enabled });
+    $("effect").setAttribute("aria-pressed", "true");
+    $("effect").textContent = "Refraction on";
+    move();
+  });
+  new ResizeObserver(move).observe(stage);
+  var tabSource = $("tab-source");
+  var tabShell = $("tab-shell");
+  var selected = 0;
+  function tabLens() {
+    const width = (tabSource.clientWidth - 12) / 3;
+    return { x: 6 + selected * width, y: 5, width, height: 42, radius: 11 };
+  }
+  var tabsGlass = createGlass(tabSource, { lens: tabLens(), strength: 10, bevel: 12, highlight: 0.7 });
+  function choose(index, focus = false) {
+    selected = index;
+    const g = tabLens();
+    tabsGlass.update({ lens: g });
+    tabShell.style.left = `${g.x}px`;
+    tabShell.style.width = `${g.width}px`;
+    const buttons = Array.from(document.querySelectorAll("[role=tab]"));
+    buttons.forEach((button, i) => {
+      button.setAttribute("aria-selected", String(i === index));
+      button.tabIndex = i === index ? 0 : -1;
+    });
+    if (focus) buttons[index].focus();
+    $("tab-description").textContent = `${buttons[index].textContent} selected. Source pixels remain live.`;
+  }
+  document.querySelectorAll("[role=tab]").forEach((button, index) => {
+    button.addEventListener("click", () => choose(index));
+    button.addEventListener("keydown", (event) => {
+      const to = event.key === "ArrowRight" ? (selected + 1) % 3 : event.key === "ArrowLeft" ? (selected + 2) % 3 : event.key === "Home" ? 0 : event.key === "End" ? 2 : -1;
+      if (to >= 0) {
+        event.preventDefault();
+        choose(to, true);
+      }
+    });
+  });
+  new ResizeObserver(() => choose(selected)).observe(tabSource);
+  $("run-tests").addEventListener("click", () => runChecks($("test-host"), $("test-results"), $("run-tests")));
+  var setShell = (id, lens) => {
+    Object.assign($(id).style, { left: `${lens.x}px`, top: `${lens.y}px`, width: `${lens.width}px`, height: `${lens.height}px` });
+  };
+  var buttonSource = $("button-source");
+  var buttonLens = () => lensFor("circle", { x: (buttonSource.clientWidth - 68) / 2, y: 54, width: 68, height: 68 });
+  var buttonGlass = createGlass(buttonSource, { ...getGlassPreset("button", buttonLens()), strength: 9, blur: 0.25, highlight: 0.18 });
+  var pressed = false;
+  $("glass-button").addEventListener("click", () => {
+    pressed = !pressed;
+    $("glass-button").setAttribute("aria-pressed", String(pressed));
+    $("button-value").textContent = pressed ? "Added" : "Add";
+  });
+  function buttonPressure(down) {
+    $("button-shell").style.transform = down ? "scale(.95)" : "";
+    buttonGlass.update({ strength: down ? 4 : 9 });
+  }
+  $("glass-button").addEventListener("pointerdown", () => buttonPressure(true));
+  for (const event of ["pointerup", "pointercancel", "pointerleave", "blur"]) $("glass-button").addEventListener(event, () => buttonPressure(false));
+  new ResizeObserver(() => buttonGlass.update({ lens: buttonLens() })).observe(buttonSource);
+  var switchSource = $("switch-source");
+  var switched = false;
+  var switchPosition = 0;
+  var switchFrame = 0;
+  var switchLens = () => lensFor("capsule", { x: switchSource.clientWidth - 96 + 32 * switchPosition, y: 78, width: 40, height: 34 });
+  var switchGlass = createGlass(switchSource, { ...getGlassPreset("switch", switchLens()), strength: 12, blur: 0.4, highlight: 0.18 });
+  function paintSwitch() {
+    const lens = switchLens();
+    setShell("switch-shell", lens);
+    $("switch-fill").style.opacity = String(switchPosition);
+    switchGlass.update({ lens });
+  }
+  function updateSwitch(animate = true) {
+    $("glass-switch").setAttribute("aria-checked", String(switched));
+    $("switch-value").textContent = switched ? "On" : "Off";
+    cancelAnimationFrame(switchFrame);
+    const from = switchPosition, to = switched ? 1 : 0, start = performance.now();
+    if (!animate || reduced.matches) {
+      switchPosition = to;
+      paintSwitch();
+      return;
+    }
+    const tick = (now) => {
+      const t = Math.min(1, (now - start) / 320);
+      const ease = (1 - (1 + 8 * t) * Math.exp(-8 * t)) / (1 - 9 * Math.exp(-8));
+      switchPosition = from + (to - from) * ease;
+      paintSwitch();
+      if (t < 1) switchFrame = requestAnimationFrame(tick);
+    };
+    switchFrame = requestAnimationFrame(tick);
+  }
+  var switchDrag;
+  var skipSwitchClick = false;
+  $("glass-switch").addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    cancelAnimationFrame(switchFrame);
+    switchDrag = { id: event.pointerId, x: event.clientX, from: switchPosition, moved: false };
+    $("glass-switch").setPointerCapture(event.pointerId);
+  });
+  $("glass-switch").addEventListener("pointermove", (event) => {
+    if (!switchDrag || switchDrag.id !== event.pointerId) return;
+    const delta = event.clientX - switchDrag.x;
+    if (Math.abs(delta) > 3) switchDrag.moved = true;
+    if (switchDrag.moved) {
+      switchPosition = Math.max(0, Math.min(1, switchDrag.from + delta / 32));
+      paintSwitch();
+    }
+  });
+  $("glass-switch").addEventListener("pointerup", () => {
+    if (switchDrag?.moved) {
+      switched = switchPosition > 0.5;
+      skipSwitchClick = true;
+      updateSwitch();
+    }
+    switchDrag = void 0;
+  });
+  $("glass-switch").addEventListener("pointercancel", () => {
+    switchDrag = void 0;
+    updateSwitch();
+  });
+  $("glass-switch").addEventListener("click", () => {
+    if (skipSwitchClick) {
+      skipSwitchClick = false;
+      return;
+    }
+    switched = !switched;
+    updateSwitch();
+  });
+  new ResizeObserver(() => updateSwitch(false)).observe(switchSource);
+  var sliderSource = $("slider-source");
+  var sliderValue = 50;
+  var sliderLens = () => lensFor("capsule", { x: 11 + (sliderSource.clientWidth - 60) * sliderValue / 100, y: 91, width: 38, height: 26 });
+  var sliderGlass = createGlass(sliderSource, { ...getGlassPreset("slider", sliderLens()), strength: 3.5, blur: 0.25, highlight: 0.14 });
+  function updateSlider() {
+    sliderValue = Number($("glass-slider").value);
+    $("slider-value").textContent = String(sliderValue);
+    $("slider-fill").style.width = `${sliderValue}%`;
+    const lens = sliderLens();
+    setShell("slider-shell", lens);
+    sliderGlass.update({ lens });
+  }
+  $("glass-slider").addEventListener("input", updateSlider);
+  new ResizeObserver(updateSlider).observe(sliderSource);
+})();
+</script></body></html>
