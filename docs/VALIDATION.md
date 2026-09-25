@@ -4,6 +4,11 @@ Date: 2026-09-25. Release: `0.4.0-alpha.1`.
 
 ## Contact light and materialization
 
+- **Final CI passed:** [run 36131028211](https://github.com/Meapri/prism-glass/actions/runs/36131028211), immutable code source `26bf6a3738849304b0dc1965258eb04d5d3d5420`: **30/30 unit tests**, **120/120 browser tests** across Chromium/Firefox/WebKit, and the native macOS Safari job all succeeded.
+- Native Safari **26.6.2** verified SVG refraction, media materials, adaptive appearance, materialization and held-pointer illumination (3,375 changed contact-light pixels). No physical iOS browser pass is implied.
+- The `0.4.0-alpha.1` tarball installed in a clean temporary consumer; core/React/media/CSS exports and server rendering passed. No npm registry publication was performed.
+- The final documentation-only verification commit does not change the tested library or demo code.
+
 - `npm test`: **30/30 passed**, including light locality/bounds, optically neutral presence endpoints and Reduced Motion behavior.
 - Full local Chromium/WebKit suite: **80/80 passed**. Includes the native-image Clear refraction regression. New coverage includes contact-origin tracking, scoped neighbor light, pointer cancellation, unrelated pointer IDs, quick taps, keyboard/disabled input, actual SDR pixel changes and CSS/media light consistency.
 - Materialization tests verify exit retention plus immediate input exclusion, interruption/reversal, style ownership, popover dismissal/focus return and optically neutral hidden media with cached displacement maps. Motion fixtures also run under React StrictMode.
