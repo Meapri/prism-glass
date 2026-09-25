@@ -258,7 +258,8 @@ glass.destroy();</pre></div></section>
     const frostedPart = el("feComposite", { in: "bentSoft", in2: "frostMask", operator: "in", result: "frostedPart" });
     const clearPart = el("feComposite", { in: "bent", in2: "frostMask", operator: "out", result: "clearPart" });
     const mixed = el("feComposite", { in: "frostedPart", in2: "clearPart", operator: "arithmetic", k1: 0, k2: 1, k3: 1, k4: 0, result: "mixed" });
-    const inside = el("feComposite", { in: "bent", in2: "lensMask", operator: "in", result: "inside" });
+    const saturation = el("feColorMatrix", { in: "bent", type: "saturate", values: 1, result: "vibrant" });
+    const inside = el("feComposite", { in: "vibrant", in2: "lensMask", operator: "in", result: "inside" });
     const outside = el("feComposite", { in: "SourceGraphic", in2: "lensMask", operator: "out", result: "outside" });
     const reunite = el("feComposite", { in: "inside", in2: "outside", operator: "arithmetic", k1: 0, k2: 1, k3: 1, k4: 0, result: "reunited" });
     const highlight = el("feImage", { result: "shine", preserveAspectRatio: "none" });
@@ -266,7 +267,7 @@ glass.destroy();</pre></div></section>
     const alpha = el("feFuncA", { type: "linear", slope: 0.55 });
     light.append(alpha);
     const finish = el("feComposite", { in: "light", in2: "reunited", operator: "over" });
-    filter.append(map, correct, mask, displacement, inside, outside, reunite, highlight, light, finish);
+    filter.append(map, correct, mask, displacement, saturation, inside, outside, reunite, highlight, light, finish);
     const images = [map, mask, highlight, frost];
     for (const node of images) node.addEventListener("load", onImageLoad);
     let pipeline = "clear";
@@ -281,7 +282,7 @@ glass.destroy();</pre></div></section>
           node.setAttributeNS(XLINK, "xlink:href", url);
         });
       },
-      layout(lens, width, height, strength, softness, shine, mode = "uniform") {
+      layout(lens, width, height, strength, softness, shine, mode = "uniform", vibrancy = 1) {
         const nextPipeline = softness === 0 ? "clear" : mode;
         if (nextPipeline !== pipeline) {
           pipeline = nextPipeline;
@@ -290,9 +291,9 @@ glass.destroy();</pre></div></section>
             nodes.push(blur, softDisplacement);
             if (mode !== "uniform") nodes.push(frost, frostedPart, clearPart, mixed);
           }
-          filter.replaceChildren(...nodes, inside, outside, reunite, highlight, light, finish);
+          filter.replaceChildren(...nodes, saturation, inside, outside, reunite, highlight, light, finish);
         }
-        for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, inside, outside, reunite, light, finish]) {
+        for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, saturation, inside, outside, reunite, light, finish]) {
           for (const [key, value] of Object.entries({ x: 0, y: 0, width: 1, height: 1 })) node.setAttribute(key, String(value));
         }
         for (const node of images) {
@@ -307,7 +308,8 @@ glass.destroy();</pre></div></section>
         correct.setAttribute("values", `${255 / 254 * sx} 0 0 0 ${0.5 - 128 / 254 * sx} 0 ${255 / 254 * sy} 0 0 ${0.5 - 128 / 254 * sy} 0 0 1 0 0 0 0 0 1 0`);
         displacement.setAttribute("scale", String(strength * 2 / unit));
         softDisplacement.setAttribute("scale", String(strength * 2 / unit));
-        inside.setAttribute("in", softness === 0 ? "bent" : mode === "uniform" ? "bentSoft" : "mixed");
+        saturation.setAttribute("in", softness === 0 ? "bent" : mode === "uniform" ? "bentSoft" : "mixed");
+        saturation.setAttribute("values", String(vibrancy));
         blur.setAttribute("stdDeviation", `${softness / width} ${softness / height}`);
         alpha.setAttribute("slope", String(shine));
       },
@@ -328,62 +330,22 @@ glass.destroy();</pre></div></section>
       curvature: 4,
       surface: "rim",
       blurMode: "uniform",
-      strength: 24,
-      bevel: Math.min(30, half),
-      blur: 0,
-      highlight: 0.4
+      strength: Math.min(7, half * 0.25),
+      bevel: Math.min(9, half * 0.4),
+      blur: 0.5,
+      highlight: 0.28
     };
     switch (preset) {
       case "button":
-        return {
-          ...base,
-          surface: "dome",
-          curvature: 2.4,
-          depth: 1.2,
-          strength: Math.min(20, half * 0.4),
-          bevel: half * 0.55,
-          blur: 0.75,
-          blurMode: "edge"
-        };
+        return { ...base, blur: 14, saturation: 1.65 };
       case "switch":
-        return {
-          ...base,
-          surface: "dome",
-          curvature: 3,
-          depth: 1.3,
-          strength: Math.min(22, half * 0.55),
-          bevel: half * 0.65,
-          blur: 1,
-          blurMode: "center",
-          highlight: 0.5
-        };
+        return { ...base, strength: 5, bevel: Math.min(7, half), highlight: 0.38 };
       case "slider":
-        return {
-          ...base,
-          surface: "dome",
-          curvature: 3,
-          strength: Math.min(8, half * 0.18),
-          bevel: half * 0.4,
-          blur: 0.5,
-          blurMode: "edge"
-        };
+        return { ...base, strength: 3.5, bevel: Math.min(6, half), blur: 0.4 };
       case "tab":
-        return {
-          ...base,
-          strength: Math.min(12, half * 0.3),
-          bevel: half * 0.4,
-          blur: 0.5,
-          blurMode: "center",
-          highlight: 0.3
-        };
+        return { ...base, strength: 3, bevel: Math.min(6, half), highlight: 0.2 };
       case "panel":
-        return {
-          ...base,
-          strength: Math.min(24, half * 0.35),
-          blur: 3,
-          blurMode: "center",
-          highlight: 0.25
-        };
+        return { ...base, blur: 14, saturation: 1.65 };
       default:
         throw new TypeError("Unknown glass preset");
     }
@@ -396,6 +358,7 @@ glass.destroy();</pre></div></section>
     ior: 1.5,
     bevel: 24,
     blur: 0,
+    saturation: 1,
     highlight: 0.55,
     surface: "rim",
     depth: 1,
@@ -410,7 +373,7 @@ glass.destroy();</pre></div></section>
   };
   function normalize(options) {
     const o = { ...defaults, ...options, lens: normalizeLens(options.lens) };
-    const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 16], depth: [0, 4], curvature: [2, 8], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [1e4, 64e6] };
+    const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 24], saturation: [0, 3], depth: [0, 4], curvature: [2, 8], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [1e4, 64e6] };
     for (const key of Object.keys(ranges)) {
       const [min, max] = ranges[key];
       o[key] = clamp(finite(o[key], key), min, max);
@@ -469,7 +432,7 @@ glass.destroy();</pre></div></section>
       if (!dead && !frame2) frame2 = win.requestAnimationFrame(render);
     }
     function write() {
-      graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight, config.blurMode);
+      graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight, config.blurMode, config.saturation);
       if (config.refreshFilterId === "always" || config.refreshFilterId === "auto" && webkit) {
         graph.filter.id = `${id}-${++revision}`;
       }
