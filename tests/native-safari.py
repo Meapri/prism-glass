@@ -71,6 +71,12 @@ try:
     driver.find_element(By.CSS_SELECTOR, '[aria-label="Volume"]').send_keys(Keys.ARROW_RIGHT)
     assert driver.find_element(By.ID, 'volume-value').text == '51%'
     print('Native Safari media materials and React controls passed.', flush=True)
+    driver.find_element(By.CSS_SELECTOR, 'a[href="#materials"]').click()
+    Select(driver.find_element(By.CSS_SELECTOR, '[aria-label="Preset backdrop"]')).select_by_value('dark')
+    wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '[data-testid="preset-glass"]').get_attribute('data-appearance') == 'dark')
+    Select(driver.find_element(By.CSS_SELECTOR, '[aria-label="Preset backdrop"]')).select_by_value('light')
+    wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '[data-testid="preset-glass"]').get_attribute('data-appearance') == 'light')
+    print('Native Safari adaptive preset dark/light transition passed.', flush=True)
 except Exception:
     if driver:
         Path('test-results').mkdir(exist_ok=True)

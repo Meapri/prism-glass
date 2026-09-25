@@ -1,6 +1,7 @@
 import { forwardRef, useId, useRef, type ButtonHTMLAttributes, type HTMLAttributes } from 'react';
 import type { LensShape } from '../optics.js';
 import { assignRef, classes, materialStyle, GlassContext, useComponentLens, useTheme, type MaterialProps } from './context.js';
+import { getGlassSurfaceProfile } from '../surface-presets.js';
 import { lensFor } from '../optics.js';
 
 export interface GlassSurfaceProps extends HTMLAttributes<HTMLDivElement>, MaterialProps {
@@ -10,13 +11,15 @@ export interface GlassSurfaceProps extends HTMLAttributes<HTMLDivElement>, Mater
   local?: boolean;
 }
 export const GlassSurface = forwardRef<HTMLDivElement, GlassSurfaceProps>(function GlassSurface(
-  { children, refractionTarget, optics, variant, appearance, tintLevel, shape = 'rounded-rect', radius = 28, local = false, className, style, ...props }, ref) {
+  { children, refractionTarget, optics, variant, appearance, tintLevel, preset, backdrop, shape:givenShape, radius:givenRadius, local = false, className, style, ...props }, ref) {
   const root = useRef<HTMLDivElement | null>(null), source = useRef<HTMLDivElement | null>(null);
-  const theme = useTheme({ variant, appearance, tintLevel }), id = useId();
-  const renderer = useComponentLens(root, source, { id, ...theme, shape, radius, local, optics, enabled: refractionTarget != null });
+  const shape=givenShape??(preset?getGlassSurfaceProfile(preset).shape:'rounded-rect');
+  const radius=givenRadius??(preset?getGlassSurfaceProfile(preset).radius:28);
+  const theme = useTheme({ variant:variant??(preset?getGlassSurfaceProfile(preset).variant:undefined), appearance, tintLevel }), id = useId();
+  const renderer = useComponentLens(root, source, { id, ...theme, preset, backdrop, shape, radius:givenRadius??(preset?undefined:radius), local, optics, enabled: refractionTarget != null });
   return <div {...props} ref={node => { root.current = node; assignRef(ref, node); }}
     className={classes('prism-material', 'prism-surface', className)} data-variant={theme.variant} data-appearance={theme.appearance}
-    data-prism-renderer={renderer} data-shape={shape} style={{ ...materialStyle(theme), borderRadius: shape === 'circle' || shape === 'ellipse' ? '50%' : shape === 'capsule' ? 999 : radius, ...style }}>
+    data-prism-renderer={renderer} data-preset={preset} data-shape={shape} style={{ ...materialStyle(theme), borderRadius: shape === 'circle' || shape === 'ellipse' ? '50%' : shape === 'capsule' ? 999 : radius, ...style }}>
     {refractionTarget != null && renderer === 'svg-source' ? <div className="prism-source-mask"><div className="prism-source" ref={node => { source.current = node; if (node) node.inert = true; }} aria-hidden="true"><div className="prism-artwork">{refractionTarget}</div></div></div> : null}
     <span className="prism-lens" aria-hidden="true" />
     <div className="prism-content"><GlassContext.Provider value={{ ...theme, nested: true }}>{children}</GlassContext.Provider></div>
@@ -27,10 +30,11 @@ export interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement
   shape?: 'capsule' | 'rounded-rect' | 'circle';
 }
 export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(function GlassButton(
-  { children, refractionTarget, optics, variant, appearance, tintLevel, shape = 'capsule', className, style, type = 'button', ...props }, ref) {
+  { children, refractionTarget, optics, variant, appearance, tintLevel, preset, backdrop, shape:givenShape, className, style, type = 'button', ...props }, ref) {
   const root = useRef<HTMLButtonElement | null>(null), source = useRef<HTMLSpanElement | null>(null);
-  const theme = useTheme({ variant, appearance, tintLevel }), id = useId();
-  const renderer = useComponentLens(root, source, { id, ...theme, shape, radius: 12, optics, enabled: refractionTarget != null, pressScale: -0.025,
+  const shape=givenShape??(preset&&getGlassSurfaceProfile(preset).shape==='circle'?'circle':'capsule');
+  const theme = useTheme({ variant:variant??(preset?getGlassSurfaceProfile(preset).variant:undefined), appearance, tintLevel }), id = useId();
+  const renderer = useComponentLens(root, source, { id, ...theme, preset, backdrop, shape, radius: 12, optics, enabled: refractionTarget != null, pressScale: -0.025,
     geometry: (width, height) => {
       const configured = getComputedStyle(root.current!).getPropertyValue('--prism-control-height').trim();
       const h = Math.min(height, configured.endsWith('%') ? height * parseFloat(configured) / 100 : parseFloat(configured) || height);
@@ -38,7 +42,7 @@ export const GlassButton = forwardRef<HTMLButtonElement, GlassButtonProps>(funct
       return lensFor(shape, { x: (width - w) / 2, y: (height - h) / 2, width: w, height: h, radius: 12 });
     } });
   return <button {...props} type={type} ref={node => { root.current = node; assignRef(ref, node); }}
-    className={classes('prism-material', 'prism-button', className)} data-shape={shape} data-prism-control
+    className={classes('prism-material', 'prism-button', className)} data-shape={shape} data-preset={preset} data-prism-control
     data-variant={theme.variant} data-appearance={theme.appearance} data-prism-renderer={renderer} style={{ ...materialStyle(theme), ...style }}>
     {refractionTarget != null && renderer === 'svg-source' ? <span className="prism-source-mask"><span className="prism-source" ref={node => { source.current = node; if (node) node.inert = true; }} aria-hidden="true"><span className="prism-artwork">{refractionTarget}</span></span></span> : null}
     <span className="prism-lens" aria-hidden="true" /><span className="prism-content">{children}</span>

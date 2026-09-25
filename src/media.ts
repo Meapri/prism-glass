@@ -2,6 +2,10 @@ import { clamp, finite, generateMaps, normalizeLens } from './optics.js';
 import { getGlassMaterial, observeGlassPreferences, type GlassPreferences } from './materials.js';
 import { vertexShader, fragmentShader } from './media-shaders.js';
 import { createMediaBlur } from './media-blur.js';
+import { createBackdropSampler } from './backdrop.js';
+import { adaptGlassMaterial, blendGlassMaterial, updateGlassAdaptation, type GlassAdaptiveState, type GlassBackdropSample } from './adaptive.js';
+import { resolveGlassSurface } from './surface-presets.js';
+import type { GlassMaterial } from './materials.js';
 import type { GlassMediaSource, MediaGlassOptions, MediaGlassDiagnostics, MediaGlassController, MediaLens } from './media-types.js';
 export type * from './media-types.js';
 
@@ -10,10 +14,14 @@ type NormalLens = ReturnType<typeof normalizeMediaLens>;
 function normalizeMediaLens(input: MediaLens) {
   if (!input.id || typeof input.id !== 'string') throw new TypeError('Every media lens needs an id');
   const lens = normalizeLens(input.lens);
-  const material = getGlassMaterial(input.variant, input.appearance, input.tintLevel);
-  const options = { ...input, lens, material, strength: input.strength ?? Math.min(7, Math.min(lens.width, lens.height) * 0.08),
-    bevel: input.bevel ?? Math.min(9, Math.min(lens.width, lens.height) * 0.18), ior: input.ior ?? 1.5,
-    surface: input.surface ?? 'rim', depth: input.depth ?? 1, curvature: input.curvature ?? 4,
+  if(input.appearance&&!['auto','adaptive','light','dark'].includes(input.appearance))throw new TypeError('Invalid appearance mode');
+  const appearance=input.appearance==='auto'||input.appearance==='adaptive'?input.fallbackAppearance??'light':input.appearance;
+  const resolved=input.preset?resolveGlassSurface(input.preset,lens,{variant:input.variant,appearance,tintLevel:input.tintLevel}):undefined;
+  const material = resolved?.material??getGlassMaterial(input.variant, appearance, input.tintLevel);
+  const preset=resolved?.optics;
+  const options = { ...input, lens, material, strength: input.strength ?? preset?.strength ?? Math.min(7, Math.min(lens.width, lens.height) * 0.08),
+    bevel: input.bevel ?? preset?.bevel ?? Math.min(9, Math.min(lens.width, lens.height) * 0.18), ior: input.ior ?? 1.5,
+    surface: input.surface ?? preset?.surface ?? 'rim', depth: input.depth ?? preset?.depth ?? 1, curvature: input.curvature ?? preset?.curvature ?? 4,
     blurMode: input.blurMode ?? 'uniform', blur: input.blur ?? material.blur, saturation: input.saturation ?? material.saturation,
     highlight: input.highlight ?? material.highlight, chroma: input.chroma ?? material.chroma,
     dimming: input.dimming ?? material.dimming, press: input.press ?? 0, hover: input.hover ?? 0,
@@ -68,6 +76,9 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   let dead = false, lost = false, failed = false, visible = true, dirty = true, frame = 0, videoFrame = 0;
   let program: WebGLProgram | undefined, buffer: WebGLBuffer | undefined, mediaTexture: WebGLTexture | undefined;
   let diffusion: ReturnType<typeof createMediaBlur> | undefined;
+  let sampler:ReturnType<typeof createBackdropSampler>|undefined, adaptiveTimer=0;
+  const appearanceNotifications=new Map<string,{key:string;callback:MediaLens['onAppearance']}>();
+  const adaptations=new Map<string,{state?:GlassAdaptiveState;sample:GlassBackdropSample|null;sampled:number;geometry?:string;painted?:GlassMaterial;paintAt:number}>();
   const uniforms = new Map<string, WebGLUniformLocation | null>();
   const maps = new Map<string, { map: WebGLTexture; finish: WebGLTexture }>();
   let preferences: GlassPreferences = { reducedMotion: false, reducedTransparency: false, increasedContrast: false, forcedColors: false, dark: false };
@@ -151,7 +162,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   }
   function cancelVideo() { if (videoFrame && video) video.cancelVideoFrameCallback(videoFrame); videoFrame = 0; }
   function schedule() { if (!dead && !frame) frame = win!.requestAnimationFrame(render); }
-  function refresh() { if (!dead) { dirty = true; failed = false; schedule(); } }
+  function refresh() { if (!dead) { for(const entry of adaptations.values())entry.sampled=-Infinity; dirty = true; failed = false; schedule(); } }
   function trackFrames() {
     if (dead || lost || failed || !visible || doc.hidden || !config.enabled || diagnostic.state !== 'ready' || !lenses.length) return;
     if (video && !video.paused && !video.ended) {
@@ -204,16 +215,60 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       const sourceRect: [number, number, number, number] = [(width - displayWidth) * config.position[0], (height - displayHeight) * config.position[1], displayWidth, displayHeight];
       gl.uniform4f(uniform('sourceRect'), ...sourceRect);
       diffusion?.begin();
+      const now=win!.performance.now();let sampling=false,needsFollowup=false;
+      const adaptiveIds=new Set(lenses.filter(item=>item.appearance==='adaptive'&&item.material.variant==='regular').map(item=>item.id));
+      for(const id of adaptations.keys())if(!adaptiveIds.has(id))adaptations.delete(id);
+      if(!adaptiveIds.size&&sampler){sampler.destroy();sampler=undefined;}
+      for(const id of appearanceNotifications.keys())if(!lenses.some(item=>item.id===id))appearanceNotifications.delete(id);
+      function notifyAppearance(item:NormalLens,material:GlassMaterial,elevation:number,available:boolean,separation=1) {
+        if(!item.onAppearance)return;
+        const key=[material.variant,material.appearance,...material.tint.map(v=>v.toFixed(3)),material.blur.toFixed(1),material.saturation.toFixed(3),material.brightness,elevation,available,separation.toFixed(3)].join(':');
+        const previous=appearanceNotifications.get(item.id);
+        if(previous?.key===key&&previous.callback===item.onAppearance)return;
+        appearanceNotifications.set(item.id,{key,callback:item.onAppearance});
+        item.onAppearance({appearance:material.appearance,material,elevation,available,separation});
+      }
+      function appearanceFor(item:NormalLens) {
+        const fallback=item.fallbackAppearance??(preferences.dark?'dark':'light');
+        const profile=item.preset?resolveGlassSurface(item.preset,item.lens,{variant:item.variant,appearance:fallback,tintLevel:item.tintLevel}):undefined;
+        const elevation=profile?.elevation??1;
+        if(!adaptiveIds.has(item.id)) {
+          const material=item.appearance==='auto'?profile?.material??getGlassMaterial(item.variant,fallback,item.tintLevel):item.material;
+          notifyAppearance(item,material,elevation,false);
+          return material;
+        }
+        let entry=adaptations.get(item.id);
+        if(!entry){entry={sample:null,sampled:-Infinity,paintAt:now};adaptations.set(item.id,entry);}
+        const geometry=[item.lens.x,item.lens.y,item.lens.width,item.lens.height,...sourceRect].join(':');
+        if(now-entry.sampled>=120||entry.geometry!==geometry){
+          sampler??=createBackdropSampler(doc);if(!sampling){sampler.begin();sampling=true;}
+          entry.sample=sampler.media(source,item.lens,sourceRect,config.backgroundColor);entry.sampled=now;entry.geometry=geometry;
+        }
+        entry.state=updateGlassAdaptation(entry.state,entry.sample,now,fallback,profile?.adaptation??'flip');
+        const adaptedProfile=item.preset?resolveGlassSurface(item.preset,item.lens,{variant:item.variant,appearance:entry.state.appearance,tintLevel:item.tintLevel}):undefined;
+        const base=adaptedProfile?.material??getGlassMaterial(item.variant,entry.state.appearance,item.tintLevel);
+        const target=adaptGlassMaterial(base,entry.state);
+        const painted=entry.painted?blendGlassMaterial(entry.painted,target,1-Math.exp(-Math.max(0,now-entry.paintAt)/100)):target;
+        const difference=Math.max(...painted.tint.map((v,i)=>Math.abs(v-target.tint[i])),Math.abs(painted.saturation-target.saturation));
+        needsFollowup ||= difference>.001||entry.state.candidate!==entry.state.appearance||Math.abs(entry.state.luminance-(entry.sample?.luminance??.5))>.002;
+        entry.painted=painted;entry.paintAt=now;
+        notifyAppearance(item,target,elevation,entry.state.available,1+Math.sqrt(entry.state.variance)*1.5+(1-entry.state.luminance)*.2);
+        return painted;
+      }
       const active = new Set<string>();
-      for (const item of lenses) {
+      for (const [index,item] of lenses.entries()) {
+        const material=appearanceFor(item);
+        // User optical overrides remain authoritative; otherwise diffusion follows the adaptive material.
+        const opticalBlur=inputs[index].blur??Math.round(material.blur*2)/2;
+        const opticalSaturation=inputs[index].saturation??material.saturation;
         const key = mapKey(item); active.add(key);
         // Creating map textures can change the active texture binding. Rebind all
         // three units before each draw, including the one shared media texture.
         const entry = opticalMap(item, key);
         let diffuseTexture: WebGLTexture | undefined;
-        if (item.blur > 2) {
+        if (opticalBlur > 2) {
           if (!diffusion) diffusion = createMediaBlur(gl);
-          diffuseTexture = diffusion.get(mediaTexture!, [width, height], sourceRect, config.backgroundColor, item.blur, diagnostic.textureUploads);
+          diffuseTexture = diffusion.get(mediaTexture!, [width, height], sourceRect, config.backgroundColor, opticalBlur, diagnostic.textureUploads);
         }
         gl.useProgram(program!); gl.viewport(0, 0, w, h); gl.bindBuffer(gl.ARRAY_BUFFER, buffer!);
         gl.enableVertexAttribArray(attribute); gl.vertexAttribPointer(attribute, 2, gl.FLOAT, false, 0, 0);
@@ -222,20 +277,22 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, mediaTexture!);
         gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, entry.map);
         gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, entry.finish);
-        const l = item.lens, material = item.material;
+        const l = item.lens;
         gl.uniform4f(uniform('rect'), l.x, l.y, l.width, l.height);
         gl.uniform1f(uniform('radius'), l.radius);
         gl.uniform1f(uniform('ellipse'), l.shape === 'circle' || l.shape === 'ellipse' ? 1 : 0);
         gl.uniform1f(uniform('surfaceSign'), item.surface === 'concave' ? -1 : 1);
         gl.uniform4f(uniform('tint'), ...material.tint);
         gl.uniform1f(uniform('brightness'), material.brightness);
-        for (const name of ['strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'hover'] as const) gl.uniform1f(uniform(name), item[name]);
+        gl.uniform1f(uniform('blur'), opticalBlur); gl.uniform1f(uniform('saturation'), opticalSaturation);
+        for (const name of ['strength', 'chroma', 'dimming', 'highlight', 'hover'] as const) gl.uniform1f(uniform(name), item[name]);
         gl.uniform1f(uniform('press'), config.respectPreferences && preferences.reducedMotion ? 0 : item.press);
         gl.uniform2f(uniform('pointer'), ...item.pointer);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
       diffusion?.end();
       for (const [key, entry] of maps) if (!active.has(key)) { gl.deleteTexture(entry.map); gl.deleteTexture(entry.finish); maps.delete(key); }
+      if(needsFollowup&&!adaptiveTimer)adaptiveTimer=win!.setTimeout(()=>{adaptiveTimer=0;schedule();},32);
       diagnostic.renders++; status('ready', ratio < config.pixelRatio ? 'pixel-budget-downsampled' : 'webgl-media-selected'); trackFrames();
     } catch (error) {
       failed = true; cancelVideo(); clear();
@@ -280,7 +337,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
     update(patch) { if (dead) throw new Error('Cannot update a destroyed media controller'); config = normalizeOptions({ ...config, ...patch }, win.devicePixelRatio); schedule(); },
     refresh, getDiagnostics: snapshot,
     destroy() {
-      if (dead) return; dead = true; if (frame) win.cancelAnimationFrame(frame); cancelVideo();
+      if (dead) return; dead = true; if(adaptiveTimer)win.clearTimeout(adaptiveTimer);sampler?.destroy();adaptations.clear();appearanceNotifications.clear(); if (frame) win.cancelAnimationFrame(frame); cancelVideo();
       resize.disconnect(); intersection.disconnect(); unsubscribe(); doc.removeEventListener('visibilitychange', visibility);
       for (const event of events) source.removeEventListener(event, refresh); source.removeEventListener('error', onError);
       canvas.removeEventListener('webglcontextlost', onLost); canvas.removeEventListener('webglcontextrestored', onRestored);

@@ -1,6 +1,6 @@
 # Prism Glass
 
-An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.2.0-alpha.2`; the package name is provisional and has not been published to npm.
+An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.3.0-alpha.1`; the package name is provisional and has not been published to npm.
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
 
@@ -34,13 +34,24 @@ npm run build
 npm pack
 ```
 
-This creates `meapri-prism-glass-0.2.0-alpha.2.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
+This creates `meapri-prism-glass-0.3.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
 
 ```sh
-npm install ./meapri-prism-glass-0.2.0-alpha.2.tgz
+npm install ./meapri-prism-glass-0.3.0-alpha.1.tgz
 ```
 
 The package is not published to the npm registry. Install the local tarball until a registry release is announced.
+
+## Purpose-specific glass surfaces
+
+Twelve [surface presets and adaptive appearance](docs/MATERIAL_PRESETS.md) cover navigation, toolbars, tab bars, search, buttons, floating actions, selection, menus, popovers, sidebars, sheets and media overlays. Presets resolve geometry, curvature, depth, refraction, diffusion and elevation together.
+
+```tsx
+<GlassSurface preset="navigation" appearance="adaptive">…</GlassSurface>
+<GlassSurface preset="sidebar" appearance="adaptive">…</GlassSurface>
+```
+
+`adaptive` reads the content behind a surface; `auto` follows the OS. Compact Regular glass can switch light/dark, larger reading surfaces retain their appearance while tint/shadow adapt, and Clear remains static. CSS colors/simple gradients and readable media pixels are supported. Unknown compositor effects fall back explicitly or accept a caller-provided sample. See the linked API contract and provenance.
 
 ## React component library
 

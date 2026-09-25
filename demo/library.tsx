@@ -1,3 +1,4 @@
+import { MaterialsLab } from './materials-lab.js';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GlassProvider, GlassButton, GlassSwitch, GlassSlider, GlassTabs, GlassToolbar, GlassPopover, GlassSurface, GlassMediaScene } from '../src/react.js';
@@ -66,9 +67,10 @@ function Library() {
   const [count, setCount] = useState(0), [enabled, setEnabled] = useState(true), [volume, setVolume] = useState(50);
   const [dark, setDark] = useState(false), [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
   return <GlassProvider appearance={dark ? 'dark' : 'light'}><div className="library" data-theme={dark ? 'dark' : 'light'}>
-    <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#components">Components</a><a href="./optics.html">Optics</a><a href="#api">API</a></nav></header>
+    <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#materials">Materials</a><a href="./optics.html">Optics</a><a href="#api">API</a></nav></header>
     <main><section className="library-intro"><h1>A material. A family of controls.</h1><p>Familiar controls. A lighter touch.<br />{' '}Calibrated against native iOS 27 materials.</p></section>
       <MediaExample />
+      <MaterialsLab />
       <section id="components" className="component-library"><div className="section-title"><h2>Made for interaction.</h2><p>One material system. Familiar, accessible controls.</p></div>
         <div className="component-row">
           <article className="component-example"><h3>Button</h3><div className="example-stage"><GlassButton onClick={() => setCount(value => value + 1)}>Add item <span aria-hidden="true">＋</span></GlassButton></div><p role="status" id="item-count">{count ? `${count} ${count === 1 ? 'item' : 'items'} added` : 'A little light with every press.'}</p></article>

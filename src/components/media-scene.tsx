@@ -5,10 +5,12 @@ import { classes, GlassContext, MediaContext, useTheme, type MaterialProps } fro
 
 export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance' | 'tintLevel'> {
   source: RefObject<GlassMediaSource | null>;
+  /** Increment after repainting a static canvas source. */
+  sourceVersion?: string | number;
   media?: Omit<MediaGlassOptions, 'lenses'>;
 }
 /** Place the source media and ordinary GlassButton/GlassSurface children in one scene. */
-export function GlassMediaScene({ source, media, variant = 'clear', appearance, tintLevel, children, className, style, ...props }: GlassMediaSceneProps) {
+export function GlassMediaScene({ source, sourceVersion, media, variant = 'clear', appearance, tintLevel, children, className, style, ...props }: GlassMediaSceneProps) {
   const root = useRef<HTMLDivElement | null>(null), canvas = useRef<HTMLCanvasElement | null>(null), controller = useRef<MediaGlassController | null>(null);
   const latest = useRef(media); latest.current = media;
   const theme = useTheme({ variant, appearance, tintLevel });
@@ -43,6 +45,7 @@ export function GlassMediaScene({ source, media, variant = 'clear', appearance, 
       instance.destroy(); controller.current = null;
     };
   }, [source, context]);
+  useEffect(() => { controller.current?.refresh(); }, [sourceVersion]);
   useEffect(() => { if (media) controller.current?.update({ ...media, onStatus: diagnostics => {
     if (root.current) root.current.dataset.prismState = diagnostics.state; latest.current?.onStatus?.(diagnostics);
   } }); }, [media]);

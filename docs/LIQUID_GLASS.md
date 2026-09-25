@@ -17,7 +17,7 @@ The rendering split follows [Aave's public article](https://aave.com/design/buil
 | Semantics remain native | Buttons, range inputs, switch state, roving tabs, labeled panels and nonmodal popovers |
 | Work scales with the actual source | Small SVG sources; bounded maps and output DPR; one uploaded media frame shared by every lens |
 
-Use `GlassProvider` to choose a consistent variant and light/dark appearance. `appearance="auto"` follows the user's color-scheme preference. This does not read arbitrary DOM pixels to classify their brightness. Regular materials use a contrast-preserving fill; the application owns tone selection when its content requires a different choice. Media `clear` defaults to 0.35 local dimming, configurable for content that is already dark.
+Use `GlassProvider` to choose a consistent variant and light/dark appearance. `appearance="auto"` follows the user's color-scheme preference. `appearance="adaptive"` adds bounded backdrop sampling; see [surface presets and sampling limits](MATERIAL_PRESETS.md). It does not rasterize arbitrary DOM pixels. Regular materials use a contrast-preserving fill; the application owns tone selection when its content requires a different choice. Media `clear` defaults to 0.35 local dimming, configurable for content that is already dark.
 
 ## Three explicit rendering modes
 
@@ -33,4 +33,4 @@ Native iOS 27 SwiftUI captures are the visual target. The media example now uses
 
 `tintLevel` on the provider or an individual material adjusts regular fill and diffusion from 0 to 1. It is an application preference, not access to an operating system setting. Idle switches/sliders have white capsule thumbs; optical effects activate during a press. Visual control bounds remain inside 44px interaction targets.
 
-Implemented optical effects include shape-aware refraction, directional rim light, blur/frost, media chromatic fringe and touch lighting. The implementation does not claim Apple's private material physics, automatic DOM luminance analysis, arbitrary glass merging, spring morphing between unrelated silhouettes, video DRM capture, or a fixed frame-rate guarantee. Performance and physical iOS behavior must be assessed on the devices and content used by the application.
+Implemented optical effects include shape-aware refraction, directional rim light, blur/frost, media chromatic fringe and touch lighting. The implementation does not claim Apple's private material physics, unrestricted DOM compositor access, arbitrary glass merging, spring morphing between unrelated silhouettes, video DRM capture, or a fixed frame-rate guarantee. Performance and physical iOS behavior must be assessed on the devices and content used by the application.

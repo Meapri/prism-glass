@@ -1,6 +1,6 @@
 {
   "name": "@meapri/prism-glass",
-  "version": "0.2.0-alpha.2",
+  "version": "0.3.0-alpha.1",
   "description": "Source-first liquid glass for DOM and media, with a TypeScript core and accessible React controls.",
   "type": "module",
   "license": "MIT",

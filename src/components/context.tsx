@@ -4,22 +4,29 @@ import { lensFor, type Lens, type LensShape } from '../optics.js';
 import { getGlassMaterial, materialOptics, observeGlassPreferences, type GlassAppearance, type GlassVariant } from '../materials.js';
 import { bindGlassInteraction, stepSpring, type GlassInteraction } from '../motion.js';
 import type { GlassController, GlassOptions } from '../types.js';
+import { observeGlassBackdrop, type GlassBackdropReader } from '../backdrop.js';
+import { adaptGlassMaterial, updateGlassAdaptation, type GlassAdaptiveState, type GlassAppearanceMode } from '../adaptive.js';
+import { resolveGlassSurface, type GlassSurfacePreset } from '../surface-presets.js';
+import type { GlassMaterial } from '../materials.js';
 import type { MediaLens } from '../media-types.js';
 
-export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; tintLevel: number; nested: boolean }
-export const GlassContext = createContext<GlassTheme>({ variant: 'regular', appearance: 'light', tintLevel: 0.5, nested: false });
-export interface GlassProviderProps { children: ReactNode; variant?: GlassVariant; appearance?: GlassAppearance | 'auto'; tintLevel?: number }
+export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; tintLevel: number; nested: boolean; adaptive: boolean; provided?:boolean }
+export const GlassContext = createContext<GlassTheme>({ variant: 'regular', appearance: 'light', tintLevel: 0.5, nested: false, adaptive: false });
+export interface GlassProviderProps { children: ReactNode; variant?: GlassVariant; appearance?: GlassAppearanceMode; tintLevel?: number }
 export function GlassProvider({ children, variant = 'regular', appearance = 'auto', tintLevel = 0.5 }: GlassProviderProps) {
   const [dark, setDark] = useState(false);
   useEffect(() => {
-    if (appearance !== 'auto') return;
+    if (appearance !== 'auto' && appearance !== 'adaptive') return;
     return observeGlassPreferences(window, preferences => setDark(preferences.dark));
   }, [appearance]);
-  return <GlassContext.Provider value={{ variant, appearance: appearance === 'auto' ? dark ? 'dark' : 'light' : appearance, tintLevel, nested: false }}>{children}</GlassContext.Provider>;
+  return <GlassContext.Provider value={{ variant, appearance: appearance === 'auto' || appearance === 'adaptive' ? dark ? 'dark' : 'light' : appearance, adaptive: appearance === 'adaptive', provided:true, tintLevel, nested: false }}>{children}</GlassContext.Provider>;
 }
 export interface MaterialProps {
   variant?: GlassVariant;
-  appearance?: GlassAppearance;
+  appearance?: GlassAppearanceMode;
+  preset?: GlassSurfacePreset;
+  /** Explicit backdrop source or read-only sample callback for unsupported compositing. */
+  backdrop?: Element | GlassBackdropReader;
   tintLevel?: number;
   /** Explicit, decorative source pixels. With no source, the surface uses CSS material. */
   refractionTarget?: ReactNode;
@@ -41,10 +48,14 @@ export function useControllable<T>(controlled: T | undefined, initial: T, notify
 }
 export function useTheme(props: MaterialProps) {
   const inherited = useContext(GlassContext);
-  return { ...inherited, variant: props.variant ?? inherited.variant, appearance: props.appearance ?? inherited.appearance, tintLevel: props.tintLevel ?? inherited.tintLevel };
+  const [systemDark,setSystemDark]=useState(false);
+  useEffect(()=>{if(props.appearance!=='auto'&&props.appearance!=='adaptive')return;return observeGlassPreferences(window,p=>setSystemDark(p.dark));},[props.appearance]);
+  const mode=props.appearance;
+  return { ...inherited, variant: props.variant ?? inherited.variant,
+    appearance: mode==='adaptive'&&inherited.provided?inherited.appearance:mode==='adaptive'||mode==='auto' ? systemDark?'dark' as const:'light' as const : mode??inherited.appearance,
+    adaptive: mode==null?inherited.adaptive:mode==='adaptive', tintLevel: props.tintLevel ?? inherited.tintLevel };
 }
-export function materialStyle(theme: GlassTheme): CSSProperties {
-  const material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel);
+export function materialStyle(theme: GlassTheme, material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel)): CSSProperties {
   const [r, g, b, a] = material.tint;
   const clearAlpha = 1 - (1 - material.dimming) * (1 - a);
   const clearReflection = a * 255 / Math.max(clearAlpha, 0.001);
@@ -57,6 +68,9 @@ export interface LensSpec {
   variant: GlassVariant;
   appearance: GlassAppearance;
   tintLevel?: number;
+  adaptive?: boolean;
+  preset?: GlassSurfacePreset;
+  backdrop?: Element | GlassBackdropReader;
   shape?: LensShape;
   radius?: number;
   optics?: MaterialProps['optics'];
@@ -78,6 +92,7 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
   useEffect(() => {
     const element = root.current, target = source.current, win = element?.ownerDocument.defaultView;
     if (!element || !win) return;
+    let adaptiveState: GlassAdaptiveState | undefined;
     let controller: GlassController | undefined, frame = 0, time = 0, reducedMotion = false;
     let current: Lens | undefined, painted: Lens | undefined, destination: Lens | undefined;
     let velocity = { x: 0, y: 0 };
@@ -85,8 +100,18 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     const geometry = () => {
       const next = latest.current, width = element.clientWidth, height = element.clientHeight;
       if (!width || !height) return;
-      return next.geometry?.(width, height) ?? lensFor(next.shape ?? 'rounded-rect', { x: 0, y: 0, width, height, radius: next.radius ?? 16 });
+      return next.geometry?.(width, height) ?? (next.preset ? resolveGlassSurface(next.preset,{width,height,shape:next.shape,radius:next.radius}).lens : undefined) ?? lensFor(next.shape ?? 'rounded-rect', { x: 0, y: 0, width, height, radius: next.radius ?? 16 });
     };
+    function paintMaterial(material: GlassMaterial, elevation=1, available=false, separationOverride?:number) {
+      const next=latest.current;
+      const style=materialStyle({...next,nested:!!next.nested,adaptive:!!next.adaptive,tintLevel:next.tintLevel??.5},material);
+      for(const [key,value] of Object.entries(style))element!.style.setProperty(key,String(value));
+      element!.dataset.appearance=material.appearance;
+      element!.dataset.prismAdaptation=next.adaptive&&!next.transient?(material.variant==='clear'?'clear-static':available?'resolved':'unavailable'):'off';
+      if(next.preset)element!.style.setProperty('--prism-elevation',String(elevation));
+      const separation=separationOverride??(adaptiveState?.available?1+Math.sqrt(adaptiveState.variance)*1.5+(1-adaptiveState.luminance)*.2:1);
+      element!.style.setProperty('--prism-separation',String(separation));
+    }
     function write(lens: Lens) {
       current = lens;
       const scale = 1 + (reducedMotion ? 0 : interaction.press) * (latest.current.pressScale ?? 0);
@@ -96,8 +121,14 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
         element!.style.setProperty(`--prism-lens-${key}`, `${value}px`);
       }
       if (useMedia) { media!.invalidate(); return; }
-      if (!target || !latest.current.enabled) return;
-      const options = { ...materialOptics(painted, latest.current.variant, latest.current.tintLevel, latest.current.appearance), ...latest.current.optics, lens: painted };
+      const next=latest.current, appearance=next.adaptive&&!next.transient?adaptiveState?.appearance??next.appearance:next.appearance;
+      const preset=next.preset?resolveGlassSurface(next.preset,painted,{variant:next.variant,appearance,tintLevel:next.tintLevel}):undefined;
+      const base=preset?.material??getGlassMaterial(next.variant,appearance,next.tintLevel);
+      const material=adaptiveState&&next.adaptive&&!next.transient?adaptGlassMaterial(base,adaptiveState):base;
+      paintMaterial(material,preset?.elevation,adaptiveState?.available);
+      if (!target || !next.enabled) return;
+      const options = { ...materialOptics(painted, next.variant, next.tintLevel, appearance), ...preset?.optics,
+        blur:material.blur,saturation:material.saturation, ...next.optics, lens: painted };
       if (latest.current.transient) options.enabled = (options.enabled ?? true) && interaction.press > 0.01;
       options.strength = (options.strength ?? 0) * (1 + interaction.press * 0.12);
       options.highlight = Math.min(1, (options.highlight ?? 0.4) + interaction.press * 0.18);
@@ -124,17 +155,25 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       const rect = element.getBoundingClientRect(), bounds = media!.bounds(), lens = painted ?? current ?? geometry();
       if (!bounds || !lens || !rect.width || !rect.height || !element.isConnected || element.closest('[hidden]')) return null;
       return { id: latest.current.id, lens: { ...lens, x: rect.left - bounds.left + lens.x, y: rect.top - bounds.top + lens.y },
-        variant: latest.current.variant, appearance: latest.current.appearance, tintLevel: latest.current.tintLevel, ...latest.current.optics,
+        variant: latest.current.variant, appearance: latest.current.adaptive?'adaptive':latest.current.appearance,
+        fallbackAppearance:latest.current.appearance,preset:latest.current.preset,tintLevel: latest.current.tintLevel, ...latest.current.optics,
+        onAppearance:state=>paintMaterial(state.material,state.elevation,state.available,state.separation),
         press: interaction.press, hover: interaction.hover, pointer: interaction.pointer };
     }) : undefined;
+    const backdrop=spec.adaptive&&!spec.transient&&!spec.nested&&!useMedia&&spec.variant!=='clear'?observeGlassBackdrop(element,sample=>{
+      const next=latest.current;
+      const policy=next.preset?resolveGlassSurface(next.preset,{width:element.clientWidth||1,height:element.clientHeight||1},{variant:next.variant}).adaptation:'flip';
+      adaptiveState=updateGlassAdaptation(adaptiveState,sample,win!.performance.now(),next.appearance,policy);
+      if(current)write(current);
+    },typeof spec.backdrop==='function'?{sample:spec.backdrop}:{source:spec.backdrop}):undefined;
     const feedback = bindGlassInteraction(element, next => { interaction = next; if (current) write(current); });
     const unsubscribe = observeGlassPreferences(win, preferences => { reducedMotion = preferences.reducedMotion; measure(); });
     const observer = new win.ResizeObserver(measure); observer.observe(element); measure();
     return () => {
-      observer.disconnect(); unregister?.(); unsubscribe(); feedback.destroy(); controller?.destroy();
+      observer.disconnect(); backdrop?.destroy(); unregister?.(); unsubscribe(); feedback.destroy(); controller?.destroy();
       if (frame) win.cancelAnimationFrame(frame); refresh.current = () => {};
     };
-  }, [root, source, useMedia, media, spec.enabled, spec.nested, spec.id]);
+  }, [root, source, useMedia, media, spec.enabled, spec.nested, spec.id, spec.adaptive, spec.backdrop, spec.variant]);
   useEffect(() => { refresh.current(); });
   return spec.nested ? 'overlay' : useMedia ? 'webgl-media' : spec.enabled ? 'svg-source' : 'css-material';
 }

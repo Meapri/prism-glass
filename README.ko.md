@@ -21,7 +21,7 @@ npm run dev
 
 ```sh
 npm pack
-npm install ./meapri-prism-glass-0.2.0-alpha.2.tgz
+npm install ./meapri-prism-glass-0.3.0-alpha.1.tgz
 ```
 
 ## React 컴포넌트
@@ -79,3 +79,11 @@ DOM 원본에는 내부 `overflow: hidden; isolation: isolate` 레이어를 사�
 ## GitHub Pages 배포
 
 `npm run build:pages`로 데모 두 페이지와 영상만 `pages-dist/`에 모읍니다. 이 디렉터리를 `gh-pages` 브랜치 루트에 게시합니다. `main` 변경만으로는 공개 데모가 갱신되지 않습니다.
+
+## 용도별 프리셋과 배경 적응
+
+`GlassSurface preset="navigation" appearance="adaptive"`처럼 사용합니다. 내비게이션·툴바·탭 바·검색창·버튼·플로팅 액션·선택 표시·메뉴·팝오버·사이드바·시트·미디어의 12가지 프리셋을 제공합니다.
+
+`auto`는 OS 모드, `adaptive`는 표면 뒤의 콘텐츠를 따릅니다. 작은 Regular 표면은 라이트·다크가 전환되고, 큰 메뉴·사이드바·시트는 글자색을 유지하며 틴트·확산·그림자가 적응합니다. Clear는 고정된 밝은 전경과 로컬 디밍을 유지합니다.
+
+[지원 배경, API, 제한사항](docs/MATERIAL_PRESETS.md)을 확인하세요. `/#materials` 데모에서 배경을 바꾸고 프리셋별 동작을 비교할 수 있습니다.

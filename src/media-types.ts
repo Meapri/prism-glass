@@ -1,4 +1,7 @@
 import type { GlassAppearance, GlassVariant } from './materials.js';
+import type { GlassAppearanceMode } from './adaptive.js';
+import type { GlassSurfacePreset } from './surface-presets.js';
+import type { GlassMaterial } from './materials.js';
 import type { Lens, SurfaceProfile, BlurMode } from './optics.js';
 
 export type GlassMediaSource = HTMLVideoElement | HTMLImageElement | HTMLCanvasElement;
@@ -6,7 +9,11 @@ export interface MediaLens {
   id: string;
   lens: Lens;
   variant?: GlassVariant;
-  appearance?: GlassAppearance;
+  appearance?: GlassAppearanceMode;
+  fallbackAppearance?: GlassAppearance;
+  preset?: GlassSurfacePreset;
+  /** Called outside React render; use to keep foreground and GPU appearance together. */
+  onAppearance?: (state:{appearance:GlassAppearance;material:GlassMaterial;elevation:number;available:boolean;separation:number})=>void;
   /** Web analogue of the iOS 27 appearance preference: 0 clearer, 1 more tinted. */
   tintLevel?: number;
   strength?: number;

@@ -3,7 +3,7 @@ import { lensFor } from '../optics.js';
 import { classes, materialStyle, useComponentLens, useControllable, useTheme, type MaterialProps } from './context.js';
 
 export interface GlassTab { value: string; label: ReactNode; content?: ReactNode; disabled?: boolean }
-export interface GlassTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>, Omit<MaterialProps, 'refractionTarget'> {
+export interface GlassTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop'> {
   items: readonly GlassTab[];
   value?: string;
   defaultValue?: string;

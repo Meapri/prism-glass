@@ -110,3 +110,12 @@
 }
 
 .prism-material[data-prism-renderer=css-material][data-variant=regular] > .prism-lens { background: color-mix(in srgb, var(--prism-fill), #b0b0b0 6%); }
+/* Surface presets scale elevation without adding another glass layer. */
+.prism-material[data-preset] > .prism-lens { box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .18), inset 0 1px .5px var(--prism-rim), 0 calc(4px * var(--prism-elevation,1)) calc(12px * var(--prism-elevation,1)) rgb(0 0 0 / calc(.09 * var(--prism-separation,1))); }
+.prism-material[data-preset][data-prism-renderer=webgl-media] > .prism-lens { box-shadow: 0 calc(2px * var(--prism-elevation,1)) calc(8px * var(--prism-elevation,1)) rgb(0 0 0 / calc(.09 * var(--prism-separation,1))); }
+.prism-material[data-prism-adaptation=resolved] { transition: color 180ms ease; }
+.prism-material[data-prism-adaptation=resolved] > .prism-lens { transition: background-color 180ms ease, box-shadow 180ms ease; }
+@media(prefers-reduced-motion:reduce) { .prism-material[data-prism-adaptation] , .prism-material[data-prism-adaptation] > .prism-lens { transition: none; } }
+
+/* Nested foregrounds follow the resolved parent without adding another adaptive layer. */
+.prism-material[data-prism-renderer=overlay] { color: inherit; --prism-ink: inherit !important; }

@@ -1,8 +1,18 @@
 # Validation record
 
-Date: 2026-09-25. Release: `0.2.0-alpha.2`.
+Date: 2026-09-25. Release: `0.3.0-alpha.1`.
 
-## Current checks
+## Adaptive material and surface preset checks
+
+- `npm test`: **26/26 passed**. Added tests for sustained appearance changes, hysteresis, invalid samples, linear luminance, background variance, large-surface policy, Clear behavior and bounded preset geometry.
+- Chromium + WebKit on macOS: **52/52 passed**. New regressions cover per-lens pixel adaptation, DOM updates, manual overrides, nested foreground inheritance, CSS gradients/alpha, unreadable background fallback, cross-origin pixel refusal, final-subscriber cleanup, static canvas texture invalidation and all twelve preset selections.
+- IAB visual/interaction checks at 1280 × 720 and 390 × 844: navigation switches white/black labels with the background; menus keep their reading appearance; real HTML background changes adapt the sticky bar; the mobile preset picker and preview fit the viewport. No application console errors were observed.
+- Upstream `liquid-glass-web` was read at GitHub commit `1613f8311dbc31bc2331afcfe51a143c56dd6308`; its local uncommitted changes were not incorporated. Only adaptive appearance is derived from it; see `NOTICE.md`.
+- Native Safari CI now additionally checks the preset gallery's dark→light adaptive transition. Remote run results will be recorded after completion.
+
+## Previous release (`0.2.0-alpha.2`)
+
+### Checks
 
 - `npm test`: **22/22 passed** on macOS. Covers optical geometry, material/tint validation, springs, preference listeners, map generation and server rendering/imports.
 - `npm run test:browser -- --project=chromium --project=webkit`: **38/38 passed** on macOS. Covers optical pixels, real video playback/pause/seek, regular/clear switching, mobile layouts, input/keyboard behavior, RTL, popovers, StrictMode and fallbacks.

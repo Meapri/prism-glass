@@ -21,3 +21,11 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
 The originating example repository's license is CC0 1.0 Universal:
 https://github.com/mdn/interactive-examples/blob/main/LICENSE
 This demo asset is not part of the published package files. No Aave video or Apple artwork is bundled.
+
+## Adaptive appearance derivation
+
+The backdrop sampling, shared scheduling and hysteresis approach in `src/adaptive.ts` and `src/backdrop.ts` is derived from the adaptive-appearance portion of [Meapri/liquid-glass-web](https://github.com/Meapri/liquid-glass-web), commit `1613f8311dbc31bc2331afcfe51a143c56dd6308`, `src/core/LiquidGlass.ts` (`parseBgLuminance`, `sampleBackdropLuminance`, `adaptToBackdrop`, and backdrop scheduling).
+
+Copyright (c) 2026 Meapri. MIT licensed; the complete MIT permission and warranty notice is retained in this package's `LICENSE`.
+
+Only the adaptive-appearance approach is incorporated. The upstream renderer, optical profiles, interactions, morphing and unrelated modules are not imported. Prism's implementation separates pure color/state logic from browser sampling, uses linear-light luminance and alpha composition, samples media pixels, adds temporal filtering/dwell, and fully detaches shared observers. The surface preset values are independently authored web approximations of Apple's qualitative guidance.

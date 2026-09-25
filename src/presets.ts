@@ -1,6 +1,7 @@
 import type { GlassOptions } from './types.js';
+import { resolveGlassSurface, type GlassSurfacePreset } from './surface-presets.js';
 import type { Lens } from './optics.js';
-export type GlassPreset = 'button' | 'switch' | 'slider' | 'tab' | 'panel';
+export type GlassPreset = GlassSurfacePreset | 'switch' | 'slider' | 'tab' | 'panel';
 
 /** Independent starting points, not reproductions of proprietary Aave/Apple parameters. */
 export function getGlassPreset(preset: GlassPreset, lens: Lens): GlassOptions {
@@ -13,6 +14,6 @@ export function getGlassPreset(preset: GlassPreset, lens: Lens): GlassOptions {
     case 'slider': return { ...base, strength: 3.5, bevel: Math.min(6, half), blur: 0.4 };
     case 'tab': return { ...base, strength: 3, bevel: Math.min(6, half), highlight: 0.2 };
     case 'panel': return { ...base, blur: 14, saturation: 1.65 };
-    default: throw new TypeError('Unknown glass preset');
+    default: return resolveGlassSurface(preset, lens).optics;
   }
 }

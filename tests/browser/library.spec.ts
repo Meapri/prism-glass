@@ -71,3 +71,12 @@ test('unavailable WebGL reports fallback and keeps playback controls usable',asy
   await page.getByRole('button',{name:'Play video',exact:true}).click();
   await expect.poll(()=>page.locator('video').evaluate(v=>v.paused)).toBe(false);
 });
+
+test('all surface presets render and adaptive navigation follows backdrop changes',async({page})=>{
+ await page.goto('/#materials');
+ const names=['Navigation','Toolbar','Tab bar','Search field','Button','Floating action','Selection','Menu','Popover','Sidebar','Sheet','Media overlay'];
+ for(const name of names){const button=page.getByRole('group',{name:'Surface presets'}).getByRole('button',{name,exact:true});await button.click();await expect(button).toHaveAttribute('aria-pressed','true');await expect(page.getByTestId('preset-glass')).toBeVisible();await expect(page.locator('.preset-scene')).toHaveAttribute('data-prism-state','ready');}
+ await page.getByRole('group',{name:'Surface presets'}).getByRole('button',{name:'Navigation',exact:true}).click();
+ await page.getByRole('combobox',{name:'Preset backdrop',exact:true}).selectOption('dark');await expect(page.getByTestId('preset-glass')).toHaveAttribute('data-appearance','dark');
+ await page.getByRole('combobox',{name:'Preset backdrop',exact:true}).selectOption('light');await expect(page.getByTestId('preset-glass')).toHaveAttribute('data-appearance','light');
+});
