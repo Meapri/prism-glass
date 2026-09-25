@@ -4,6 +4,11 @@ import { clamp, finite } from './optics.js';
 
 export type GlassVariant = 'regular' | 'clear';
 export type GlassAppearance = 'light' | 'dark';
+export type GlassTint = readonly [red:number,green:number,blue:number,opacity:number];
+export function normalizeGlassTint(tint:GlassTint):GlassTint {
+  if(!Array.isArray(tint)||tint.length!==4)throw new TypeError('tint needs four normalized RGBA channels');
+  return tint.map(value=>clamp(finite(value,'tint channel'),0,1)) as unknown as GlassTint;
+}
 export interface GlassMaterial {
   variant: GlassVariant;
   appearance: GlassAppearance;
@@ -16,6 +21,12 @@ export interface GlassMaterial {
   highlight: number;
   foreground: string;
   opaque: string;
+}
+export function customizeGlassMaterial(material:GlassMaterial,options:{tint?:GlassTint;dimming?:number}):GlassMaterial {
+  const tint=options.tint?normalizeGlassTint(options.tint):material.tint;
+  const dimming=options.dimming===undefined?material.dimming:clamp(finite(options.dimming,'dimming'),0,1);
+  const brightness=material.variant==='clear'&&options.dimming!==undefined?1+(material.brightness-1)*Math.min(1,dimming/.35):material.brightness;
+  return {...material,tint,dimming,brightness};
 }
 
 /** Web material choices derived from public design guidance, not Apple's shader. */

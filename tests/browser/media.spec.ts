@@ -99,6 +99,26 @@ test('material variant updates resolve new defaults and resize respects the pixe
   expect(await page.evaluate(()=>window.mediaFixture.getDiagnostics().pixels)).toBeLessThanOrEqual(10000);
 });
 
+test('high-resolution fields stay bounded and reuse scaled optical geometry',async({page})=>{
+  await fixture(page);
+  await page.evaluate(()=>window.mediaFixture.setLenses([{id:'circle',lens:{x:60,y:35,width:100,height:100,radius:50,shape:'circle'},variant:'clear',bevel:50,curvature:6.5}]));
+  await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().mapBuilds)).toBeGreaterThan(1);
+  const initial=await page.evaluate(()=>window.mediaFixture.getDiagnostics());
+  expect(initial.mapPrecision).toBe(16);
+  await page.evaluate(()=>window.mediaFixture.updateLens('circle',{lens:{width:104,height:104,radius:52},bevel:52}));
+  await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().renders)).toBeGreaterThan(initial.renders);
+  expect(await page.evaluate(()=>window.mediaFixture.getDiagnostics().mapBuilds)).toBe(initial.mapBuilds);
+  await page.evaluate(()=>{
+    window.mediaFixture.update({pixelRatio:3,resolution:2048});
+    window.mediaFixture.setLenses(Array.from({length:64},(_,i)=>({id:String(i),variant:'clear',lens:{x:0,y:0,width:800,height:800,radius:40+i},bevel:64,curvature:8})));
+  });
+  await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().renders),{timeout:15000}).toBeGreaterThan(initial.renders+1);
+  const busy=await page.evaluate(()=>window.mediaFixture.getDiagnostics());
+  expect(busy.state).toBe('ready');expect(busy.mapPixels).toBeLessThanOrEqual(4_000_000);expect(busy.mapPixels).toBeGreaterThan(2_000_000);
+  await page.evaluate(()=>window.mediaFixture.destroy());
+  expect(await page.evaluate(()=>window.mediaFixture.getDiagnostics().mapPixels)).toBe(0);
+});
+
 test('WebGL context loss exposes fallback and restores its resources',async({page})=>{
   await fixture(page);
   const supported=await page.evaluate(()=>{const gl=document.querySelector<HTMLCanvasElement>('#glass')!.getContext('webgl')!;window.lossExtension=gl.getExtension('WEBGL_lose_context')!;return Boolean(window.lossExtension);});

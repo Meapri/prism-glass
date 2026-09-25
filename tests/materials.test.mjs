@@ -65,3 +65,28 @@ test('tint preference increases diffusion and opacity without changing the clear
   assert.deepEqual(getGlassMaterial('regular','light',-1),clear);
   assert.deepEqual(getGlassMaterial('regular','light',2),tinted);
 });
+
+test('clear dimming can be removed without fading content or discarding colored reflections',async()=>{
+  const {customizeGlassMaterial}=await import('../dist/index.js');
+  const base=getGlassMaterial('clear'),clear=customizeGlassMaterial(base,{dimming:0,tint:[.2,.4,.8,.1]});
+  assert.equal(clear.dimming,0);assert.equal(clear.brightness,1);assert.deepEqual(clear.tint,[.2,.4,.8,.1]);assert.equal(clear.foreground,'#ffffff');
+  const React=await import('react'),{renderToStaticMarkup}=await import('react-dom/server'),{GlassSurface}=await import('../dist/react.js');
+  const html=renderToStaticMarkup(React.createElement(GlassSurface,{variant:'clear',dimming:0,tint:[.2,.4,.8,.1]},'Opaque label'));
+  const values=html.match(/--prism-fill:rgb\(([^)]+)\)/)[1].split(/[ /]+/).map(Number);
+  for(const [i,expected] of [51,102,204,.1].entries())assert.ok(Math.abs(values[i]-expected)<1e-8);
+  assert.match(html,/Opaque label/);assert.ok(!html.includes('opacity:0.1'));
+});
+
+test('extended component families support server rendering without browser globals',async()=>{
+ const R=await import('react'),{renderToString}=await import('react-dom/server'),C=await import('../dist/react.js');
+ const fixtures=[
+  ['GlassChip',{},'Filter'],['GlassToken',{onRemove(){}},'Token'],['GlassDock',{},'Dock'],['GlassDockItem',{label:'Home'},'Home'],
+  ['GlassNotification',{title:'Ready',message:'Done'}],['GlassWidget',{},'Weather'],['GlassLiveActivity',{},'4 minutes'],['GlassControlTile',{label:'Wi-Fi'},'Wi-Fi'],
+  ['GlassNavigationBar',{title:'Collection'}],['GlassTabBar',{items:[{value:'a',label:'First',icon:'A'}]}],['GlassSidebar',{items:[{value:'a',label:'Overview'}]}],
+  ['GlassTextField',{label:'Name'}],['GlassSearchField',{label:'Search'}],['GlassStepper',{label:'Amount'}],['GlassPageControl',{count:7}],['GlassWheelPicker',{label:'Number',options:[{value:'a',label:'First'}]}],['GlassDatePicker',{defaultValue:'2026-09-25',display:'inline'}],
+  ['GlassMenu',{trigger:'Menu',items:[{id:'a',label:'Copy'}]}],['GlassContextMenu',{items:[{id:'a',label:'Copy'}]},'Context'],
+  ['GlassAlertDialog',{open:false,onOpenChange(){},title:'Delete?',actions:[{label:'Cancel'}]}],['GlassSheet',{open:false,onOpenChange(){},title:'Sheet'},'Details'],['GlassShareSheet',{open:false,onOpenChange(){},title:'Share'}],
+  ['MaterialSurface',{},'Content'],['GlassProgress',{value:.5}],['GlassBadge',{count:5}],['GlassDisclosure',{title:'More'},'Details']
+ ];
+ for(const [name,props,child] of fixtures)assert.doesNotThrow(()=>renderToString(R.createElement(C[name],props,child)),name);
+});

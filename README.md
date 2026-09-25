@@ -1,10 +1,10 @@
 # Prism Glass
 
-An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.4.0-alpha.1`; the package name is provisional and has not been published to npm.
+An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.5.0-alpha.1`; the package name is provisional and has not been published to npm.
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
 
-[Live demo](https://meapri.github.io/prism-glass/) · [한국어 빠른 시작](README.ko.md)
+[Live demo](https://meapri.github.io/prism-glass/) · [iOS 27 component catalog](https://meapri.github.io/prism-glass/catalog.html) · [한국어 빠른 시작](README.ko.md)
 
 See the [native iOS 27 comparison and measured defaults](docs/IOS27_REFERENCE.md). Aave informs the renderer; native SwiftUI and Apple guidance are the visual target.
 
@@ -15,12 +15,12 @@ See the [native iOS 27 comparison and measured defaults](docs/IOS27_REFERENCE.md
 - Preserves the original source outside the lens through a mask/composite stage.
 - Provides rim/dome/concave surfaces, depth and curvature controls, uniform/center/edge frost, and configurable edge highlights.
 - Includes size-aware starting presets for buttons, switches, sliders, tabs and panels. The demo includes live button, switch and slider examples with crisp interaction layers.
-- Reuses decoded optical maps when position, strength, or frost changes. Maps are at most 512 × 512; default longest side is 256.
+- Reuses optical maps when position, strength, or frost changes. SVG maps use a 256px default cap; media uses 16-bit displacement fields sized for the display, up to 1024px by default.
 - Coalesces updates through one animation-frame callback, pauses offscreen/hidden sources, honors reduced-transparency preferences, and imposes a source pixel budget.
-- Includes reusable buttons, switches, sliders, tabs, toolbars, popovers and surfaces, plus a shared media scene.
+- Includes menus, alerts, detented sheets, navigation, search, pickers, notifications, widgets, a transparent dock and shared media scenes. The complete [64-entry HIG coverage record](docs/HIG_COVERAGE.md) separates interactive controls, standard content and OS-owned integrations.
 - Shares optical maps and one video texture across media lenses, with chromatic edging, local dimming, frost and touch lighting.
 - Provides regular/clear materials, spring selection, keyboard navigation, RTL geometry, and accessibility preferences.
-- Includes idempotent teardown, context-loss recovery, React StrictMode checks, two interactive demos, and pixel regressions.
+- Includes idempotent teardown, context-loss recovery, React StrictMode checks, component, material, motion and optical demos, and pixel regressions.
 
 **This is a source filter.** Placing an empty glass element over an unrelated page will not bend the page behind it. Pass the actual content that should be refracted. Place crisp labels or buttons in a sibling overlay if desired.
 
@@ -34,10 +34,10 @@ npm run build
 npm pack
 ```
 
-This creates `meapri-prism-glass-0.4.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
+This creates `meapri-prism-glass-0.5.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
 
 ```sh
-npm install ./meapri-prism-glass-0.4.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.5.0-alpha.1.tgz
 ```
 
 The package is not published to the npm registry. Install the local tarball until a registry release is announced.
@@ -54,7 +54,7 @@ See [motion usage and official references](docs/MOTION.md), or try [the motion d
 
 ## Purpose-specific glass surfaces
 
-Twelve [surface presets and adaptive appearance](docs/MATERIAL_PRESETS.md) cover navigation, toolbars, tab bars, search, buttons, floating actions, selection, menus, popovers, sidebars, sheets and media overlays. Presets resolve geometry, curvature, depth, refraction, diffusion and elevation together.
+Twenty-four [surface presets and adaptive appearance](docs/MATERIAL_PRESETS.md) cover navigation, toolbars, tab bars, search, buttons, floating actions, selection, menus, popovers, sidebars, sheets and media overlays. Presets resolve geometry, curvature, depth, refraction, diffusion and elevation together.
 
 ```tsx
 <GlassSurface preset="navigation" appearance="adaptive">…</GlassSurface>
@@ -131,7 +131,7 @@ renderer.refresh(); // After manually repainting a canvas source.
 renderer.destroy();
 ```
 
-`canvas` must be a dedicated mounted overlay. Match the visible source's `object-fit`, normalized `position`, and RGB `backgroundColor` (channels 0–1, black by default). `resolution` bounds each map to 32–512 pixels; `pixelRatio` and `maxPixels` bound the output canvas, not media decode costs. Video uploads follow `requestVideoFrameCallback` where available; paused media and idle canvases stop scheduling frames. Use `live: true` only for continuously changing canvas sources. Position, strength, lighting, and material appearance reuse maps; shape/optical geometry changes rebuild them.
+`canvas` must be a dedicated mounted overlay. Match the visible source's `object-fit`, normalized `position`, and RGB `backgroundColor` (channels 0–1, black by default), or use `sourceAlignment: 'element'` to follow the source element's position and object fit. Media `resolution` caps each optical field at 32–2048 pixels (default 1024); actual fields adapt to display density and share a four-million-pixel budget. Directions use packed 16-bit values with linear interpolation. `pixelRatio` defaults to the display DPR, capped at 3, and `maxPixels` bounds the output canvas independently of media decode costs. Video uploads follow `requestVideoFrameCallback` where available; paused media and idle canvases stop scheduling frames. Use `live: true` only for continuously changing canvas sources. Position, strength, lighting and uniform geometry scaling reuse maps. A bounded cache retains up to four unused fields for press/release transitions. Diagnostics expose `mapPixels` and `mapPrecision`.
 
 `getDiagnostics()` distinguishes loading, ready, paused, disabled, fallback, error and destroyed. WebGL unavailability/context loss must retain usable HTML controls; restore rebuilds GPU resources. Cross-origin security or media upload failures remain explicit errors. The optional `bindGlassInteraction(element, callback)` helper emits normalized press/hover/pointer state for framework-independent controls and returns a `destroy()` cleanup.
 

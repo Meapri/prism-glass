@@ -20,7 +20,7 @@ The local demo's `demo/assets/flower.mp4` is MDN's CC0 example media. `flower-st
 https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
 The originating example repository's license is CC0 1.0 Universal:
 https://github.com/mdn/interactive-examples/blob/main/LICENSE
-This demo asset is not part of the published package files. No Aave video or Apple artwork is bundled.
+This demo asset is not part of the published package files. No Aave video is bundled. Documentation/catalog screenshots show our temporary native SwiftUI reference app and OS-rendered controls for comparison; they are not used to render the live components.
 
 ## Adaptive appearance derivation
 
@@ -29,3 +29,7 @@ The backdrop sampling, shared scheduling and hysteresis approach in `src/adaptiv
 Copyright (c) 2026 Meapri. MIT licensed; the complete MIT permission and warranty notice is retained in this package's `LICENSE`.
 
 Only the adaptive-appearance approach is incorporated. The upstream renderer, optical profiles, interactions, morphing and unrelated modules are not imported. Prism's implementation separates pure color/state logic from browser sampling, uses linear-light luminance and alpha composition, samples media pixels, adds temporal filtering/dwell, and fully detaches shared observers. The surface preset values are independently authored web approximations of Apple's qualitative guidance.
+
+## Icons
+
+The optional React bundle and catalog use Lucide icons. Their ISC license and the MIT notice for Feather-derived icons are retained in [docs/LUCIDE_LICENSE.txt](docs/LUCIDE_LICENSE.txt). Core/media entry points remain independent of React and Lucide.

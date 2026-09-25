@@ -5,7 +5,7 @@ export type { GlassController, GlassOptions, GlassPatch, GlassDiagnostics } from
 export { lensFor } from './optics.js';
 export { getGlassPreset, type GlassPreset } from './presets.js';
 export type { Lens, LensShape, SurfaceProfile, BlurMode } from './optics.js';
-export { getGlassMaterial, getLensMaterial, materialOptics, observeGlassPreferences, type GlassMaterial, type GlassVariant, type GlassAppearance, type GlassPreferences } from './materials.js';
+export { getGlassMaterial, getLensMaterial, customizeGlassMaterial, normalizeGlassTint, type GlassTint, materialOptics, observeGlassPreferences, type GlassMaterial, type GlassVariant, type GlassAppearance, type GlassPreferences } from './materials.js';
 export { bindGlassInteraction, stepSpring, type GlassInteraction, type GlassInteractionController, type SpringState } from './motion.js';
 type Normalized = Required<Omit<GlassOptions, 'onStatus'>> & Pick<GlassOptions, 'onStatus'>;
 const owners = new WeakSet<HTMLElement>();

@@ -35,8 +35,16 @@ The surface API covers the functional glass layer, from a compact action to a fl
 | `sidebar` | Large quiet center and ambient diffusion | Stable appearance; tint/shadow adapt |
 | `sheet` | Largest bevel, optical depth and elevation | Stable appearance; tint/shadow adapt |
 | `media` | Clear capsule with local dimming | Clear stays static, with white foreground |
+| `dock` / `dock-item` | Clear continuous-corner dock and app tiles | Clear stays static; caller sets dimming/reflection |
+| `alert` / `action-sheet` | Focused decision and action surfaces | Stable reading appearance |
+| `notification` | Compact information banner | Stable reading appearance |
+| `chip` | Capsule selection/token | Light/dark labels |
+| `widget` / `control` | Home-screen-style content and Control Center tile compositions | Ambient / compact adaptation |
+| `live-activity` | Banner / compact activity composition | Stable reading appearance |
+| `input-accessory` / `edit-menu` | Compact contextual toolbars | Light/dark labels |
+| `page-control` | Transient page-scrubbing capsule | Light/dark labels |
 
-Each profile defines curvature, depth, bevel, strength, diffusion, shape/radius and elevation. Optical bounds scale with the actual size and remain capped for small surfaces. Explicit `shape`, `radius`, `variant`, and optical overrides take precedence. A preset does not implement an entire navigation/sidebar/sheet interaction; your semantic HTML and application own those behaviors. Avoid a second glass layer inside a glass surface. The existing switch and slider visuals are unchanged.
+Each profile defines curvature, depth, bevel, strength, diffusion, shape/radius and elevation. Optical bounds scale with the actual size and remain capped for small surfaces. Explicit `shape`, `radius`, `variant`, and optical overrides take precedence. A preset configures a material. The React navigation, menu, dialog, sheet and input components provide their own browser interactions; application callbacks own navigation and data changes. Avoid a second glass layer inside a glass surface. The existing switch and slider visuals are unchanged.
 
 ## Framework-independent API
 

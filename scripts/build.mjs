@@ -21,3 +21,10 @@ const styles = `${await readFile('src/styles.css', 'utf8')}\n${await readFile('d
 await writeFile('demo/index.html', libraryTemplate.replace('/* PRISM_STYLES */', styles)
   .replace('/* PRISM_LIBRARY_BUNDLE */', library.outputFiles[0].text.replace(/<\/script/gi, '<\\/script')));
 console.log('Built core, React components, media renderer, styles, library demo, and optical playground');
+for (const name of ['catalog','catalog-scene']) {
+  const app=await build({entryPoints:[`demo/${name}.tsx`],bundle:true,format:'iife',jsx:'automatic',target:'es2022',minify:true,write:false,loader:{'.webp':'dataurl'},define:{'process.env.NODE_ENV':'"production"'}});
+  const css=`${await readFile('src/styles.css','utf8')}\n${await readFile(`demo/${name}.css`,'utf8')}`;
+  await writeFile(`demo/${name}.html`,`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Prism Glass · ${name==='catalog'?'iOS 27 catalog':'Live component'}</title><style>${css}</style></head><body><div id="root"></div><script>${app.outputFiles[0].text.replace(/<\/script/gi,'<\\/script')}</script></body></html>`);
+}
+await mkdir('dist/licenses',{recursive:true});
+await copyFile('node_modules/lucide-react/LICENSE','dist/licenses/lucide-react.txt');

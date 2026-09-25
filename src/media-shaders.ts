@@ -23,6 +23,7 @@ uniform vec4 u_sourceRect;
 uniform vec4 u_rect;
 uniform float u_radius;
 uniform float u_ellipse;
+uniform float u_continuous;
 uniform float u_surfaceSign;
 uniform float u_pixelRatio;
 uniform vec3 u_backgroundColor;
@@ -60,8 +61,9 @@ void main() {
   vec3 material = texture2D(u_finish, v_uv).rgb;
   vec2 halfSize = u_rect.zw * 0.5;
   vec2 local = (v_uv - 0.5) * u_rect.zw;
-  vec2 q = abs(local) - (halfSize - u_radius);
-  float distanceToEdge = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - u_radius;
+  float cornerRadius=u_continuous>0.5?min(u_radius*1.34,min(halfSize.x,halfSize.y)):u_radius;
+  vec2 q = abs(local) - (halfSize - cornerRadius);
+  float distanceToEdge = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - cornerRadius;
   vec2 normal;
   if (u_ellipse > 0.5) {
     float k0 = length(local / halfSize);
@@ -70,6 +72,11 @@ void main() {
     normal = normalize(local / (halfSize * halfSize) + vec2(0.000001));
   } else {
     vec2 outward = max(q, 0.0);
+    if(u_continuous>0.5&&q.x>0.0&&q.y>0.0){
+      float n=pow(pow(q.x,2.85)+pow(q.y,2.85),1.0/2.85);
+      outward=pow(q/vec2(n),vec2(1.85));
+      distanceToEdge=(n-cornerRadius)/length(outward);
+    }
     if (length(outward) < 0.00001) outward = q.x > q.y ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
     normal = normalize(outward) * sign(local);
   }
@@ -78,7 +85,8 @@ void main() {
   float aa = 0.75 / u_pixelRatio;
   float coverage = 1.0 - smoothstep(-aa, aa, distanceToEdge);
   if (coverage < 0.002) discard;
-  vec2 direction = (texture2D(u_map, v_uv).rg * 255.0 - 128.0) / 127.0;
+  vec4 packedDirection=texture2D(u_map,v_uv);
+  vec2 direction=(packedDirection.rb*255.0-128.0)*(256.0/32767.0)+packedDirection.ga*(255.0/32767.0);
   vec2 point = v_point + direction * u_strength * formation * (1.0 + u_press * 0.12);
   vec3 color = sourceAt(point);
   if (u_chroma > 0.0) {

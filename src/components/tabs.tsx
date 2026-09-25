@@ -9,14 +9,14 @@ export interface GlassTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'on
   defaultValue?: string;
   onValueChange?: (value: string) => void;
 }
-export function GlassTabs({ items, value: controlled, defaultValue, onValueChange, variant, appearance, optics, tintLevel, className, ...props }: GlassTabsProps) {
+export function GlassTabs({ items, value: controlled, defaultValue, onValueChange, variant, appearance, optics, tintLevel, dimming, tint, className, ...props }: GlassTabsProps) {
   if (!items.length || new Set(items.map(item => item.value)).size !== items.length) throw new Error('GlassTabs requires nonempty, unique items');
   const first = items.find(item => !item.disabled)?.value ?? items[0].value;
   const [value, setValue] = useControllable(controlled, defaultValue ?? first, onValueChange);
   const selectedValue = items.findIndex(item => item.value === value && !item.disabled);
   const selected = selectedValue >= 0 ? selectedValue : Math.max(0, items.findIndex(item => !item.disabled));
   const root = useRef<HTMLDivElement | null>(null), source = useRef<HTMLDivElement | null>(null), id = useId();
-  const buttons = useRef<(HTMLButtonElement | null)[]>([]), theme = useTheme({ variant, appearance, tintLevel });
+  const buttons = useRef<(HTMLButtonElement | null)[]>([]), theme = useTheme({ variant, appearance, tintLevel, dimming, tint });
   const renderer = useComponentLens(root, source, { id, ...theme, enabled: !theme.nested, local: true, animate: true, transient: true,
     optics: { strength: 3, bevel: 6, blur: 0.5, saturation: 1, surface: 'rim', curvature: 4, depth: 1, ...optics }, geometry: (width, height) => {
       const cell = Math.max(1, width - 4) / items.length;

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode, type Ref, type RefObject } from 'react';
 import { createGlass } from '../index.js';
-import { lensFor, type Lens, type LensShape } from '../optics.js';
-import { getGlassMaterial, getLensMaterial, materialOptics, observeGlassPreferences, type GlassAppearance, type GlassVariant } from '../materials.js';
+import { clamp, continuousContour, finite, lensFor, type Lens, type LensShape } from '../optics.js';
+import { customizeGlassMaterial, getGlassMaterial, getLensMaterial, materialOptics, normalizeGlassTint, observeGlassPreferences, type GlassAppearance, type GlassVariant, type GlassTint } from '../materials.js';
 import { bindGlassInteraction, stepSpring, type GlassInteraction } from '../motion.js';
 import type { GlassController, GlassOptions } from '../types.js';
 import { observeGlassBackdrop, type GlassBackdropReader } from '../backdrop.js';
@@ -11,16 +11,16 @@ import type { GlassMaterial } from '../materials.js';
 import { createGlassPresence, glassPresenceFrame, type GlassPresencePhase } from '../presence.js';
 import type { MediaLens } from '../media-types.js';
 
-export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; tintLevel: number; nested: boolean; adaptive: boolean; provided?:boolean }
+export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; tintLevel: number; dimming?:number; tint?:GlassTint; nested: boolean; adaptive: boolean; provided?:boolean }
 export const GlassContext = createContext<GlassTheme>({ variant: 'regular', appearance: 'light', tintLevel: 0.5, nested: false, adaptive: false });
-export interface GlassProviderProps { children: ReactNode; variant?: GlassVariant; appearance?: GlassAppearanceMode; tintLevel?: number }
-export function GlassProvider({ children, variant = 'regular', appearance = 'auto', tintLevel = 0.5 }: GlassProviderProps) {
+export interface GlassProviderProps { children: ReactNode; variant?: GlassVariant; appearance?: GlassAppearanceMode; tintLevel?: number; dimming?:number; tint?:GlassTint }
+export function GlassProvider({ children, variant = 'regular', appearance = 'auto', tintLevel = 0.5, dimming, tint }: GlassProviderProps) {
   const [dark, setDark] = useState(false);
   useEffect(() => {
     if (appearance !== 'auto' && appearance !== 'adaptive') return;
     return observeGlassPreferences(window, preferences => setDark(preferences.dark));
   }, [appearance]);
-  return <GlassContext.Provider value={{ variant, appearance: appearance === 'auto' || appearance === 'adaptive' ? dark ? 'dark' : 'light' : appearance, adaptive: appearance === 'adaptive', provided:true, tintLevel, nested: false }}>{children}</GlassContext.Provider>;
+  return <GlassContext.Provider value={{ variant, appearance: appearance === 'auto' || appearance === 'adaptive' ? dark ? 'dark' : 'light' : appearance, adaptive: appearance === 'adaptive', provided:true, tintLevel, dimming, tint, nested: false }}>{children}</GlassContext.Provider>;
 }
 export interface MaterialProps {
   variant?: GlassVariant;
@@ -29,6 +29,10 @@ export interface MaterialProps {
   /** Explicit backdrop source or read-only sample callback for unsupported compositing. */
   backdrop?: Element | GlassBackdropReader;
   tintLevel?: number;
+  /** Clear material's local background darkening, 0–1. 0 keeps the clearest view; default 0.35. */
+  dimming?: number;
+  /** Optional material reflection/tint. Normalized RGBA; foreground remains opaque. */
+  tint?:GlassTint;
   /** Explicit, decorative source pixels. With no source, the surface uses CSS material. */
   refractionTarget?: ReactNode;
   /** Keep mounted during materialization; false removes hit/focus access immediately. */
@@ -37,7 +41,7 @@ export interface MaterialProps {
   optics?: Partial<Omit<GlassOptions, 'lens' | 'onStatus'>>;
 }
 export const MediaContext = createContext<null | {
-  register(id: string, read: () => MediaLens | null): () => void;
+  register(id: string, read: () => MediaLens | null, element:HTMLElement): () => void;
   invalidate(): void;
   bounds(): DOMRect | undefined;
 }>(null);
@@ -57,14 +61,17 @@ export function useTheme(props: MaterialProps) {
   const mode=props.appearance;
   return { ...inherited, variant: props.variant ?? inherited.variant,
     appearance: mode==='adaptive'&&inherited.provided?inherited.appearance:mode==='adaptive'||mode==='auto' ? systemDark?'dark' as const:'light' as const : mode??inherited.appearance,
-    adaptive: mode==null?inherited.adaptive:mode==='adaptive', tintLevel: props.tintLevel ?? inherited.tintLevel };
+    adaptive: mode==null?inherited.adaptive:mode==='adaptive', tintLevel: props.tintLevel ?? inherited.tintLevel,
+    dimming: props.dimming===undefined?inherited.dimming:clamp(finite(props.dimming,'dimming'),0,1),
+    tint:props.tint===undefined?inherited.tint:normalizeGlassTint(props.tint) };
 }
 export function materialStyle(theme: GlassTheme, material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel)): CSSProperties {
+  material=customizeGlassMaterial(material,{tint:theme.tint,dimming:theme.variant==='clear'?theme.dimming:undefined});
   const [r, g, b, a] = material.tint;
-  const clearAlpha = 1 - (1 - material.dimming) * (1 - a);
+  const clearAlpha = 1 - (1 - (theme.dimming===undefined?material.dimming:clamp(finite(theme.dimming,'dimming'),0,1))) * (1 - a);
   const clearReflection = a * 255 / Math.max(clearAlpha, 0.001);
-  return { '--prism-fill': theme.variant === 'clear' ? `rgb(${clearReflection} ${clearReflection} ${clearReflection} / ${clearAlpha})` : `rgb(${r * 255} ${g * 255} ${b * 255} / ${a})`,
-    '--prism-blur': `${material.blur}px`, '--prism-saturation': material.saturation, '--prism-brightness': material.brightness,
+  return { '--prism-fill': theme.variant === 'clear' ? `rgb(${r*clearReflection} ${g*clearReflection} ${b*clearReflection} / ${clearAlpha})` : `rgb(${r * 255} ${g * 255} ${b * 255} / ${a})`,
+    '--prism-highlight':material.highlight, '--prism-blur': `${material.blur}px`, '--prism-saturation': material.saturation, '--prism-brightness': material.brightness,
     '--prism-ink': material.foreground, '--prism-solid': material.opaque } as CSSProperties;
 }
 export interface LensSpec {
@@ -72,6 +79,8 @@ export interface LensSpec {
   variant: GlassVariant;
   appearance: GlassAppearance;
   tintLevel?: number;
+  dimming?:number;
+  tint?:GlassTint;
   adaptive?: boolean;
   preset?: GlassSurfacePreset;
   backdrop?: Element | GlassBackdropReader;
@@ -103,6 +112,7 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     let presence=glassPresenceFrame(1);
     let controller: GlassController | undefined, frame = 0, time = 0, reducedMotion = false;
     let current: Lens | undefined, painted: Lens | undefined, destination: Lens | undefined;
+    let contourKey='';
     let velocity = { x: 0, y: 0 };
     let interaction: GlassInteraction = { press: 0, hover: 0, pointer: [0.5, 0.5], reducedMotion: false };
     const geometry = () => {
@@ -110,10 +120,12 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       if (!width || !height) return;
       return next.geometry?.(width, height) ?? (next.preset ? resolveGlassSurface(next.preset,{width,height,shape:next.shape,radius:next.radius}).lens : undefined) ?? lensFor(next.shape ?? 'rounded-rect', { x: 0, y: 0, width, height, radius: next.radius ?? 16 });
     };
-    function paintMaterial(material: GlassMaterial, elevation=1, available=false, separationOverride?:number) {
+    function paintMaterial(material: GlassMaterial, elevation=1, available=false, separationOverride?:number,ambient?:readonly[number,number,number]) {
       const next=latest.current;
       const style=materialStyle({...next,nested:!!next.nested,adaptive:!!next.adaptive,tintLevel:next.tintLevel??.5},material);
       for(const [key,value] of Object.entries(style))element!.style.setProperty(key,String(value));
+      const backdropColor=ambient??(adaptiveState?.available?adaptiveState.color:undefined);
+      if(backdropColor)element!.style.setProperty('--prism-ambient',`rgb(${backdropColor.map(v=>Math.round(v*255)).join(' ')})`);else element!.style.removeProperty('--prism-ambient');
       element!.dataset.appearance=material.appearance;
       element!.dataset.prismAdaptation=next.adaptive&&!next.transient?(material.variant==='clear'?'clear-static':available?'resolved':'unavailable'):'off';
       if(next.preset)element!.style.setProperty('--prism-elevation',String(elevation));
@@ -128,6 +140,17 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       for (const [key, value] of Object.entries({ x: painted.x, y: painted.y, width: painted.width, height: painted.height, radius: painted.radius })) {
         element!.style.setProperty(`--prism-lens-${key}`, `${value}px`);
       }
+      if(painted.shape==='continuous'){
+        const key=[painted.x,painted.y,painted.width,painted.height,painted.radius].join(':');
+        if(contourKey!==key){contourKey=key;
+          const local={...painted,x:0,y:0},path=continuousContour(local),inner=continuousContour(local,.65);
+          element!.style.setProperty('--prism-contour',`path("${path}")`);
+          element!.style.setProperty('--prism-source-contour',`path("${continuousContour(painted)}")`);
+          const svg=(stroke:string,width:number,curve:string)=>`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${painted!.width} ${painted!.height}"><path d="${curve}" fill="none" stroke="${stroke}" stroke-width="${width}"/></svg>`)}")`;
+          element!.style.setProperty('--prism-border-mask',svg('white',.8,inner));
+          element!.style.setProperty('--prism-outline-image',svg('rgba(0,0,0,0.24)',1.15,path));
+        }
+      }else if(contourKey){contourKey='';for(const name of ['--prism-contour','--prism-source-contour','--prism-border-mask','--prism-outline-image'])element!.style.removeProperty(name);}
       const mapped=(point:readonly[number,number])=>[Math.max(0,Math.min(1,(point[0]*element!.clientWidth-painted!.x)/painted!.width)),Math.max(0,Math.min(1,(point[1]*element!.clientHeight-painted!.y)/painted!.height))];
       const light=mapped(interaction.pointer),near=mapped(interaction.illuminationPointer??[.5,.5]);
       element!.style.setProperty('--prism-light-x',`${light[0]*100}%`);element!.style.setProperty('--prism-light-y',`${light[1]*100}%`);
@@ -170,14 +193,21 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     const unregister = useMedia ? media!.register(spec.id, () => {
       const rect = element.getBoundingClientRect(), bounds = media!.bounds(), lens = painted ?? current ?? geometry();
       if (!bounds || !lens || !rect.width || !rect.height || !element.isConnected || element.closest('[hidden]') || presence.progress<=0) return null;
-      return { id: latest.current.id, lens: { ...lens, x: rect.left - bounds.left + lens.x, y: rect.top - bounds.top + lens.y },
+      const base=current??lens,next=latest.current;
+      const baseOptics=next.preset?resolveGlassSurface(next.preset,base,{variant:next.variant,appearance:next.appearance,tintLevel:next.tintLevel}).optics:materialOptics(base,next.variant,next.tintLevel,next.appearance);
+      const {surface,curvature,depth,ior,strength}=baseOptics;
+      // Elastic flex scales one established optical shape. Re-resolving its
+      // curvature for every animated size needlessly rebuilt high-density maps.
+      const scale=lens.width/base.width,bevel=(next.optics?.bevel??baseOptics.bevel!)*scale;
+      return { surface,curvature,depth,ior,strength,id: latest.current.id, lens: { ...lens, x: rect.left - bounds.left + lens.x, y: rect.top - bounds.top + lens.y },
         variant: latest.current.variant, appearance: latest.current.adaptive?'adaptive':latest.current.appearance,
-        fallbackAppearance:latest.current.appearance,preset:latest.current.preset,tintLevel: latest.current.tintLevel, ...latest.current.optics,
-        onAppearance:state=>paintMaterial(state.material,state.elevation,state.available,state.separation),
+        fallbackAppearance:latest.current.appearance,preset:latest.current.preset,tintLevel: latest.current.tintLevel,
+        dimming:latest.current.variant==='clear'?latest.current.dimming:undefined,tint:latest.current.tint, ...latest.current.optics,bevel,
+        onAppearance:state=>paintMaterial(state.material,state.elevation,state.available,state.separation,state.ambient),
         press: interaction.press, hover: interaction.hover,
         pointer:[Math.max(0,Math.min(1,(interaction.pointer[0]*element.clientWidth-lens.x)/lens.width)),Math.max(0,Math.min(1,(interaction.pointer[1]*element.clientHeight-lens.y)/lens.height))],
         illumination:interaction.illumination,illuminationPointer:interaction.illuminationPointer?[Math.max(0,Math.min(1,(interaction.illuminationPointer[0]*element.clientWidth-lens.x)/lens.width)),Math.max(0,Math.min(1,(interaction.illuminationPointer[1]*element.clientHeight-lens.y)/lens.height))]:[.5,.5],presence:presence.progress };
-    }) : undefined;
+    },element) : undefined;
     const backdrop=spec.adaptive&&!spec.transient&&!spec.nested&&!useMedia&&spec.variant!=='clear'?observeGlassBackdrop(element,sample=>{
       const next=latest.current;
       const policy=next.preset?resolveGlassSurface(next.preset,{width:element.clientWidth||1,height:element.clientHeight||1},{variant:next.variant}).adaptation:'flip';

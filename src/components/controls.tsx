@@ -9,10 +9,10 @@ export interface GlassSwitchProps extends Omit<ButtonHTMLAttributes<HTMLButtonEl
   value?: string;
 }
 export const GlassSwitch = forwardRef<HTMLButtonElement, GlassSwitchProps>(function GlassSwitch(
-  { checked: controlled, defaultChecked = false, onCheckedChange, optics, variant, appearance, tintLevel, className, style, onClick, name, value = 'on', ...props }, ref) {
+  { checked: controlled, defaultChecked = false, onCheckedChange, optics, variant, appearance, tintLevel, dimming, tint, className, style, onClick, name, value = 'on', ...props }, ref) {
   const [checked, setChecked] = useControllable(controlled, defaultChecked, onCheckedChange);
   const root = useRef<HTMLButtonElement | null>(null), source = useRef<HTMLSpanElement | null>(null), id = useId();
-  const theme = useTheme({ variant, appearance, tintLevel });
+  const theme = useTheme({ variant, appearance, tintLevel, dimming, tint });
   const renderer = useComponentLens(root, source, { id, ...theme, enabled: !theme.nested, local: true, animate: true, transient: true, pressScale: 0.1,
     optics: { blur: 0.5, saturation: 1, strength: 5, bevel: 7, surface: 'rim', curvature: 4, depth: 1, ...optics },
     geometry: (width, height) => {
@@ -35,13 +35,13 @@ export interface GlassSliderProps extends Omit<InputHTMLAttributes<HTMLInputElem
   onValueChange?: (value: number) => void;
 }
 export const GlassSlider = forwardRef<HTMLInputElement, GlassSliderProps>(function GlassSlider(
-  { value: controlled, defaultValue = 50, min = 0, max = 100, step = 1, onValueChange, optics, variant, appearance, tintLevel, className, style, dir, ...props }, ref) {
+  { value: controlled, defaultValue = 50, min = 0, max = 100, step = 1, onValueChange, optics, variant, appearance, tintLevel, dimming, tint, className, style, dir, ...props }, ref) {
   const [value, setValue] = useControllable(controlled, defaultValue, onValueChange);
   const low = Number(min), high = Number(max);
   if (!Number.isFinite(low) || !Number.isFinite(high) || high <= low || !Number.isFinite(value)) throw new RangeError('GlassSlider requires finite min < max and a finite value');
   const bounded = Math.min(high, Math.max(low, value)), progress = (bounded - low) / (high - low);
   const root = useRef<HTMLSpanElement | null>(null), source = useRef<HTMLSpanElement | null>(null), id = useId();
-  const theme = useTheme({ variant, appearance, tintLevel });
+  const theme = useTheme({ variant, appearance, tintLevel, dimming, tint });
   const renderer = useComponentLens(root, source, { id, ...theme, enabled: !theme.nested, local: true, transient: true, pressScale: 0.12,
     optics: { blur: 0.4, saturation: 1, strength: 3.5, bevel: 6, surface: 'rim', curvature: 4, depth: 1, ...optics },
     geometry: (width, height) => {

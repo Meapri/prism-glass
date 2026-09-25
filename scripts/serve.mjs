@@ -1,13 +1,18 @@
 import { createServer } from 'node:http';
-import { readFile } from 'node:fs/promises';
+import { readFile,readdir } from 'node:fs/promises';
 const port = Number(process.env.PORT || 4173);
 const routes = {
   '/': ['../demo/index.html', 'text/html; charset=utf-8'],
   '/index.html': ['../demo/index.html', 'text/html; charset=utf-8'],
   '/calibration.html': ['../demo/calibration.html', 'text/html; charset=utf-8'],
+  '/catalog.html': ['../demo/catalog.html', 'text/html; charset=utf-8'],
+  '/catalog-scene.html': ['../demo/catalog-scene.html', 'text/html; charset=utf-8'],
   '/optics.html': ['../demo/optics.html', 'text/html; charset=utf-8'],
   '/assets/flower.mp4': ['../demo/assets/flower.mp4', 'video/mp4'],
 };
+for(const name of await readdir(new URL('../docs/visual/catalog/',import.meta.url)).catch(()=>[])){
+  if(/^[a-z0-9-]+\.png$/.test(name))routes[`/assets/catalog/${name}`]=[`../docs/visual/catalog/${name}`,'image/png'];
+}
 createServer(async (req, res) => {
   const route = routes[new URL(req.url, 'http://localhost').pathname];
   if (!route || !['GET', 'HEAD'].includes(req.method)) { res.writeHead(404); res.end(); return; }

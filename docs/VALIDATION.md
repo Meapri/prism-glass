@@ -1,6 +1,17 @@
 # Validation record
 
-Date: 2026-09-25. Release: `0.4.0-alpha.1`.
+Date: 2026-09-25. Release: `0.5.0-alpha.1`.
+
+## Component system and high-density optics
+
+- Numeric field regression: 16-bit coordinate error below 0.002 CSS pixels at strength 64; packed-channel interpolation, neutral encoding and allocation limits pass.
+- Catalog interaction checks: menus/context menus, checked/disabled actions, modal focus isolation and return, sheet detents, inputs, wheel/calendar, chips, notifications and tab navigation. The completed subset passed on Chromium and WebKit.
+- Visual smoke: 34 component/composition scenes loaded at 402 × 812, all reported ready, no application errors or horizontal overflow.
+- Native iOS 27 references: eleven families in light and dark, plus additional button states. Captures were inspected before inclusion. The temporary app was stopped and uninstalled.
+- Final local validation: **35/35 unit tests** and **100/100 browser tests** across Chromium and WebKit passed. Includes native feature-displacement regression, packed fields, bounded allocation, elastic-map reuse, lifecycle/accessibility and the new catalog flows.
+- Remote Firefox/native Safari CI, package installation and Pages deployment are verified separately after this source commit.
+
+## Previous release (`0.4.0-alpha.1`)
 
 ## Contact light and materialization
 

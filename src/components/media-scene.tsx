@@ -3,30 +3,33 @@ import { createMediaGlass } from '../media.js';
 import type { GlassMediaSource, MediaGlassController, MediaGlassOptions, MediaLens } from '../media-types.js';
 import { classes, GlassContext, MediaContext, useTheme, type MaterialProps } from './context.js';
 
-export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance' | 'tintLevel'> {
+export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance' | 'tintLevel' | 'dimming' | 'tint'> {
   source: RefObject<GlassMediaSource | null>;
   /** Increment after repainting a static canvas source. */
   sourceVersion?: string | number;
   media?: Omit<MediaGlassOptions, 'lenses'>;
 }
 /** Place the source media and ordinary GlassButton/GlassSurface children in one scene. */
-export function GlassMediaScene({ source, sourceVersion, media, variant = 'clear', appearance, tintLevel, children, className, style, ...props }: GlassMediaSceneProps) {
+export function GlassMediaScene({ source, sourceVersion, media, variant = 'clear', appearance, tintLevel, dimming, tint, children, className, style, ...props }: GlassMediaSceneProps) {
   const root = useRef<HTMLDivElement | null>(null), canvas = useRef<HTMLCanvasElement | null>(null), controller = useRef<MediaGlassController | null>(null);
   const latest = useRef(media); latest.current = media;
-  const theme = useTheme({ variant, appearance, tintLevel });
-  const readers = useRef(new Map<string, () => MediaLens | null>()), frame = useRef(0);
+  const theme = useTheme({ variant, appearance, tintLevel, dimming, tint });
+  const readers = useRef(new Map<string, {read:() => MediaLens | null;element:HTMLElement}>()), frame = useRef(0);
   const context = useMemo(() => {
     function invalidate() {
       const win = root.current?.ownerDocument.defaultView;
       if (!win || frame.current) return;
       frame.current = win.requestAnimationFrame(() => {
         frame.current = 0;
-        const lenses = Array.from(readers.current.values(), read => read()).filter((lens): lens is MediaLens => lens !== null);
+        // React registers child effects before parents; optics must follow paint
+        // order so a clear dock never paints over its own raised icon surfaces.
+        const ordered=Array.from(readers.current.values()).sort((a,b)=>a.element===b.element?0:a.element.compareDocumentPosition(b.element)&4?-1:1);
+        const lenses = ordered.map(entry=>entry.read()).filter((lens): lens is MediaLens => lens !== null);
         controller.current?.setLenses(lenses);
       });
     }
-    return { invalidate, bounds: () => canvas.current?.getBoundingClientRect(), register(id: string, read: () => MediaLens | null) {
-      readers.current.set(id, read); invalidate();
+    return { invalidate, bounds: () => canvas.current?.getBoundingClientRect(), register(id: string, read: () => MediaLens | null,element:HTMLElement) {
+      readers.current.set(id, {read,element}); invalidate();
       return () => { readers.current.delete(id); invalidate(); };
     } };
   }, []);

@@ -14,8 +14,23 @@ const layouts:Record<GlassSurfacePreset,{width:number;height:number;left:string;
   sidebar:{width:194,height:286,left:'5%',top:'10%',transform:'none'},
   sheet:{width:360,height:244,left:'50%',top:'30%',transform:'translateX(-50%)'},
   media:{width:340,height:64,left:'50%',top:'70%',transform:'translateX(-50%)'},
+
+  dock:{width:386,height:110,left:'50%',top:'55%',transform:'translateX(-50%)'},
+  'dock-item':{width:68,height:68,left:'50%',top:'46%',transform:'translateX(-50%)'},
+  alert:{width:320,height:172,left:'50%',top:'28%',transform:'translateX(-50%)'},
+  'action-sheet':{width:240,height:236,left:'50%',top:'20%',transform:'translateX(-50%)'},
+  notification:{width:360,height:90,left:'50%',top:'15%',transform:'translateX(-50%)'},
+  chip:{width:104,height:36,left:'50%',top:'46%',transform:'translateX(-50%)'},
+  widget:{width:158,height:158,left:'50%',top:'26%',transform:'translateX(-50%)'},
+  control:{width:72,height:72,left:'50%',top:'45%',transform:'translateX(-50%)'},
+  'live-activity':{width:340,height:104,left:'50%',top:'48%',transform:'translateX(-50%)'},
+  'input-accessory':{width:320,height:48,left:'50%',top:'68%',transform:'translateX(-50%)'},
+  'edit-menu':{width:240,height:44,left:'50%',top:'42%',transform:'translateX(-50%)'},
+  'page-control':{width:144,height:28,left:'50%',top:'64%',transform:'translateX(-50%)'},
+
 };
 function SurfaceContent({preset}:{preset:GlassSurfacePreset}) {
+  if(['dock','dock-item','control','widget','notification','live-activity','chip','input-accessory','edit-menu','page-control','alert','action-sheet'].includes(preset))return <span className="new-preset-label">{glassSurfacePresets[preset].label}</span>;
   if(preset==='search')return <span className="sample-search">⌕ <span>Search your collection</span></span>;
   if(preset==='navigation')return <div className="sample-nav"><span>‹</span><strong>Collection</strong><span>•••</span></div>;
   if(preset==='toolbar')return <div className="sample-nav"><span>↶</span><span>＋</span><span>♡</span><span>↗</span></div>;
@@ -49,7 +64,7 @@ export function MaterialsLab(){
   const visualWidth=Math.min(layout.width,sceneWidth*.9),start=parseFloat(layout.left)/100*sceneWidth-(layout.transform==='none'?0:visualWidth/2);
   const x=Math.max(12,Math.min(sceneWidth-visualWidth-12,start+move));
   return <section className="materials-lab" id="materials" aria-label="Material presets">
-    <div className="section-title"><h2>One material. Twelve purposes.</h2><p>Explore shape, depth, and content-aware appearance.</p></div>
+    <div className="section-title"><h2>One material. Many purposes.</h2><p>Explore shape, depth, and content-aware appearance.</p></div>
     <div className="materials-workbench">
       <div className="preset-list" role="group" aria-label="Surface presets">{Object.entries(glassSurfacePresets).map(([key,p])=><button key={key} type="button" aria-pressed={key===preset} onClick={()=>setPreset(key as GlassSurfacePreset)}>{p.label}</button>)}</div>
       <div className="preset-preview">

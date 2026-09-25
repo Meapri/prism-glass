@@ -1,8 +1,8 @@
-# Prism Glass · 0.2 알파
+# Prism Glass · 0.5 알파
 
 Aave의 공개 렌더링 방식과 Apple의 Liquid Glass 디자인 원칙을 바탕으로 만든 웹 라이브러리입니다. TypeScript 코어와 선택형 React 컴포넌트를 제공합니다. npm에는 아직 공개하지 않았습니다.
 
-[공개 데모](https://meapri.github.io/prism-glass/) · [광학 실험실](https://meapri.github.io/prism-glass/optics.html)
+[공개 데모](https://meapri.github.io/prism-glass/) · [iOS 27 컴포넌트 전체 목록](https://meapri.github.io/prism-glass/catalog.html) · [광학 실험실](https://meapri.github.io/prism-glass/optics.html)
 
 ## 실행
 
@@ -13,6 +13,7 @@ npm run dev
 ```
 
 - `/`: 컴포넌트 라이브러리와 실제 영상 플레이어
+- `/catalog.html`: HIG 64개 항목과 실제 네이티브 기준 화면, 상태별 조작 데모
 - `/optics.html`: 기존 광학 파라미터 실험실과 생명주기 검사
 
 자바스크립트와 CSS는 빌드에 포함되며, 영상은 로컬 `demo/assets/flower.mp4`를 사용합니다. 영상 데모는 `file://` 대신 HTTP 서버에서 실행하세요.
@@ -21,7 +22,7 @@ npm run dev
 
 ```sh
 npm pack
-npm install ./meapri-prism-glass-0.4.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.5.0-alpha.1.tgz
 ```
 
 ## React 컴포넌트
@@ -40,7 +41,7 @@ import '@meapri/prism-glass/styles.css';
 </GlassProvider>
 ```
 
-버튼, 스위치, 슬라이더, 탭, 툴바, 팝오버, 일반 표면과 미디어 장면을 제공합니다. 탭은 방향키·Home·End와 RTL을 지원하고, 팝오버는 Escape·바깥 클릭·포커스 복귀를 처리합니다. 툴바 내부의 버튼은 유리를 다시 겹치지 않습니다.
+버튼·칩·스위치·슬라이더·탭·툴바·팝오버에 더해 알림창·시트·메뉴·검색·날짜/휠 선택·위젯·독바 등의 컴포넌트를 제공합니다. [HIG 전체 지원표](docs/HIG_COVERAGE.md)에서 일반 콘텐츠와 OS가 소유하는 기능을 구분합니다. 탭은 방향키·Home·End와 RTL을 지원하고, 팝오버는 Escape·바깥 클릭·포커스 복귀를 처리합니다. 툴바 내부의 버튼은 유리를 다시 겹치지 않습니다.
 
 `regular`는 일반 조작부와 글자 가독성에, `clear`는 사진·영상 위의 밝고 굵은 조작부에 맞춥니다. 한 그룹의 재질을 일관되게 유지하세요. 동작 줄이기, 투명도 줄이기, 대비 증가, 강제 색상 설정에 대응하는 스타일을 포함합니다.
 
@@ -78,11 +79,11 @@ DOM 원본에는 내부 `overflow: hidden; isolation: isolate` 레이어를 사�
 
 ## GitHub Pages 배포
 
-`npm run build:pages`로 데모 두 페이지와 영상만 `pages-dist/`에 모읍니다. 이 디렉터리를 `gh-pages` 브랜치 루트에 게시합니다. `main` 변경만으로는 공개 데모가 갱신되지 않습니다.
+`npm run build:pages`로 데모·카탈로그·영상·검증된 네이티브 참고 이미지 `pages-dist/`에 모읍니다. 이 디렉터리를 `gh-pages` 브랜치 루트에 게시합니다. `main` 변경만으로는 공개 데모가 갱신되지 않습니다.
 
 ## 용도별 프리셋과 배경 적응
 
-`GlassSurface preset="navigation" appearance="adaptive"`처럼 사용합니다. 내비게이션·툴바·탭 바·검색창·버튼·플로팅 액션·선택 표시·메뉴·팝오버·사이드바·시트·미디어의 12가지 프리셋을 제공합니다.
+`GlassSurface preset="navigation" appearance="adaptive"`처럼 사용합니다. 내비게이션·툴바·탭 바·검색창·버튼·플로팅 액션·선택 표시·메뉴·팝오버·사이드바·시트·미디어의 24가지 프리셋을 제공합니다.
 
 `auto`는 OS 모드, `adaptive`는 표면 뒤의 콘텐츠를 따릅니다. 작은 Regular 표면은 라이트·다크가 전환되고, 큰 메뉴·사이드바·시트는 글자색을 유지하며 틴트·확산·그림자가 적응합니다. Clear는 고정된 밝은 전경과 로컬 디밍을 유지합니다.
 
@@ -95,3 +96,9 @@ DOM 원본에는 내부 `overflow: hidden; isolation: isolate` 레이어를 사�
 `<GlassPresence present={open} preset="popover">…</GlassPresence>`는 굴절·확산·경계와 콘텐츠 선명도를 함께 변화시킨 뒤 퇴장 완료 시 제거합니다. 기존 표면을 유지하려면 `GlassSurface`의 `present`를 사용하세요. 네이티브 팝오버에는 자동 적용됩니다.
 
 [공식 참고 자료, 사용법과 한계](docs/MOTION.md) · [빛과 모션 데모](https://meapri.github.io/prism-glass/#motion)
+
+## 투명도와 렌더링 해상도
+
+독바는 `GlassDock dimming={0} tint={[1,1,1,.035]}`로 배경 어둡힘 없이 얇은 반사만 남깁니다. 아이콘과 글자는 불투명하게 유지합니다.
+
+미디어 렌더러는 16비트 굴절 좌표를 사용하고 화면 DPR에 맞춰 맵을 생성합니다. 기본 최대 변 길이는 1024px, 설정 상한은 2048px, 출력 DPR 상한은 3입니다. 맵 전체는 400만 픽셀 예산을 공유하며, 누름 애니메이션에서 재사용합니다. SVG 경로의 8비트 맵과 임의의 DOM 배경 굴절 제한은 유지됩니다.

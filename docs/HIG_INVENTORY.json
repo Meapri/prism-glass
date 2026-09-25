@@ -1,0 +1,519 @@
+{
+  "target": "iOS 27",
+  "reviewedAt": "2026-09-25",
+  "source": "https://developer.apple.com/design/human-interface-guidelines/components",
+  "items": [
+    {
+      "title": "Charts",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/charts",
+      "category": "content",
+      "id": "charts",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Image views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/image-views",
+      "category": "content",
+      "id": "image-views",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Text views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/text-views",
+      "category": "content",
+      "id": "text-views",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Web views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/web-views",
+      "category": "content",
+      "id": "web-views",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Boxes",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/boxes",
+      "category": "layout-and-organization",
+      "id": "boxes",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Collections",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/collections",
+      "category": "layout-and-organization",
+      "id": "collections",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Column views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/column-views",
+      "category": "layout-and-organization",
+      "id": "column-views",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Disclosure controls",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/disclosure-controls",
+      "category": "layout-and-organization",
+      "id": "disclosure-controls",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Labels",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/labels",
+      "category": "layout-and-organization",
+      "id": "labels",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Lists and tables",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/lists-and-tables",
+      "category": "layout-and-organization",
+      "id": "lists-and-tables",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Lockups",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/lockups",
+      "category": "layout-and-organization",
+      "id": "lockups",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Outline views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/outline-views",
+      "category": "layout-and-organization",
+      "id": "outline-views",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Split views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/split-views",
+      "category": "layout-and-organization",
+      "id": "split-views",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Tab views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/tab-views",
+      "category": "layout-and-organization",
+      "id": "tab-views",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Activity views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/activity-views",
+      "category": "menus-and-actions",
+      "id": "activity-views",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Buttons",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/buttons",
+      "category": "menus-and-actions",
+      "id": "buttons",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Context menus",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/context-menus",
+      "category": "menus-and-actions",
+      "id": "context-menus",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Dock menus",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/dock-menus",
+      "category": "menus-and-actions",
+      "id": "dock-menus",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Edit menus",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/edit-menus",
+      "category": "menus-and-actions",
+      "id": "edit-menus",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Home Screen quick actions",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/home-screen-quick-actions",
+      "category": "menus-and-actions",
+      "id": "home-screen-quick-actions",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Menus",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/menus",
+      "category": "menus-and-actions",
+      "id": "menus",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Ornaments",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/ornaments",
+      "category": "menus-and-actions",
+      "id": "ornaments",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Pop-up buttons",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/pop-up-buttons",
+      "category": "menus-and-actions",
+      "id": "pop-up-buttons",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Pull-down buttons",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/pull-down-buttons",
+      "category": "menus-and-actions",
+      "id": "pull-down-buttons",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "The menu bar",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/the-menu-bar",
+      "category": "menus-and-actions",
+      "id": "the-menu-bar",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Toolbars",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/toolbars",
+      "category": "menus-and-actions",
+      "id": "toolbars",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Path controls",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/path-controls",
+      "category": "navigation-and-search",
+      "id": "path-controls",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Search fields",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/search-fields",
+      "category": "navigation-and-search",
+      "id": "search-fields",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Sidebars",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/sidebars",
+      "category": "navigation-and-search",
+      "id": "sidebars",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Tab bars",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/tab-bars",
+      "category": "navigation-and-search",
+      "id": "tab-bars",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Token fields",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/token-fields",
+      "category": "navigation-and-search",
+      "id": "token-fields",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Action sheets",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/action-sheets",
+      "category": "presentation",
+      "id": "action-sheets",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Alerts",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/alerts",
+      "category": "presentation",
+      "id": "alerts",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Page controls",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/page-controls",
+      "category": "presentation",
+      "id": "page-controls",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Panels",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/panels",
+      "category": "presentation",
+      "id": "panels",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Popovers",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/popovers",
+      "category": "presentation",
+      "id": "popovers",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Scroll views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/scroll-views",
+      "category": "presentation",
+      "id": "scroll-views",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Sheets",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/sheets",
+      "category": "presentation",
+      "id": "sheets",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Windows",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/windows",
+      "category": "presentation",
+      "id": "windows",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Color wells",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/color-wells",
+      "category": "selection-and-input",
+      "id": "color-wells",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Combo boxes",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/combo-boxes",
+      "category": "selection-and-input",
+      "id": "combo-boxes",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Digit entry views",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/digit-entry-views",
+      "category": "selection-and-input",
+      "id": "digit-entry-views",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Image wells",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/image-wells",
+      "category": "selection-and-input",
+      "id": "image-wells",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Pickers",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/pickers",
+      "category": "selection-and-input",
+      "id": "pickers",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Segmented controls",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/segmented-controls",
+      "category": "selection-and-input",
+      "id": "segmented-controls",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Sliders",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/sliders",
+      "category": "selection-and-input",
+      "id": "sliders",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Steppers",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/steppers",
+      "category": "selection-and-input",
+      "id": "steppers",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Text fields",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/text-fields",
+      "category": "selection-and-input",
+      "id": "text-fields",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Toggles",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/toggles",
+      "category": "selection-and-input",
+      "id": "toggles",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Virtual keyboards",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/virtual-keyboards",
+      "category": "selection-and-input",
+      "id": "virtual-keyboards",
+      "scope": "system-owned",
+      "status": "reviewed"
+    },
+    {
+      "title": "Activity rings",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/activity-rings",
+      "category": "status",
+      "id": "activity-rings",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Gauges",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/gauges",
+      "category": "status",
+      "id": "gauges",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Progress indicators",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/progress-indicators",
+      "category": "status",
+      "id": "progress-indicators",
+      "scope": "standard-content",
+      "status": "reviewed"
+    },
+    {
+      "title": "Rating indicators",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/rating-indicators",
+      "category": "status",
+      "id": "rating-indicators",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "App Shortcuts",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/app-shortcuts",
+      "category": "system-experiences",
+      "id": "app-shortcuts",
+      "scope": "system-owned",
+      "status": "reviewed"
+    },
+    {
+      "title": "Complications",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/complications",
+      "category": "system-experiences",
+      "id": "complications",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Controls",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/controls",
+      "category": "system-experiences",
+      "id": "controls",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Live Activities",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/live-activities",
+      "category": "system-experiences",
+      "id": "live-activities",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Notifications",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/notifications",
+      "category": "system-experiences",
+      "id": "notifications",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Snippets",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/snippets",
+      "category": "system-experiences",
+      "id": "snippets",
+      "scope": "component",
+      "status": "in-progress"
+    },
+    {
+      "title": "Status bars",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/status-bars",
+      "category": "system-experiences",
+      "id": "status-bars",
+      "scope": "system-owned",
+      "status": "reviewed"
+    },
+    {
+      "title": "Top Shelf",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/top-shelf",
+      "category": "system-experiences",
+      "id": "top-shelf",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Watch faces",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/watch-faces",
+      "category": "system-experiences",
+      "id": "watch-faces",
+      "scope": "other-platform",
+      "status": "reviewed"
+    },
+    {
+      "title": "Widgets",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/widgets",
+      "category": "system-experiences",
+      "id": "widgets",
+      "scope": "component",
+      "status": "in-progress"
+    }
+  ]
+}

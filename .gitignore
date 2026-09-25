@@ -12,3 +12,5 @@ pages-dist/
 .DS_Store
 
 demo/calibration.html
+demo/catalog.html
+demo/catalog-scene.html

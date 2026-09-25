@@ -6,7 +6,7 @@
 
 Only one quadrant evaluates signed distances and surface slopes; mirrored displacement and normals are written to the remaining quadrants, with directional lighting recomputed for each reflected normal. A full-grid reference test checks odd dimensions and all supported shapes.
 
-Map generation is pure and bounded to at most 512 pixels per dimension. The strength is applied later by the SVG primitive or media shader, so changing strength does not regenerate pixel maps. Width, height, radius, shape, bevel, refractive index, surface, depth, curvature, frost distribution or resolution changes invalidate the map key.
+SVG map generation is pure and bounded to at most 512 pixels per dimension. The strength is applied later by the SVG primitive or media shader, so changing strength does not regenerate pixel maps. Width, height, radius, shape, bevel, refractive index, surface, depth, curvature, frost distribution or resolution changes invalidate the map key.
 
 Circles use radial distance; capsules use the rounded-rectangle distance with full caps; ellipses use a first-order signed-distance estimate with an exact silhouette and a guarded center. The normal follows that shape. Rim profiles preserve a flat center, dome profiles bend across the whole lens, and concave profiles reverse the bend. Depth changes the surface slope and curvature changes the dome exponent.
 
@@ -51,3 +51,9 @@ Video updates use `requestVideoFrameCallback` with an animation-frame fallback. 
 ## Remaining boundaries
 
 The media path supports shared lenses; the DOM path still owns one lens per source. Automatic whole-page capture, arbitrary silhouette merging and background-luminance classification of unrelated DOM are not implemented. Device-specific quality profiles require measured visual/performance checks on the actual target hardware.
+
+## Media precision and memory
+
+`media-maps.ts` uses analytic normals for rounded rectangles, circles and fitted continuous corners. Two channels encode each signed displacement component in 16 bits (RG for X, BA for Y); decoding is linear, including bilinear filtering across byte boundaries. The field continues across the silhouette while the shader computes coverage analytically, avoiding a neutral outside texel at the last edge pixel. Fields adapt to output DPR, use a 1024px default longest-side cap (2048 configurable), and share a four-million-pixel allocation budget. Lower-diffusion Clear surfaces receive denser sampling. Output DPR defaults to the display value capped at 3; the independent framebuffer budget still applies.
+
+Uniform scale keeps normalized shape keys. Press feedback preserves the resting optical curvature and scales its bevel, so elastic flex does not rebuild every field on every frame. Up to four unused fields remain in the bounded cache; teardown and context loss release/reset allocations. `mapPixels` and `mapPrecision` expose storage diagnostics. At strength 64, the circle regression bounds packed-field coordinate error below 0.002 CSS pixels; this is a coordinate-quantization check, not a whole-image native similarity score.

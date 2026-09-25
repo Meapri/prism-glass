@@ -1,5 +1,5 @@
 /** Pure geometry. No DOM access; safe to import during server rendering. */
-export type LensShape = 'rounded-rect' | 'circle' | 'capsule' | 'ellipse';
+export type LensShape = 'rounded-rect' | 'continuous' | 'circle' | 'capsule' | 'ellipse';
 export type SurfaceProfile = 'rim' | 'dome' | 'concave';
 export type BlurMode = 'uniform' | 'center' | 'edge';
 export interface Lens { x: number; y: number; width: number; height: number; radius: number; shape?: LensShape }
@@ -24,9 +24,9 @@ export function normalizeLens(lens: Lens): Lens {
     throw new RangeError('Lens dimensions must be in (0, 8192] CSS pixels');
   }
   const shape = lens.shape ?? 'rounded-rect';
-  if (!['rounded-rect', 'circle', 'capsule', 'ellipse'].includes(shape)) throw new TypeError('Invalid lens shape');
+  if (!['rounded-rect', 'continuous', 'circle', 'capsule', 'ellipse'].includes(shape)) throw new TypeError('Invalid lens shape');
   if (shape === 'circle' && lens.width !== lens.height) throw new RangeError('A circle needs equal width and height; use lensFor to fit bounds');
-  return { ...lens, shape, radius: shape === 'rounded-rect'
+  return { ...lens, shape, radius: shape === 'rounded-rect' || shape === 'continuous'
     ? clamp(lens.radius, 0, Math.min(lens.width, lens.height) / 2) : Math.min(lens.width, lens.height) / 2 };
 }
 
@@ -50,9 +50,25 @@ export function roundedDistance(x: number, y: number, shape: OpticalShape): numb
     const k1 = Math.hypot(px / (rx * rx), py / (ry * ry));
     return k1 === 0 ? -Math.min(rx, ry) : k0 * (k0 - 1) / k1;
   }
-  const qx = Math.abs(x - shape.width / 2) - (shape.width / 2 - shape.radius);
-  const qy = Math.abs(y - shape.height / 2) - (shape.height / 2 - shape.radius);
-  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - shape.radius;
+  const radius=shape.shape==='continuous'?Math.min(shape.radius*1.34,shape.width/2,shape.height/2):shape.radius;
+  const qx = Math.abs(x - shape.width / 2) - (shape.width / 2 - radius);
+  const qy = Math.abs(y - shape.height / 2) - (shape.height / 2 - radius);
+  if(shape.shape==='continuous'&&qx>0&&qy>0){
+    const power=2.85,norm=(qx**power+qy**power)**(1/power);
+    const gradient=Math.hypot((qx/norm)**(power-1),(qy/norm)**(power-1));
+    return (norm-radius)/gradient;
+  }
+  return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - radius;
+}
+/** Public CALayer continuous-corner capture fit; under 0.2 CSS px RMS at radius 34. */
+export function continuousContour(lens:Lens,inset=0):string {
+  const l=normalizeLens(lens),w=Math.max(0,l.width-2*inset),h=Math.max(0,l.height-2*inset);
+  const r=Math.min(Math.max(0,(l.radius-inset)*1.34),w/2,h/2),ox=l.x+inset,oy=l.y+inset,power=2/2.85;
+  const points:string[]=[];
+  for(const [cx,cy,from] of [[w-r,r,-Math.PI/2],[w-r,h-r,0],[r,h-r,Math.PI/2],[r,r,Math.PI]] as const){
+    for(let i=0;i<=20;i++){const a=from+i/20*Math.PI/2,c=Math.cos(a),s=Math.sin(a);points.push(`${(ox+cx+r*Math.sign(c)*Math.abs(c)**power).toFixed(3)} ${(oy+cy+r*Math.sign(s)*Math.abs(s)**power).toFixed(3)}`);}
+  }
+  return `M${points.join('L')}Z`;
 }
 const smoothstep = (t: number) => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
 

@@ -1,3 +1,24 @@
+# iOS 27 component and rendering QA — 0.5.0-alpha.1
+
+The material QA record below remains as versioned history. This release adds the full HIG coverage inventory, component families, the transparent dock and high-density media maps.
+
+## Current comparisons
+
+The catalog places native iOS 27 photo captures next to live 402 × 812 scenes, with separate light/dark images. Real SwiftUI references cover eleven families: buttons, inputs, wheel/calendar, navigation/toolbars, tabs, menus, alerts, action sheets, popovers, sheets and standard materials. The complete inventory contains 64 HIG entries plus four compositions/foundations. Base references are explicitly labeled; absent native state/background captures are not represented as verified matches.
+
+- **Fixed:** low-density 8-bit media displacement. Packed 16-bit coordinates, denser DPR-aware maps, analytic coverage and field continuation outside the silhouette remove the large quantization step and broken last-edge sampling. Circle coordinate error at strength 64 is below 0.002 CSS pixels in the numeric regression. Whole-image equivalence is not inferred from this number.
+- **Fixed:** press-time field churn. Resting optical curvature stays constant during uniform flex, normalized geometry keys and a bounded cache reuse maps. Actual pointer press/release allocation checks cover the Clear dock.
+- **Fixed:** dock transparency and shape. Local dimming is zero, white reflection is 3.5%, icons retain opacity and continuous corners follow a native mask-derived approximation.
+- **Fixed:** menu icons/order, overlap anchoring, panel width and divider metrics; sheet heading/handle spacing; navigation trailing alignment; mobile header overflow.
+- **Fixed:** modal return-focus targets for Safari pointer activation; native dialog input isolation; menu roving focus/disabled/checked behavior; sheet detent keyboard actions.
+- **Remaining:** native glyph differences, fine local vibrancy and edge intensity, exact OS transition choreography/glass unions, and physical-device performance. The catalog includes functional web compositions for OS experiences, without claiming OS registration or delivery.
+
+Five-point review: system typography and 44px control hit targets; same registered source coordinates in native comparisons; distinct Clear/Regular/standard materials; original CC0 media; ordinary semantic interactive content. Saved native reference screenshots never supply the live rendering.
+
+Current test results and publication status are in [docs/VALIDATION.md](docs/VALIDATION.md). Native simulator reference capture is separate from web-browser verification.
+
+---
+
 # Native iOS 27 material QA
 
 Date: 2026-09-25. Release: 0.4.0-alpha.1. Scope: material optics, contact light and materialization of this web library.

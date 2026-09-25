@@ -1,5 +1,7 @@
-import { clamp, finite, generateMaps, normalizeLens } from './optics.js';
-import { getLensMaterial, materialOptics, observeGlassPreferences, type GlassPreferences } from './materials.js';
+import { clamp, finite, normalizeLens } from './optics.js';
+import {generateMediaMaps} from './media-maps.js';
+export {generateMediaMaps,type MediaPixelMaps} from './media-maps.js';
+import { customizeGlassMaterial, getLensMaterial, materialOptics, normalizeGlassTint, observeGlassPreferences, type GlassPreferences } from './materials.js';
 import { vertexShader, fragmentShader } from './media-shaders.js';
 import { createMediaBlur } from './media-blur.js';
 import { createBackdropSampler } from './backdrop.js';
@@ -20,6 +22,7 @@ function normalizeMediaLens(input: MediaLens) {
   const material = resolved?.material??getLensMaterial(lens,input.variant, appearance, input.tintLevel);
   const preset=resolved?.optics??materialOptics(lens,input.variant,input.tintLevel,appearance);
   const options = { ...input, lens, material, strength: input.strength ?? preset.strength!,
+    tint:input.tint?normalizeGlassTint(input.tint):undefined,
     bevel: input.bevel ?? preset.bevel!, ior: input.ior ?? 1.5,
     surface: input.surface ?? preset?.surface ?? 'rim', depth: input.depth ?? preset?.depth ?? 1, curvature: input.curvature ?? preset?.curvature ?? 4,
     blurMode: input.blurMode ?? 'uniform', blur: input.blur ?? material.blur, saturation: input.saturation ?? material.saturation,
@@ -45,12 +48,13 @@ function normalizeLenses(inputs: readonly MediaLens[]) {
   return lenses;
 }
 function normalizeOptions(input: Omit<MediaGlassOptions, 'lenses'>, dpr: number) {
-  const options = { fit: 'cover' as const, position: [0.5, 0.5] as readonly [number, number], resolution: 256,
+  const options = { fit: 'cover' as const, sourceAlignment:'scene' as const, position: [0.5, 0.5] as readonly [number, number], resolution: 1024,
     backgroundColor: [0, 0, 0] as readonly [number, number, number],
-    pixelRatio: Math.min(dpr, 2), maxPixels: 4_000_000, enabled: true, live: false, respectPreferences: true, ...input };
+    pixelRatio: Math.min(dpr, 3), maxPixels: 4_000_000, enabled: true, live: false, respectPreferences: true, ...input };
   if (!['cover', 'contain', 'fill'].includes(options.fit)) throw new TypeError('Invalid media fit');
+  if(!['scene','element'].includes(options.sourceAlignment))throw new TypeError('Invalid source alignment');
   for (const key of ['enabled', 'live', 'respectPreferences'] as const) if (typeof options[key] !== 'boolean') throw new TypeError(`${key} must be boolean`);
-  options.resolution = Math.round(clamp(finite(options.resolution, 'resolution'), 32, 512));
+  options.resolution = Math.round(clamp(finite(options.resolution, 'resolution'), 32, 2048));
   options.pixelRatio = clamp(finite(options.pixelRatio, 'pixelRatio'), 0.5, 3);
   options.maxPixels = clamp(finite(options.maxPixels, 'maxPixels'), 10_000, 16_000_000);
   if (options.position.length !== 2) throw new TypeError('position needs two coordinates');
@@ -68,7 +72,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   if (!['VIDEO', 'IMG', 'CANVAS'].includes(source.tagName)) throw new TypeError('Media source must be a video, image, or canvas');
   if (owners.has(canvas)) throw new Error('This canvas already has a media glass controller');
   const { lenses: initialLenses = [], ...settings } = options;
-  const copyInputs = (inputs: readonly MediaLens[]) => inputs.map(item => ({ ...item, lens: { ...item.lens }, pointer: item.pointer ? [...item.pointer] as [number, number] : undefined, illuminationPointer:item.illuminationPointer?[...item.illuminationPointer] as [number,number]:undefined }));
+  const copyInputs = (inputs: readonly MediaLens[]) => inputs.map(item => ({ ...item, lens: { ...item.lens }, tint:item.tint?[...item.tint] as [number,number,number,number]:undefined, pointer: item.pointer ? [...item.pointer] as [number, number] : undefined, illuminationPointer:item.illuminationPointer?[...item.illuminationPointer] as [number,number]:undefined }));
   let config = normalizeOptions(settings, win.devicePixelRatio), lenses = normalizeLenses(initialLenses);
   let inputs = copyInputs(initialLenses);
   const video = source.tagName === 'VIDEO' ? source as HTMLVideoElement : undefined;
@@ -82,10 +86,11 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   const appearanceNotifications=new Map<string,{key:string;callback:MediaLens['onAppearance']}>();
   const adaptations=new Map<string,{state?:GlassAdaptiveState;sample:GlassBackdropSample|null;sampled:number;geometry?:string;painted?:GlassMaterial;paintAt:number}>();
   const uniforms = new Map<string, WebGLUniformLocation | null>();
-  const maps = new Map<string, { map: WebGLTexture; finish: WebGLTexture }>();
+  const maps = new Map<string, { map: WebGLTexture; finish: WebGLTexture;pixels:number;used:number }>();
+  let renderSerial=0,mapBudgetScale=1;
   let preferences: GlassPreferences = { reducedMotion: false, reducedTransparency: false, increasedContrast: false, forcedColors: false, dark: false };
   const diagnostic: MediaGlassDiagnostics = { state: 'loading', reason: 'initializing', renderer: 'webgl-media',
-    lenses: lenses.length, mapBuilds: 0, textureUploads: 0, renders: 0, pixels: 0, visualSupportVerified: false };
+    lenses: lenses.length, mapBuilds: 0, textureUploads: 0, renders: 0, pixels: 0, mapPixels:0,mapPrecision:16,visualSupportVerified: false };
   const snapshot = () => ({ ...diagnostic });
   function status(state: MediaGlassDiagnostics['state'], reason: string) {
     const changed = state !== diagnostic.state || reason !== diagnostic.reason;
@@ -122,7 +127,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
       mediaTexture = texture();
-      for (const name of ['view', 'rect', 'radius', 'ellipse', 'surfaceSign', 'pixelRatio', 'sourceRect', 'backgroundColor', 'source', 'map', 'finish', 'diffuse', 'hasDiffuse', 'tint', 'brightness', 'strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'press', 'hover', 'pointer', 'light', 'nearLight', 'nearPointer', 'presence']) {
+      for (const name of ['view', 'rect', 'radius', 'ellipse', 'continuous', 'surfaceSign', 'pixelRatio', 'sourceRect', 'backgroundColor', 'source', 'map', 'finish', 'diffuse', 'hasDiffuse', 'tint', 'brightness', 'strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'press', 'hover', 'pointer', 'light', 'nearLight', 'nearPointer', 'presence']) {
         uniforms.set(name, gl.getUniformLocation(program, `u_${name}`));
       }
       dirty = true;
@@ -133,6 +138,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   function releaseMaps() {
     for (const entry of maps.values()) { gl?.deleteTexture(entry.map); gl?.deleteTexture(entry.finish); }
     maps.clear();
+    diagnostic.mapPixels=0;
   }
   function disposeResources() {
     if (!gl) return;
@@ -141,25 +147,22 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
     if (mediaTexture) gl.deleteTexture(mediaTexture); if (buffer) gl.deleteBuffer(buffer); if (program) gl.deleteProgram(program);
     mediaTexture = undefined; buffer = undefined; program = undefined; uniforms.clear();
   }
-  function mapKey(item: NormalLens) {
+  function fieldResolution(item:NormalLens,ratio:number){return Math.min(config.resolution,Math.max(32,Math.ceil(Math.max(item.lens.width,item.lens.height)*ratio*(item.blur>2?.75:1)/128)*128));}
+  function mapKey(item: NormalLens,resolution:number) {
     const l = item.lens;
-    return [l.width, l.height, l.radius, l.shape, item.bevel, item.ior, item.surface, item.depth, item.curvature, item.blurMode, config.resolution].join(':');
+    const short=Math.min(l.width,l.height),normalized=(value:number)=>(value/short).toFixed(5);
+    return [normalized(l.width),normalized(l.height),normalized(l.radius),l.shape,normalized(item.bevel),item.ior,item.surface,item.depth,item.curvature,item.blurMode,resolution].join(':');
   }
-  function opticalMap(item: NormalLens, key: string) {
-    const cached = maps.get(key); if (cached) return cached;
-    const pixels = generateMaps({ ...item, ...item.lens }, config.resolution);
-    const finishPixels = new Uint8Array(pixels.displacement.length);
-    for (let i = 0; i < finishPixels.length; i += 4) {
-      finishPixels[i] = pixels.mask[i + 3]; finishPixels[i + 1] = pixels.highlight[i + 3];
-      finishPixels[i + 2] = pixels.frost?.[i + 3] ?? 255; finishPixels[i + 3] = 255;
-    }
+  function opticalMap(item: NormalLens, key: string,resolution:number) {
+    const cached = maps.get(key); if (cached){cached.used=renderSerial;return cached;}
+    const pixels = generateMediaMaps({ ...item, ...item.lens }, resolution,resolution/Math.max(item.lens.width,item.lens.height));
     let map: WebGLTexture | undefined, finish: WebGLTexture | undefined;
     try {
       map = texture();
       gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, pixels.width, pixels.height, 0, gl!.RGBA, gl!.UNSIGNED_BYTE, pixels.displacement);
       finish = texture();
-      gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, pixels.width, pixels.height, 0, gl!.RGBA, gl!.UNSIGNED_BYTE, finishPixels);
-      const entry = { map, finish }; maps.set(key, entry); diagnostic.mapBuilds++; return entry;
+      gl!.texImage2D(gl!.TEXTURE_2D, 0, gl!.RGBA, pixels.width, pixels.height, 0, gl!.RGBA, gl!.UNSIGNED_BYTE, pixels.finish);
+      const entry = { map, finish,pixels:pixels.width*pixels.height,used:renderSerial }; maps.set(key, entry); diagnostic.mapBuilds++;diagnostic.mapPixels+=entry.pixels; return entry;
     } catch (error) { if (map) gl!.deleteTexture(map); if (finish) gl!.deleteTexture(finish); throw error; }
   }
   function cancelVideo() { if (videoFrame && video) video.cancelVideoFrameCallback(videoFrame); videoFrame = 0; }
@@ -190,6 +193,10 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
     try {
       if (!program) init();
       const ratio = Math.min(config.pixelRatio, Math.sqrt(config.maxPixels / (width * height)));
+      renderSerial++;
+      const requested=new Map<string,number>();
+      for(const item of lenses){const resolution=fieldResolution(item,ratio),l=item.lens,long=Math.max(l.width,l.height);requested.set(mapKey(item,resolution),l.width*l.height*(resolution/long)**2);}
+      mapBudgetScale=Math.min(1,Math.sqrt(3_900_000/Math.max(1,Array.from(requested.values()).reduce((a,b)=>a+b,0))));
       const w = Math.max(1, Math.floor(width * ratio)), h = Math.max(1, Math.floor(height * ratio));
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
       diagnostic.pixels = w * h;
@@ -214,24 +221,33 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       gl.uniform3f(uniform('backgroundColor'), ...config.backgroundColor);
       const fit = config.fit === 'cover' ? Math.max(width / sourceWidth, height / sourceHeight) : Math.min(width / sourceWidth, height / sourceHeight);
       const displayWidth = config.fit === 'fill' ? width : sourceWidth * fit, displayHeight = config.fit === 'fill' ? height : sourceHeight * fit;
-      const sourceRect: [number, number, number, number] = [(width - displayWidth) * config.position[0], (height - displayHeight) * config.position[1], displayWidth, displayHeight];
+      let sourceRect: [number, number, number, number] = [(width - displayWidth) * config.position[0], (height - displayHeight) * config.position[1], displayWidth, displayHeight];
+      if(config.sourceAlignment==='element'){
+        const box=source.getBoundingClientRect(),target=canvas.getBoundingClientRect(),style=win!.getComputedStyle(source);
+        const kind=style.objectFit,ratio=kind==='cover'?Math.max(box.width/sourceWidth,box.height/sourceHeight):kind==='none'?1:Math.min(box.width/sourceWidth,box.height/sourceHeight,kind==='scale-down'?1:Infinity);
+        const dw=kind==='fill'?box.width:sourceWidth*ratio,dh=kind==='fill'?box.height:sourceHeight*ratio;
+        const positions=style.objectPosition.split(/\s+/),offset=(text:string|undefined,space:number,fallback:number)=>text?.endsWith('%')?space*parseFloat(text)/100:text?.endsWith('px')?parseFloat(text):space*fallback;
+        const sx=width/Math.max(1,target.width),sy=height/Math.max(1,target.height);
+        sourceRect=[(box.left-target.left+offset(positions[0],box.width-dw,config.position[0]))*sx,(box.top-target.top+offset(positions[1],box.height-dh,config.position[1]))*sy,dw*sx,dh*sy];
+      }
       gl.uniform4f(uniform('sourceRect'), ...sourceRect);
       diffusion?.begin();
       const now=win!.performance.now();let sampling=false,needsFollowup=false;
-      const adaptiveIds=new Set(lenses.filter(item=>item.appearance==='adaptive'&&item.material.variant==='regular').map(item=>item.id));
+      const adaptiveIds=new Set(lenses.filter(item=>(item.appearance==='adaptive'&&item.material.variant==='regular')||['dock','dock-item','widget','control'].includes(item.preset??'')).map(item=>item.id));
       for(const id of adaptations.keys())if(!adaptiveIds.has(id))adaptations.delete(id);
       if(!adaptiveIds.size&&sampler){sampler.destroy();sampler=undefined;}
       for(const id of appearanceNotifications.keys())if(!lenses.some(item=>item.id===id))appearanceNotifications.delete(id);
-      function notifyAppearance(item:NormalLens,material:GlassMaterial,elevation:number,available:boolean,separation=1) {
+      function notifyAppearance(item:NormalLens,material:GlassMaterial,elevation:number,available:boolean,separation=1,ambient?:readonly[number,number,number]) {
+        material=customizeGlassMaterial(material,{tint:item.tint,dimming:item.dimming});
         if(!item.onAppearance)return;
-        const key=[material.variant,material.appearance,...material.tint.map(v=>v.toFixed(3)),material.blur.toFixed(1),material.saturation.toFixed(3),material.brightness,elevation,available,separation.toFixed(3)].join(':');
+        const key=[material.variant,material.appearance,...material.tint.map(v=>v.toFixed(3)),material.blur.toFixed(1),material.saturation.toFixed(3),material.brightness,elevation,available,separation.toFixed(3),...(ambient??[]).map(v=>v.toFixed(3))].join(':');
         const previous=appearanceNotifications.get(item.id);
         if(previous?.key===key&&previous.callback===item.onAppearance)return;
         appearanceNotifications.set(item.id,{key,callback:item.onAppearance});
-        item.onAppearance({appearance:material.appearance,material,elevation,available,separation});
+        item.onAppearance({appearance:material.appearance,material,elevation,available,separation,ambient});
       }
       function appearanceFor(item:NormalLens) {
-        const fallback=item.fallbackAppearance??(preferences.dark?'dark':'light');
+        const fallback=item.fallbackAppearance??(item.appearance==='light'||item.appearance==='dark'?item.appearance:preferences.dark?'dark':'light');
         const profile=item.preset?resolveGlassSurface(item.preset,item.lens,{variant:item.variant,appearance:fallback,tintLevel:item.tintLevel}):undefined;
         const elevation=profile?.elevation??1;
         if(!adaptiveIds.has(item.id)) {
@@ -246,7 +262,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
           sampler??=createBackdropSampler(doc);if(!sampling){sampler.begin();sampling=true;}
           entry.sample=sampler.media(source,item.lens,sourceRect,config.backgroundColor);entry.sampled=now;entry.geometry=geometry;
         }
-        entry.state=updateGlassAdaptation(entry.state,entry.sample,now,fallback,profile?.adaptation??'flip');
+        entry.state=updateGlassAdaptation(entry.state,entry.sample,now,fallback,item.appearance==='adaptive'&&item.material.variant==='regular'?profile?.adaptation??'flip':'ambient');
         const adaptedProfile=item.preset?resolveGlassSurface(item.preset,item.lens,{variant:item.variant,appearance:entry.state.appearance,tintLevel:item.tintLevel}):undefined;
         const base=adaptedProfile?.material??getLensMaterial(item.lens,item.variant,entry.state.appearance,item.tintLevel);
         const target=adaptGlassMaterial(base,entry.state);
@@ -254,20 +270,20 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         const difference=Math.max(...painted.tint.map((v,i)=>Math.abs(v-target.tint[i])),Math.abs(painted.saturation-target.saturation));
         needsFollowup ||= difference>.001||entry.state.candidate!==entry.state.appearance||Math.abs(entry.state.luminance-(entry.sample?.luminance??.5))>.002;
         entry.painted=painted;entry.paintAt=now;
-        notifyAppearance(item,target,elevation,entry.state.available,1+Math.sqrt(entry.state.variance)*1.5+(1-entry.state.luminance)*.2);
+        notifyAppearance(item,target,elevation,entry.state.available,1+Math.sqrt(entry.state.variance)*1.5+(1-entry.state.luminance)*.2,entry.state.available?entry.state.color:undefined);
         return painted;
       }
       const active = new Set<string>();
       for (const [index,item] of lenses.entries()) {
         if(item.presence===0)continue;
-        const material=appearanceFor(item);
+        const material=customizeGlassMaterial(appearanceFor(item),{tint:item.tint,dimming:item.dimming});
         // User optical overrides remain authoritative; otherwise diffusion follows the adaptive material.
         const opticalBlur=inputs[index].blur??Math.round(material.blur*2)/2;
         const opticalSaturation=inputs[index].saturation??material.saturation;
-        const key = mapKey(item); active.add(key);
+        const resolution=Math.max(32,Math.floor(fieldResolution(item,ratio)*mapBudgetScale/32)*32),key = mapKey(item,resolution); active.add(key);
         // Creating map textures can change the active texture binding. Rebind all
         // three units before each draw, including the one shared media texture.
-        const entry = opticalMap(item, key);
+        const entry = opticalMap(item, key,resolution);
         let diffuseTexture: WebGLTexture | undefined;
         if (opticalBlur > 2) {
           if (!diffusion) diffusion = createMediaBlur(gl);
@@ -284,6 +300,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         gl.uniform4f(uniform('rect'), l.x, l.y, l.width, l.height);
         gl.uniform1f(uniform('radius'), l.radius);
         gl.uniform1f(uniform('ellipse'), l.shape === 'circle' || l.shape === 'ellipse' ? 1 : 0);
+        gl.uniform1f(uniform('continuous'),l.shape==='continuous'?1:0);
         gl.uniform1f(uniform('surfaceSign'), item.surface === 'concave' ? -1 : 1);
         gl.uniform4f(uniform('tint'), ...material.tint);
         gl.uniform1f(uniform('brightness'), material.brightness);
@@ -297,7 +314,8 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
       diffusion?.end();
-      for (const [key, entry] of maps) if (!active.has(key)) { gl.deleteTexture(entry.map); gl.deleteTexture(entry.finish); maps.delete(key); }
+      const idle=Array.from(maps.entries()).filter(([key])=>!active.has(key)).sort((a,b)=>a[1].used-b[1].used);
+      for (const [index,[key,entry]] of idle.entries()) if(idle.length-index>4||diagnostic.mapPixels>4_000_000){gl.deleteTexture(entry.map);gl.deleteTexture(entry.finish);maps.delete(key);diagnostic.mapPixels-=entry.pixels;}
       if(needsFollowup&&!adaptiveTimer)adaptiveTimer=win!.setTimeout(()=>{adaptiveTimer=0;schedule();},32);
       diagnostic.renders++; status('ready', ratio < config.pixelRatio ? 'pixel-budget-downsampled' : 'webgl-media-selected'); trackFrames();
     } catch (error) {
@@ -308,7 +326,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   const onLost = (event: Event) => { event.preventDefault(); lost = true; cancelVideo(); status('fallback', 'webgl-context-lost'); };
   const onRestored = () => {
     // Restoring a context invalidates old GPU handles; do not delete them in the new context.
-    lost = false; maps.clear(); diffusion = undefined; mediaTexture = undefined; buffer = undefined; program = undefined; uniforms.clear(); refresh();
+    lost = false; maps.clear();diagnostic.mapPixels=0; diffusion = undefined; mediaTexture = undefined; buffer = undefined; program = undefined; uniforms.clear(); refresh();
   };
   canvas.addEventListener('webglcontextlost', onLost); canvas.addEventListener('webglcontextrestored', onRestored);
   // Canvas layout changes affect sampling coordinates, not the source texture.

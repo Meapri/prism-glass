@@ -1,4 +1,4 @@
-import type { GlassAppearance, GlassVariant } from './materials.js';
+import type { GlassAppearance, GlassVariant, GlassTint } from './materials.js';
 import type { GlassAppearanceMode } from './adaptive.js';
 import type { GlassSurfacePreset } from './surface-presets.js';
 import type { GlassMaterial } from './materials.js';
@@ -13,9 +13,10 @@ export interface MediaLens {
   fallbackAppearance?: GlassAppearance;
   preset?: GlassSurfacePreset;
   /** Called outside React render; use to keep foreground and GPU appearance together. */
-  onAppearance?: (state:{appearance:GlassAppearance;material:GlassMaterial;elevation:number;available:boolean;separation:number})=>void;
+  onAppearance?: (state:{appearance:GlassAppearance;material:GlassMaterial;elevation:number;available:boolean;separation:number;ambient?:readonly[number,number,number]})=>void;
   /** Web analogue of the iOS 27 appearance preference: 0 clearer, 1 more tinted. */
   tintLevel?: number;
+  tint?: GlassTint;
   strength?: number;
   bevel?: number;
   ior?: number;
@@ -44,12 +45,15 @@ export type MediaLensPatch = Partial<Omit<MediaLens, 'id' | 'lens'>> & { lens?: 
 export interface MediaGlassOptions {
   lenses?: readonly MediaLens[];
   fit?: 'cover' | 'contain' | 'fill';
+  /** Align a separate optical plane (for example a dialog) to the source element's page bounds. */
+  sourceAlignment?:'scene'|'element';
   /** Align with the visible media's object-position, normalized 0–1. */
   position?: readonly [number, number];
   /** RGB channels in 0–1, matching the visible media's background/letterbox. Default black. */
   backgroundColor?: readonly [number, number, number];
+  /** Longest optical field side: default 1024, maximum 2048. Adapts to DPR and a shared 4M-pixel budget. */
   resolution?: number;
-  /** Maximum backing-store DPR. Default 2. */
+  /** Maximum backing-store DPR. Defaults to the display DPR, capped at 3. */
   pixelRatio?: number;
   maxPixels?: number;
   enabled?: boolean;
@@ -67,6 +71,9 @@ export interface MediaGlassDiagnostics {
   textureUploads: number;
   renders: number;
   pixels: number;
+  /** Total currently allocated optical-field pixels (two RGBA textures per pixel). */
+  mapPixels:number;
+  mapPrecision:16;
   visualSupportVerified: false;
 }
 export interface MediaGlassController {
