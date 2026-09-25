@@ -16,7 +16,7 @@ Additional design references for the component library:
 - Apple, *Materials*: https://developer.apple.com/design/human-interface-guidelines/materials
 - Apple, *Meet Liquid Glass*: https://developer.apple.com/videos/play/wwdc2025/219/
 
-The local demo's `demo/assets/flower.mp4` is MDN's CC0 example media:
+The local demo's `demo/assets/flower.mp4` is MDN's CC0 example media. `flower-still.webp` is a lossless frame extracted at 2 seconds for the static motion example:
 https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
 The originating example repository's license is CC0 1.0 Universal:
 https://github.com/mdn/interactive-examples/blob/main/LICENSE

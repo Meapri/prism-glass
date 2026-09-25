@@ -11,6 +11,9 @@ Date: 2026-09-25. Release: `0.4.0-alpha.1`.
 - IAB inspection confirmed the new `/#motion` demo renders, Hide/Show removes/reintroduces the panel, and no application console errors were observed.
 - Native Safari CI now includes real mouse-held illumination pixel differences and materialize Hide/Show checks. The earlier run exposed shared-window focus interference in headed CI; headed runs now use one worker, retaining production blur/cancel behavior. Final remote results are recorded after execution.
 
+- [CI run 36130032240](https://github.com/Meapri/prism-glass/actions/runs/36130032240), source `2d3396c`: **119/120 browser checks passed**; the remaining Linux WebKit failure waited for media before initiating playback. All native-image optical, contact-light and materialization checks passed. Native macOS Safari 26.6.2 also passed, including 3,376 changed contact-light pixels.
+- The motion demo now uses a lossless still of its previously paused video frame, so only the actual player creates a video decoder. The playback test starts with a real user gesture instead of relying on autoplay/preload policy. The affected library/motion subset passed **30/30** on local Chromium/WebKit after this change. The source library's optics and animation code are unchanged by this loading correction.
+
 ## Previous release (`0.3.0-alpha.1`)
 
 ## Adaptive material and surface preset checks

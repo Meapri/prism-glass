@@ -15,7 +15,7 @@ const template = await readFile('demo/template.html', 'utf8');
 await writeFile('demo/optics.html', template.replace('/* PRISM_DEMO_BUNDLE */',
   demo.outputFiles[0].text.replace(/<\/script/gi, '<\\/script')));
 const library = await build({ entryPoints: ['demo/library.tsx'], bundle: true, format: 'iife', jsx: 'automatic',
-  target: 'es2022', minify: false, write: false });
+  target: 'es2022', minify: false, write: false, loader: {'.webp':'dataurl'} });
 const libraryTemplate = await readFile('demo/library.template.html', 'utf8');
 const styles = `${await readFile('src/styles.css', 'utf8')}\n${await readFile('demo/library.css', 'utf8')}`;
 await writeFile('demo/index.html', libraryTemplate.replace('/* PRISM_STYLES */', styles)

@@ -1,12 +1,13 @@
 import {useRef,useState} from 'react';
 import {GlassButton,GlassLightGroup,GlassMediaScene,GlassPresence,GlassPopover} from '../src/react.js';
 import type {GlassPresencePhase} from '../src/presence.js';
+import flowerStill from './assets/flower-still.webp';
 export function MotionLab(){
-  const toggleButton=useRef<HTMLButtonElement>(null),video=useRef<HTMLVideoElement>(null),[visible,setVisible]=useState(true),[phase,setPhase]=useState<GlassPresencePhase>('entering'),[saved,setSaved]=useState(0);
+  const toggleButton=useRef<HTMLButtonElement>(null),picture=useRef<HTMLImageElement>(null),[visible,setVisible]=useState(true),[phase,setPhase]=useState<GlassPresencePhase>('entering'),[saved,setSaved]=useState(0);
   return <section id="motion" className="motion-lab" aria-label="Glass light and motion">
     <div className="section-title"><h2>Light follows your touch.</h2><p>Press, hold, and move. Then watch the material form.</p></div>
-    <GlassMediaScene className="motion-scene" source={video} variant="regular" appearance="dark" aria-label="Interaction preview">
-      <video ref={video} src="./assets/flower.mp4" muted playsInline preload="auto" aria-label="Still flower backdrop" onLoadedMetadata={()=>{if(video.current)video.current.currentTime=2;}}/>
+    <GlassMediaScene className="motion-scene" source={picture} variant="regular" appearance="dark" aria-label="Interaction preview">
+      <img ref={picture} src={flowerStill} alt="Still flower backdrop"/>
       <GlassLightGroup className="prism-media-controls">
         <div className="motion-actions"><GlassButton preset="button" onClick={()=>setSaved(n=>n+1)}>Save</GlassButton><GlassButton preset="button" onClick={()=>setSaved(n=>n+1)}>Share</GlassButton><GlassButton preset="button" onClick={()=>setSaved(n=>n+1)}>More</GlassButton></div>
         <GlassPresence present={visible} preset="popover" className="motion-panel" onPresenceChange={setPhase} data-testid="motion-panel">

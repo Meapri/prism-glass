@@ -19,10 +19,15 @@ test('component collection uses native controls, keyboard tabs, and a dismissibl
 });
 
 test('live media uses one canvas and responds to play, pause, seek, and material changes',async({page})=>{
-  await page.goto('/');await expect(page.locator('#media-status')).toHaveText('Live refraction',{timeout:15000});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/');
+  // A user gesture starts playback even when the environment blocks autoplay/preload.
+  const play=page.getByRole('button',{name:'Play video',exact:true});if(await play.isVisible())await play.click();
+  await expect(page.locator('#media-status')).toHaveText('Live refraction',{timeout:15000});
   await expect(page.locator('.flower-player')).toHaveAttribute('data-variant','clear');
   await page.getByRole('combobox',{name:'Video material',exact:true}).selectOption('regular');await expect(page.locator('.flower-player')).toHaveAttribute('data-variant','regular');
   await expect(page.locator('.flower-player canvas')).toHaveCount(1);
+  await expect(page.locator('video')).toHaveCount(1);
   const video=page.locator('.flower-player > video');await expect.poll(()=>video.evaluate(v=>v.readyState)).toBeGreaterThanOrEqual(2);
   if(await page.getByRole('button',{name:'Play video',exact:true}).isVisible())await page.getByRole('button',{name:'Play video',exact:true}).click();
   const initial=await video.evaluate(v=>v.currentTime);await expect.poll(()=>video.evaluate(v=>v.currentTime)).not.toBe(initial);
