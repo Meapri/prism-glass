@@ -1,10 +1,10 @@
 import { generateMaps, type OpticalShape, type Lens, type BlurMode } from './optics.js';
 const NS = 'http://www.w3.org/2000/svg';
+const XLINK = 'http://www.w3.org/1999/xlink';
 export interface MapAssets { urls: string[]; width: number; height: number; dispose(): void }
 export async function buildAssets(doc: Document, shape: OpticalShape, resolution: number): Promise<MapAssets> {
   const pixels = generateMaps(shape, resolution);
   const urls: string[] = [];
-  const URL = doc.defaultView!.URL;
   try {
     const channels = [pixels.displacement, pixels.mask, pixels.highlight];
     if (pixels.frost) channels.push(pixels.frost);
@@ -17,23 +17,31 @@ export async function buildAssets(doc: Document, shape: OpticalShape, resolution
       image.data.set(bytes); ctx.putImageData(image, 0, 0);
       const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob(
         b => b ? resolve(b) : reject(new Error('PNG encoding failed')), 'image/png'));
-      const url = URL.createObjectURL(blob); urls.push(url);
+      // Bounded, embedded PNGs avoid a second blob-resource loader inside SVG.
+      // In particular, an HTML Image decode does not warm WebKit's feImage loader.
+      const url = await new Promise<string>((resolve, reject) => {
+        const reader = new doc.defaultView!.FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(new Error('PNG data URL encoding failed'));
+        reader.readAsDataURL(blob);
+      });
+      urls.push(url);
       // Decode before assigning feImage href, avoiding a partially loaded graph.
       const img = doc.createElement('img'); img.src = url; await img.decode();
     }
     return { urls, width: pixels.width, height: pixels.height,
-      dispose: () => { for (const url of urls.splice(0)) URL.revokeObjectURL(url); } };
-  } catch (error) { for (const url of urls) URL.revokeObjectURL(url); throw error; }
+      dispose: () => { urls.length = 0; } };
+  } catch (error) { urls.length = 0; throw error; }
 }
-export function createFilter(doc: Document, id: string) {
+export function createFilter(doc: Document, id: string, onImageLoad?: () => void) {
   function el<K extends keyof SVGElementTagNameMap>(name: K, attrs: Record<string, string | number> = {}) {
     const node = doc.createElementNS(NS, name);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
     return node;
   }
-  const svg = el('svg', { 'aria-hidden': 'true', focusable: 'false', width: 0, height: 0 });
+  const svg = el('svg', { 'aria-hidden': 'true', focusable: 'false', width: 1, height: 1 });
   svg.dataset.prismDefs = id;
-  svg.style.cssText = 'position:absolute;width:0;height:0;overflow:hidden;pointer-events:none';
+  svg.style.cssText = 'position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none';
   const defs = el('defs'); svg.append(defs);
   const filter = el('filter', { id, x: 0, y: 0, filterUnits: 'userSpaceOnUse', primitiveUnits: 'userSpaceOnUse', 'color-interpolation-filters': 'sRGB' });
   defs.append(filter);
@@ -56,17 +64,39 @@ export function createFilter(doc: Document, id: string) {
   const light = el('feComponentTransfer', { in: 'shine', result: 'light' });
   const alpha = el('feFuncA', { type: 'linear', slope: 0.55 }); light.append(alpha);
   const finish = el('feComposite', { in: 'light', in2: 'reunited', operator: 'over' });
-  filter.append(map, correct, mask, blur, displacement, softDisplacement, frost, frostedPart, clearPart, mixed, inside, outside, reunite, highlight, light, finish);
+  filter.append(map, correct, mask, displacement, inside, outside, reunite, highlight, light, finish);
+  for (const node of [map, mask, highlight, frost]) {
+    if (onImageLoad) node.addEventListener('load', onImageLoad);
+  }
+  let pipeline = 'clear';
   doc.body.append(svg);
   return {
     svg, filter,
     maps(assets: MapAssets) {
-      [map, mask, highlight].forEach((node, i) => node.setAttribute('href', assets.urls[i]));
-      if (assets.urls[3]) frost.setAttribute('href', assets.urls[3]); else frost.removeAttribute('href');
+      [map, mask, highlight, frost].forEach((node, i) => {
+        const url = assets.urls[i] ?? assets.urls[1];
+        node.setAttribute('href', url);
+        node.setAttributeNS(XLINK, 'xlink:href', url);
+      });
     },
     layout(lens: Lens, width: number, height: number, strength: number, softness: number, shine: number, mode: BlurMode = 'uniform') {
       filter.setAttribute('width', String(width)); filter.setAttribute('height', String(height));
-      for (const node of [map, mask, highlight, displacement, softDisplacement, frost, frostedPart, clearPart, mixed, inside, light]) {
+      const nextPipeline = softness === 0 ? 'clear' : mode;
+      if (nextPipeline !== pipeline) {
+        pipeline = nextPipeline;
+        const nodes: SVGElement[] = [map, correct, mask, displacement];
+        if (softness > 0) {
+          nodes.push(blur, softDisplacement);
+          if (mode !== 'uniform') nodes.push(frost, frostedPart, clearPart, mixed);
+        }
+        filter.replaceChildren(...nodes, inside, outside, reunite, highlight, light, finish);
+      }
+      // Keep intermediate images in the source coordinate system. Cropping the
+      // displacement primitive itself can offset sampling in WebKit's renderer.
+      for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, inside, outside, reunite, light, finish]) {
+        for (const [key, value] of Object.entries({ x: 0, y: 0, width, height })) node.setAttribute(key, String(value));
+      }
+      for (const node of [map, mask, highlight, frost]) {
         for (const [key, value] of Object.entries({ x: lens.x, y: lens.y, width: lens.width, height: lens.height })) node.setAttribute(key, String(value));
       }
       displacement.setAttribute('scale', String(strength * 2));

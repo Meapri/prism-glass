@@ -37,7 +37,9 @@ export function createGlass(source: HTMLElement, options: GlassOptions): GlassCo
   const initialFilter = source.style.getPropertyValue('filter');
   const initialPriority = source.style.getPropertyPriority('filter');
   const id = `prism-${Math.random().toString(36).slice(2)}`;
-  const graph = createFilter(doc, id);
+  // The SVG image load can complete after the HTML pre-decode. Repaint (and on
+  // WebKit rotate the ID) when that resource actually enters the SVG graph.
+  const graph = createFilter(doc, id, schedule);
   owners.add(source);
   const webkit = /AppleWebKit/i.test(win.navigator.userAgent) && !/Chrome|Chromium|Edg|OPR/i.test(win.navigator.userAgent);
   const transparency = win.matchMedia('(prefers-reduced-transparency: reduce)');
