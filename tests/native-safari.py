@@ -60,6 +60,8 @@ try:
     wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '.play-control').get_attribute('aria-label') == 'Play video')
     driver.execute_async_script('const done=arguments[0];requestAnimationFrame(()=>requestAnimationFrame(done))')
     scene = driver.find_element(By.CSS_SELECTOR, '.flower-player')
+    Select(driver.find_element(By.CSS_SELECTOR, '[aria-label="Video material"]')).select_by_value('regular')
+    driver.execute_async_script('const done=arguments[0];requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(done)))')
     regular = Image.open(io.BytesIO(scene.screenshot_as_png)).convert('RGB')
     Select(driver.find_element(By.CSS_SELECTOR, '[aria-label="Video material"]')).select_by_value('clear')
     driver.execute_async_script('const done=arguments[0];requestAnimationFrame(()=>requestAnimationFrame(()=>requestAnimationFrame(done)))')

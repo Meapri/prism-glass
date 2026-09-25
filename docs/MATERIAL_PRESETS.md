@@ -23,11 +23,11 @@ The surface API covers the functional glass layer, from a compact action to a fl
 
 | Preset | Geometry / optical role | Adaptive behavior |
 | --- | --- | --- |
-| `navigation` | Quiet capsule, narrow rim, continuous diffusion | Light/dark labels |
+| `navigation` | Quiet capsule, rounded optical band, continuous diffusion | Light/dark labels |
 | `toolbar` | Compact shared action surface | Light/dark labels |
 | `tab-bar` | Broader capsule and deeper edge | Light/dark labels |
 | `search` | Shallow refraction with more text diffusion | Light/dark labels |
-| `button` | Compact narrow edge | Light/dark labels |
+| `button` | Compact rounded edge | Light/dark labels |
 | `floating-action` | Circle, fuller curvature and more elevation | Light/dark labels |
 | `selection` | Thin shallow standalone capsule | Light/dark labels |
 | `menu` | Rounded panel, wider bevel, more scattering | Stable appearance; tint/shadow adapt |

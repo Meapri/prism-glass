@@ -50,11 +50,11 @@ import { GlassPresence } from '@meapri/prism-glass/react';
 
 Use `present` on an existing `GlassSurface` or `GlassButton` to retain the DOM after hiding. Do not conditionally remove the component immediately if you want to see its exit. `GlassPresence` retains it for you.
 
-One interruptible clock drives lensing, diffusion, tint, edge intensity, foreground opacity, foreground blur and a subtle content-scale resolve. The hit box is not animated. A new request reverses from the current progress. Completed optical maps are reused throughout materialization.
+One interruptible clock drives lensing, diffusion, tint, edge intensity, foreground opacity, foreground blur. Neither the content nor the hit box scales during materialization. A new request reverses from the current progress. Completed optical maps are reused throughout materialization.
 
 Closing immediately makes the surface inert, hidden from assistive technology and unable to intercept clicks; unmounting happens after the visual exit. Applications should restore focus to a stable trigger when closing from inside a custom panel. The demo does this. Native `GlassPopover` retains its existing light-dismiss, Escape and focus-return behavior and materializes automatically. Its top-layer exit uses discrete `display`/`overlay` transitions; older browsers without that support may close the native top layer immediately.
 
-The web defaults are approximately 320ms in / 240ms out, scaled for partial reversals. Reduced Motion uses a short 80ms resolve with no size animation or foreground blur. Settled content removes its temporary filter/scale. No repeating animation runs at rest.
+Entry uses one smooth formation curve, avoiding the old double easing that revealed glass too early. Content stays blurred until later in the resolve. The web defaults are approximately 340ms in / 270ms out, scaled for partial reversals. Reduced Motion uses a short 80ms resolve with no size animation or foreground blur. Settled content removes its temporary filter/scale. No repeating animation runs at rest.
 
 ## Renderer-level use
 
@@ -77,3 +77,13 @@ presence.destroy();
 Low-level `MediaLens.press`, `pointer`, `illumination`, and `illuminationPointer` are available for non-React interaction systems. `bindGlassInteraction` provides pointer/keyboard tracking and cleanup; `glassLightAt` and `glassPresenceFrame` are pure helpers. Destroy controllers when their owners unmount.
 
 Try the live examples at `/#motion`: hold and move over Save/Share/More, toggle the glass rapidly, and open/close the popover.
+
+## Same-state frame comparison
+
+Native iOS 27 is the top row; Chromium is the bottom row. These are the same background crop and 310 × 176 surface with a 28px corner radius. Native frames are sampled from the simulator recording on a 60fps grid; time zero is aligned to the first optical change (within one recorded frame). Web frames sample the actual renderer and foreground frame function at the corresponding controller progress. This compares appearance at known times; the browser interaction suite separately verifies real-time entry, exit and interruption.
+
+![Materialization comparison](visual/comparison-materialize.jpg)
+
+![Dematerialization comparison](visual/comparison-dematerialize.jpg)
+
+The previous content-scale animation is removed. Remaining differences include text rasterization, fine edge lighting and context-dependent native color adaptation. The comparison is not a claim of identical proprietary compositing.

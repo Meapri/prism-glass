@@ -1,5 +1,5 @@
 import { clamp, finite, generateMaps, normalizeLens } from './optics.js';
-import { getGlassMaterial, observeGlassPreferences, type GlassPreferences } from './materials.js';
+import { getLensMaterial, materialOptics, observeGlassPreferences, type GlassPreferences } from './materials.js';
 import { vertexShader, fragmentShader } from './media-shaders.js';
 import { createMediaBlur } from './media-blur.js';
 import { createBackdropSampler } from './backdrop.js';
@@ -17,10 +17,10 @@ function normalizeMediaLens(input: MediaLens) {
   if(input.appearance&&!['auto','adaptive','light','dark'].includes(input.appearance))throw new TypeError('Invalid appearance mode');
   const appearance=input.appearance==='auto'||input.appearance==='adaptive'?input.fallbackAppearance??'light':input.appearance;
   const resolved=input.preset?resolveGlassSurface(input.preset,lens,{variant:input.variant,appearance,tintLevel:input.tintLevel}):undefined;
-  const material = resolved?.material??getGlassMaterial(input.variant, appearance, input.tintLevel);
-  const preset=resolved?.optics;
-  const options = { ...input, lens, material, strength: input.strength ?? preset?.strength ?? Math.min(7, Math.min(lens.width, lens.height) * 0.08),
-    bevel: input.bevel ?? preset?.bevel ?? Math.min(9, Math.min(lens.width, lens.height) * 0.18), ior: input.ior ?? 1.5,
+  const material = resolved?.material??getLensMaterial(lens,input.variant, appearance, input.tintLevel);
+  const preset=resolved?.optics??materialOptics(lens,input.variant,input.tintLevel,appearance);
+  const options = { ...input, lens, material, strength: input.strength ?? preset.strength!,
+    bevel: input.bevel ?? preset.bevel!, ior: input.ior ?? 1.5,
     surface: input.surface ?? preset?.surface ?? 'rim', depth: input.depth ?? preset?.depth ?? 1, curvature: input.curvature ?? preset?.curvature ?? 4,
     blurMode: input.blurMode ?? 'uniform', blur: input.blur ?? material.blur, saturation: input.saturation ?? material.saturation,
     highlight: input.highlight ?? material.highlight, chroma: input.chroma ?? material.chroma,
@@ -235,7 +235,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         const profile=item.preset?resolveGlassSurface(item.preset,item.lens,{variant:item.variant,appearance:fallback,tintLevel:item.tintLevel}):undefined;
         const elevation=profile?.elevation??1;
         if(!adaptiveIds.has(item.id)) {
-          const material=item.appearance==='auto'?profile?.material??getGlassMaterial(item.variant,fallback,item.tintLevel):item.material;
+          const material=item.appearance==='auto'?profile?.material??getLensMaterial(item.lens,item.variant,fallback,item.tintLevel):item.material;
           notifyAppearance(item,material,elevation,false);
           return material;
         }
@@ -248,7 +248,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         }
         entry.state=updateGlassAdaptation(entry.state,entry.sample,now,fallback,profile?.adaptation??'flip');
         const adaptedProfile=item.preset?resolveGlassSurface(item.preset,item.lens,{variant:item.variant,appearance:entry.state.appearance,tintLevel:item.tintLevel}):undefined;
-        const base=adaptedProfile?.material??getGlassMaterial(item.variant,entry.state.appearance,item.tintLevel);
+        const base=adaptedProfile?.material??getLensMaterial(item.lens,item.variant,entry.state.appearance,item.tintLevel);
         const target=adaptGlassMaterial(base,entry.state);
         const painted=entry.painted?blendGlassMaterial(entry.painted,target,1-Math.exp(-Math.max(0,now-entry.paintAt)/100)):target;
         const difference=Math.max(...painted.tint.map((v,i)=>Math.abs(v-target.tint[i])),Math.abs(painted.saturation-target.saturation));

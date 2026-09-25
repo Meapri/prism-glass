@@ -2,7 +2,7 @@ import SwiftUI
 import AVKit
 
 @main struct PrismReferenceApp: App {
-    var body: some Scene { WindowGroup { ReferenceRoot().preferredColorScheme(ProcessInfo.processInfo.arguments.contains("--dark") ? .dark : .light) } }
+    var body: some Scene { WindowGroup { Group { if ProcessInfo.processInfo.arguments.contains("--motion") { MotionReference() } else { ReferenceRoot() } }.preferredColorScheme(ProcessInfo.processInfo.arguments.contains("--dark") ? .dark : .light) } }
 }
 struct ReferenceRoot: View {
     @State var selection = ProcessInfo.processInfo.arguments.contains("--materials") ? 1 : ProcessInfo.processInfo.arguments.contains("--media") ? 2 : 0
@@ -94,6 +94,51 @@ struct VideoReference: View {
         NavigationStack {
             VideoPlayer(player: player).navigationTitle("Native AVKit").navigationBarTitleDisplayMode(.inline)
                 .onAppear { player.seek(to: CMTime(seconds: 2, preferredTimescale: 600)) }
+        }
+    }
+}
+
+struct MotionReference: View {
+    @State private var picture: UIImage?
+    @State private var shown = true
+    @Namespace private var effects
+    var body: some View {
+        ZStack {
+            if let picture { Image(uiImage: picture).resizable().scaledToFill().ignoresSafeArea() }
+            GlassEffectContainer(spacing: 20) {
+                VStack(spacing: 30) {
+                    HStack(spacing: 16) {
+                        Button("Save") {}.buttonStyle(.glass).controlSize(.large)
+                        Button("Share") {}.buttonStyle(.glass).controlSize(.large)
+                        Button("More") {}.buttonStyle(.glass).controlSize(.large)
+                    }
+                    ZStack {
+                        if shown {
+                            VStack(spacing: 16) {
+                                Text("Liquid Glass").font(.title2.weight(.semibold))
+                                Text("Native materialize transition").font(.body)
+                            }
+                            .frame(width: 310, height: 176)
+                            .glassEffect(.regular, in: .rect(cornerRadius: 28))
+                            .glassEffectID("panel", in: effects)
+                            .glassEffectTransition(.materialize)
+                        }
+                    }.frame(width: 340, height: 200)
+                    Button(shown ? "Hide panel" : "Show panel") {
+                        withAnimation { shown.toggle() }
+                    }.buttonStyle(.borderedProminent)
+                }
+            }
+        }.task {
+            Task {
+                for _ in 0..<8 {
+                    try? await Task.sleep(for: .seconds(2))
+                    withAnimation { shown.toggle() }
+                }
+            }
+            let generator = AVAssetImageGenerator(asset: AVURLAsset(url: Bundle.main.url(forResource: "flower", withExtension: "mp4")!))
+            generator.appliesPreferredTrackTransform = true
+            if let image = try? generator.copyCGImage(at: CMTime(seconds: 2, preferredTimescale: 600), actualTime: nil) { picture = UIImage(cgImage: image) }
         }
     }
 }

@@ -20,6 +20,8 @@ test('component collection uses native controls, keyboard tabs, and a dismissibl
 
 test('live media uses one canvas and responds to play, pause, seek, and material changes',async({page})=>{
   await page.goto('/');await expect(page.locator('#media-status')).toHaveText('Live refraction',{timeout:15000});
+  await expect(page.locator('.flower-player')).toHaveAttribute('data-variant','clear');
+  await page.getByRole('combobox',{name:'Video material',exact:true}).selectOption('regular');await expect(page.locator('.flower-player')).toHaveAttribute('data-variant','regular');
   await expect(page.locator('.flower-player canvas')).toHaveCount(1);
   const video=page.locator('.flower-player > video');await expect.poll(()=>video.evaluate(v=>v.readyState)).toBeGreaterThanOrEqual(2);
   if(await page.getByRole('button',{name:'Play video',exact:true}).isVisible())await page.getByRole('button',{name:'Play video',exact:true}).click();
@@ -37,7 +39,7 @@ test('reduced motion and increased contrast preserve functional controls',async(
   await page.emulateMedia({reducedMotion:'reduce',contrast:'more'});await page.goto('/');
   await expect(page.locator('#media-status')).toHaveText('Accessible material');
   await expect(page.getByRole('button',{name:'Play video',exact:true})).toBeVisible();
-  await expect(page.locator('.play-control > .prism-lens')).toHaveCSS('background-color','rgb(242, 242, 247)');
+  await expect(page.locator('.play-control > .prism-lens')).toHaveCSS('background-color','rgb(28, 28, 30)');
   await page.getByRole('button',{name:'Add item',exact:true}).click();await expect(page.locator('#item-count')).toHaveText('1 item added');
   await page.getByRole('switch',{name:'Notifications',exact:true}).click();await expect(page.getByRole('switch',{name:'Notifications',exact:true})).toHaveAttribute('aria-checked','false');
 });
@@ -65,7 +67,7 @@ test('unavailable WebGL reports fallback and keeps playback controls usable',asy
     } as typeof getContext;
   });
   await page.goto('/');await expect(page.locator('#media-status')).toHaveText('Refraction unavailable');
-  await expect(page.locator('.play-control > .prism-lens')).toHaveCSS('background-color','rgb(242, 242, 247)');
+  await expect(page.locator('.play-control > .prism-lens')).toHaveCSS('background-color','rgb(28, 28, 30)');
   const pause=page.getByRole('button',{name:'Pause video',exact:true});
   if(await pause.isVisible())await pause.click();
   await page.getByRole('button',{name:'Play video',exact:true}).click();

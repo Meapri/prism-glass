@@ -79,7 +79,11 @@ test('reduced motion removes size/foreground blur while retaining fast light fee
 
 test('a quick tap has visible feedback even when down and up precede the next frame',async({page})=>{
  await fixture(page);const button=page.getByTestId('css-press');
- await button.click({position:{x:25,y:30}});await expect.poll(()=>variable(page,'css-press','--prism-press')).toBeGreaterThan(.1);
+ // Read the immediate release in the event's task; protocol latency can outlast a quick tap's bloom.
+ await button.evaluate(node=>node.addEventListener('pointerup',()=>queueMicrotask(()=>{
+  (window as any).releasedPress=parseFloat((node as HTMLElement).style.getPropertyValue('--prism-press'));
+ }),{once:true}));
+ await button.click({position:{x:25,y:30}});expect(await page.evaluate(()=>(window as any).releasedPress)).toBeGreaterThan(.1);
  await expect.poll(()=>variable(page,'css-press','--prism-press')).toBeLessThan(.01);
 });
 

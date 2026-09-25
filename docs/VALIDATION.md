@@ -5,11 +5,11 @@ Date: 2026-09-25. Release: `0.4.0-alpha.1`.
 ## Contact light and materialization
 
 - `npm test`: **30/30 passed**, including light locality/bounds, optically neutral presence endpoints and Reduced Motion behavior.
-- Full local Chromium/WebKit suite: **78/78 passed**. New coverage includes contact-origin tracking, scoped neighbor light, pointer cancellation, unrelated pointer IDs, quick taps, keyboard/disabled input, actual SDR pixel changes and CSS/media light consistency.
+- Full local Chromium/WebKit suite: **80/80 passed**. Includes the native-image Clear refraction regression. New coverage includes contact-origin tracking, scoped neighbor light, pointer cancellation, unrelated pointer IDs, quick taps, keyboard/disabled input, actual SDR pixel changes and CSS/media light consistency.
 - Materialization tests verify exit retention plus immediate input exclusion, interruption/reversal, style ownership, popover dismissal/focus return and optically neutral hidden media with cached displacement maps. Motion fixtures also run under React StrictMode.
-- Native iOS 27 reference: a temporary `.buttonStyle(.glass)`/`.glassEffectTransition(.materialize)` app supplied a pressed still and a recorded default SwiftUI transition. This established the qualitative contact bloom and blurred content/optical formation behavior; it does not expose Apple's private timing or HDR shader values.
+- Native iOS 27 reference: a temporary `.buttonStyle(.glass)`/`.glassEffectTransition(.materialize)` app supplied a pressed still and a recorded default SwiftUI transition. The same-source entry/exit frame comparisons now record optical formation and delayed foreground sharpening. These measured web approximations do not expose Apple's private timing or HDR shader values.
 - IAB inspection confirmed the new `/#motion` demo renders, Hide/Show removes/reintroduces the panel, and no application console errors were observed.
-- Native Safari CI now includes real mouse-held illumination pixel differences and materialize Hide/Show checks. Remote results are recorded after execution.
+- Native Safari CI now includes real mouse-held illumination pixel differences and materialize Hide/Show checks. The earlier run exposed shared-window focus interference in headed CI; headed runs now use one worker, retaining production blur/cancel behavior. Final remote results are recorded after execution.
 
 ## Previous release (`0.3.0-alpha.1`)
 

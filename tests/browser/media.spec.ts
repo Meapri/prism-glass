@@ -1,6 +1,7 @@
 import {test,expect,type Page} from '@playwright/test';
 import {PNG} from 'pngjs';
 import path from 'node:path';
+import {readFile} from 'node:fs/promises';
 import type {MediaGlassController,MediaLens} from '../../src/media-types.js';
 
 declare global { interface Window {
@@ -23,6 +24,31 @@ async function fixture(page:Page){
   await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().state)).toBe('ready');
 }
 const pixel=(png:PNG,x:number,y:number)=>Array.from(png.data.subarray((y*png.width+x)*4,(y*png.width+x)*4+3));
+
+test('clear roundover follows the native edge features instead of hiding them under frost',async({page})=>{
+ const source=await readFile('tests/fixtures/material-background.png');
+ const native=PNG.sync.read(await readFile('docs/visual/native-materials-light.png'));
+ await page.setContent(`<style>body{margin:0}#stage{position:relative;width:402px;height:675px}img,canvas{position:absolute;inset:0;width:402px;height:675px}</style><div id="stage"><img id="source" src="data:image/png;base64,${source.toString('base64')}"><canvas id="glass"></canvas></div>`);
+ await page.addScriptTag({path:path.resolve('dist/prism-glass-media.global.js')});
+ await page.evaluate(async()=>{
+  const source=document.querySelector<HTMLImageElement>('#source')!;await source.decode();
+  const canvas=document.querySelector<HTMLCanvasElement>('#glass')!;canvas.getContext('webgl',{preserveDrawingBuffer:true});
+  window.mediaFixture=window.PrismGlassMedia.createMediaGlass(canvas,source,{pixelRatio:2,lenses:[{id:'native',variant:'clear',lens:{x:219,y:208.667,width:104,height:104,radius:52,shape:'circle'}}]});
+ });
+ await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().state)).toBe('ready');
+ const error=(png:PNG)=>{let sum=0,n=0;for(let y=211;y<311;y++)for(let x=221;x<321;x++){
+  const distance=Math.hypot(x+.5-271,y+.5-260.667);
+  // Compare the real refracted features 3–23px inside the boundary, excluding labels and the 1px glint.
+  if(distance<29||distance>49)continue;
+  const i=(y*402+x)*4;for(let c=0;c<3;c++){sum+=(png.data[i+c]-native.data[i+c])**2;n++;}
+ }return Math.sqrt(sum/n)/255;};
+ const current=error(PNG.sync.read(await page.locator('#stage').screenshot({scale:'css'})));
+ const renders=await page.evaluate(()=>window.mediaFixture.getDiagnostics().renders);
+ await page.evaluate(()=>window.mediaFixture.updateLens('native',{strength:7,bevel:9,curvature:4,blur:2.5}));
+ await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().renders)).toBeGreaterThan(renders);
+ const former=error(PNG.sync.read(await page.locator('#stage').screenshot({scale:'css'})));
+ expect(current).toBeLessThan(.035);expect(current).toBeLessThan(former*.7);
+});
 
 test('media coordinates preserve orientation and only refract within the lens',async({page})=>{
   await fixture(page);

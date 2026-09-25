@@ -14,7 +14,7 @@ export const GlassSwitch = forwardRef<HTMLButtonElement, GlassSwitchProps>(funct
   const root = useRef<HTMLButtonElement | null>(null), source = useRef<HTMLSpanElement | null>(null), id = useId();
   const theme = useTheme({ variant, appearance, tintLevel });
   const renderer = useComponentLens(root, source, { id, ...theme, enabled: !theme.nested, local: true, animate: true, transient: true, pressScale: 0.1,
-    optics: { blur: 0.5, saturation: 1, strength: 5, bevel: 7, surface: 'rim', ...optics },
+    optics: { blur: 0.5, saturation: 1, strength: 5, bevel: 7, surface: 'rim', curvature: 4, depth: 1, ...optics },
     geometry: (width, height) => {
       const rtl = root.current && getComputedStyle(root.current).direction === 'rtl';
       return lensFor('capsule', { x: checked !== Boolean(rtl) ? width - 38 : 2, y: (height - 24) / 2, width: 36, height: 24 });
@@ -43,7 +43,7 @@ export const GlassSlider = forwardRef<HTMLInputElement, GlassSliderProps>(functi
   const root = useRef<HTMLSpanElement | null>(null), source = useRef<HTMLSpanElement | null>(null), id = useId();
   const theme = useTheme({ variant, appearance, tintLevel });
   const renderer = useComponentLens(root, source, { id, ...theme, enabled: !theme.nested, local: true, transient: true, pressScale: 0.12,
-    optics: { blur: 0.4, saturation: 1, strength: 3.5, bevel: 6, surface: 'rim', ...optics },
+    optics: { blur: 0.4, saturation: 1, strength: 3.5, bevel: 6, surface: 'rim', curvature: 4, depth: 1, ...optics },
     geometry: (width, height) => {
       const rtl = root.current && getComputedStyle(root.current).direction === 'rtl';
       return lensFor('capsule', { x: (width - 36) * (rtl ? 1 - progress : progress), y: (height - 26) / 2, width: 36, height: 26 });

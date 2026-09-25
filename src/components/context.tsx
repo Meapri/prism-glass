@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode, type Ref, type RefObject } from 'react';
 import { createGlass } from '../index.js';
 import { lensFor, type Lens, type LensShape } from '../optics.js';
-import { getGlassMaterial, materialOptics, observeGlassPreferences, type GlassAppearance, type GlassVariant } from '../materials.js';
+import { getGlassMaterial, getLensMaterial, materialOptics, observeGlassPreferences, type GlassAppearance, type GlassVariant } from '../materials.js';
 import { bindGlassInteraction, stepSpring, type GlassInteraction } from '../motion.js';
 import type { GlassController, GlassOptions } from '../types.js';
 import { observeGlassBackdrop, type GlassBackdropReader } from '../backdrop.js';
@@ -137,7 +137,7 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       if (useMedia) { media!.invalidate(); return; }
       const next=latest.current, appearance=next.adaptive&&!next.transient?adaptiveState?.appearance??next.appearance:next.appearance;
       const preset=next.preset?resolveGlassSurface(next.preset,painted,{variant:next.variant,appearance,tintLevel:next.tintLevel}):undefined;
-      const base=preset?.material??getGlassMaterial(next.variant,appearance,next.tintLevel);
+      const base=preset?.material??getLensMaterial(painted,next.variant,appearance,next.tintLevel);
       const material=adaptiveState&&next.adaptive&&!next.transient?adaptGlassMaterial(base,adaptiveState):base;
       paintMaterial(material,preset?.elevation,adaptiveState?.available);
       if (!target || !next.enabled) return;

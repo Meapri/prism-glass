@@ -7,7 +7,7 @@ const smooth=(a:number,b:number,v:number)=>{const t=clamp((v-a)/(b-a),0,1);retur
 export function glassPresenceFrame(progress:number,reducedMotion=false):GlassPresenceFrame {
   const p=clamp(finite(progress,'presence'),0,1),material=smooth(0,1,p);
   return {progress:p,lensing:material,diffusion:material,material,edge:smooth(0,.8,p),
-    contentOpacity:smooth(.12,.9,p),contentBlur:reducedMotion?0:6*(1-p)*(1-p),contentScale:reducedMotion?1:.98+.02*material};
+    contentOpacity:material,contentBlur:reducedMotion?0:8*Math.pow(1-p,1.5),contentScale:1};
 }
 export interface GlassPresenceOptions {
   visible?:boolean;
@@ -38,11 +38,13 @@ export function createGlassPresence(element:HTMLElement,options:GlassPresenceOpt
     if(manage)element.hidden=ownedHidden=phase==='hidden';
     element.dataset.prismPresence=phase;options.onFrame?.(sample);
   }
-  function advance(now:number){if(!duration)return;const t=clamp((now-started)/duration,0,1);const eased=1-Math.pow(1-t,3);value=from+(target-from)*eased;if(t===1){value=target;duration=0;state(target?'shown':'hidden');}}
+  // The frame already shapes formation with smoothstep. Easing entry again made
+  // glass appear almost immediately, ahead of native materialize's gradual reveal.
+  function advance(now:number){if(!duration)return;const t=clamp((now-started)/duration,0,1);const eased=target||reduced?t:1-Math.pow(1-t,3);value=from+(target-from)*eased;if(t===1){value=target;duration=0;state(target?'shown':'hidden');}}
   function tick(now:number){frame=0;if(dead)return;advance(now);paint();if(duration)frame=win!.requestAnimationFrame(tick);}
   function setVisible(visible:boolean){if(dead)return;if(typeof visible!=='boolean')throw new TypeError('visible must be boolean');
     const next=visible?1:0;if(next===target)return;const now=win!.performance.now();advance(now);target=next;from=value;started=now;
-    duration=reduced?80:(next?320:240)*Math.max(.2,Math.abs(target-from));
+    duration=reduced?80:(next?340:270)*Math.max(.2,Math.abs(target-from));
     state(next?'entering':'exiting');if(manage)element.hidden=ownedHidden=false;paint();if(!frame)frame=win!.requestAnimationFrame(tick);
   }
   const unsubscribe=observeGlassPreferences(win,p=>{reduced=p.reducedMotion;if(reduced&&duration){from=value;started=win.performance.now();duration=80;}paint();});

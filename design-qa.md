@@ -1,46 +1,42 @@
 # Native iOS 27 material QA
 
-Date: 2026-09-25. Scope: web component/material fidelity, not a replica of native application chrome.
+Date: 2026-09-25. Release: 0.4.0-alpha.1. Scope: material optics, contact light and materialization of this web library.
 
-**Source visual truth**
+The earlier 0.2 static pass is superseded. It missed overly weak refraction and did not establish native animation fidelity. Functional test success is not evidence of visual equivalence.
 
-- `docs/visual/NativeReference.swift`, executed on iOS 27.0 (24A434), Xcode 27.0.
-- `docs/visual/native-materials-light.png` and `native-materials-dark.png`: 402 × 675 normalized crops from 1206 × 2025 native content at DPR 3.
-- `docs/visual/native-controls.png`: 402 × 200 focused control montage from the same native app, with each crop at 1 CSS pixel per point.
+## Source and comparison
 
-**Implementation evidence**
+- `docs/visual/NativeReference.swift` runs native `.glassEffect(.regular/.clear)`, `.buttonStyle(.glass)` and `.glassEffectTransition(.materialize)` on iOS 27.0 (24A434), built with Xcode 27.0.
+- Registered native material crops are 402 × 675. `comparison-light.jpg` and `comparison-dark.jpg` place native on the left and current web on the right at identical bounds, source pixels and label content. IAB was used for visual inspection; saved comparisons use deterministic Chromium captures at CSS scale.
+- `comparison-materialize.jpg` and `comparison-dematerialize.jpg` place native recorded frames above renderer samples at matching elapsed times. The 310 × 176 panel uses the same source crop and 28px radius. First optical changes are aligned within one native frame. This is appearance calibration; real-time lifecycle and interruption have separate browser tests.
+- Existing `comparison-controls.jpg` records the unchanged switch/slider/control geometry from 0.2. It is not new motion evidence.
 
-- Local `/calibration.html` and `?dark`, in the Codex in-app browser. Viewport 1280 × 720, runtime DPR 2, capture output normalized by the browser to 1×.
-- `docs/visual/comparison-light.jpg`, `comparison-dark.jpg`: 804 × 675, native 402px column on the left and rendered 402px column on the right in the same capture.
-- `docs/visual/comparison-controls.jpg`: 804 × 200, native and rendered controls together at equal scale. Native controls were rearranged into this montage solely to compare component geometry.
-- Same source pixels, crop, component bounds, labels, appearance and idle state. The calibration page is a test fixture, not a product screen with a rasterized native UI.
+## Findings
 
-**Comparison history and findings**
+1. **P1 fixed — refraction was nearly invisible.** The old 7/9/4 strength/bevel/curvature combination concentrated displacement in a few pixels at the boundary. Clear diffusion masked it. The new size-aware roundover bends visible background features through a broader band while keeping the center quiet. A browser pixel regression compares the Clear circle against its native crop and against the former profile.
+2. **P1 fixed — excessive diffusion.** Clear uses 1.5px small-kernel diffusion. Regular defaults separate circular (8px), capsule (12px), light panel (14px) and dark panel (10px) treatments before preset multipliers. Removed the excessive base-plus-panel multiplication. The media demo opens with Clear, appropriate for bold white controls over rich imagery.
+3. **P1 fixed — awkward entry/exit.** Removed content scaling and double-eased entry. Native frame inspection informed a gradual 340ms entry, faster 270ms exit and late text sharpening. Intermediate optical formation and blurred labels are visible in both comparison rows. Reversals preserve current progress; closing makes content inert immediately.
+4. **P2 fixed — large dark panels were too bright and saturated.** Reduced reflected neutral fill and vibrancy with panel extent, using the native panel captures as the reference. Compact controls retain their own appearance.
+5. **P3 remaining — fine native compositor differences.** Edge luminance, context-dependent local color adaptation, text/SF Symbol rasterization and recorded-frame timing vary. The public API does not reveal Apple's shader. These scoped comparisons do not establish pixel identity, native glass unions, HDR output or physical iPhone performance.
 
-1. [P1, fixed] The earlier demo used large dome distortion and green decorative styling. Native capture showed restrained rims, neutral fill and capsule control thumbs. Changed regular/clear profiles, component bounds, font weights, system colors and demo proportions. The current comparison images show the corrected family.
-2. [P1, fixed] First same-background IAB comparison showed insufficient clear reflection and a flat-looking boundary. Measured the source/target color response, added modest diffusion/reflection, and adjusted the dark contour and directional specular edge. A second comparison found an overly uniform bright outline; reduced it and concentrated the glint at top/bottom. Current light/dark captures show a fine directional boundary.
-3. [P2, fixed] Initial dark fill suppressed the background colors too strongly. Fitted native dark captures separately and changed the neutral tint/saturation response. Current dark comparison retains red/green ambient colors.
-4. [P2, fixed] Focused controls had stronger shadows and a smaller segmented selection than the native reference. Softened thumb/button shadows and increased the segmented background/selection to 32/28px. The final focused comparison was captured after this change.
-5. [P3, accepted] Subpixel edge details, local adaptive coloration and font/SF Symbol rasterization differ slightly between browser and native compositor. Public APIs do not expose Apple's private shader; this is a calibrated implementation, not an exact shader reproduction. Native dynamic morphing is not asserted by static captures.
+## Five-point fidelity check
 
-**Required fidelity surfaces**
+- Typography: same system-font family, copy, alignment and line breaks in comparisons; foreground is crisp at rest and blurred only during transition.
+- Spacing/layout: equal source/shape bounds and radii; stable hit boxes; no materialize size pulse. Switch/slider geometry and transient optical profiles are held constant.
+- Color/material: separate Clear/Regular treatments and light/dark references; source-aware adaptation retains its earlier behavior and explicit fallback.
+- Imagery: original CC0 flower frame, lossless native source crops, no generated substitute. Reference screenshots are never used as product rendering.
+- Content: native comparison labels match; product copy describes an independent web implementation and does not claim Apple's private shader.
 
-- Fonts/typography: system font first; regular 17px buttons, 13px segmented labels, medium/semibold only where present in the reference. Matched copy, line breaks and text alignment. Browser/native font rasterization remains a platform difference.
-- Spacing/layout: equal material bounds and radii in the fixture; control hit boxes stay 44px while visuals match measured native dimensions. Native app navigation and page layout are intentionally outside this component comparison.
-- Colors/tokens: black/white foregrounds, neutral regular fills, clear dimming, `#34c759` switch, `#0088ff` slider; separate light/dark calibration. No Aave green styling remains in the component demo.
-- Image quality: identical CC0 frame, crop and scale; native source captured losslessly, web evidence returned as JPEG by the browser. No generated substitute or imitation artwork was used.
-- Copy/content: reference fixture labels match. Demo copy describes a web component library and does not claim to be an Apple application.
+## Interaction and verification
 
-**Interaction and accessibility checks**
+Contact light follows the press origin, softly reaches nearby scoped glass and releases on cancel, blur, disabled state or cleanup. Quick taps have an immediate excitation. Keyboard activation is centered; Reduced Motion removes flex and foreground blur; contrast modes suppress bloom.
 
-Automated Chromium/Firefox/WebKit CI checks (57/57) cover playback, seek, material switching, button/switch/range inputs, tab keys, RTL, disabled tabs, popover placement/focus return, reduced motion, increased contrast, unavailable WebGL and context restoration. IAB comparison/demo consoles had no application errors; mobile popover and appearance checks used 390 × 844. Native macOS Safari 26.6.2 CI also passed the SVG and new React media checks. Physical iOS Safari and native press/morph timing are not established by this run.
+The browser suite covers real video controls, optical pixels, source alignment, context recovery, adaptive sampling, offscreen/resizing behavior, StrictMode cleanup, popover focus, immediate exit input exclusion and interrupted transitions. Final counts and CI links are in `docs/VALIDATION.md`. Native macOS Safari is a separate browser check, not a physical iOS test.
 
-**Implementation checklist**
+- [x] Same-state native and implementation comparisons inspected.
+- [x] P1/P2 visual findings corrected and compared again.
+- [x] Actual native feature displacement has an automated regression.
+- [x] Entry and exit were assessed as frame sequences.
+- [x] Platform and compositor differences remain explicit.
 
-- [x] Native reference captured and density normalized.
-- [x] Source and implementation inspected in combined full-view and focused comparisons.
-- [x] P1/P2 findings fixed and compared again.
-- [x] Material and control tests pass locally.
-- [x] Remaining platform differences stated explicitly.
-
-final result: passed
+Final result: passed for the scoped optical/interaction checks above; pixel-identical native rendering is not asserted.

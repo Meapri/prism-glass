@@ -25,7 +25,7 @@ const timeLabel = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Mat
 function MediaExample() {
   const video = useRef<HTMLVideoElement | null>(null), [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0), [currentTime, setCurrentTime] = useState(0);
-  const [variant, setVariant] = useState<GlassVariant>('regular'), [status, setStatus] = useState('loading');
+  const [variant, setVariant] = useState<GlassVariant>('clear'), [status, setStatus] = useState('loading');
   const [tintLevel, setTintLevel] = useState(0.5);
   const options = useRef({ onStatus: (d: MediaGlassDiagnostics) => setStatus(d.state) }).current;
   useEffect(() => {

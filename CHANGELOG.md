@@ -2,6 +2,10 @@
 
 ## 0.4.0-alpha.1
 
+- Correct overly weak refraction: use native-image-fitted rounded optical fields and reduce Clear diffusion from 2.5 to 1.5; separate Regular diffusion by shape/appearance.
+- Recalibrate all twelve surface presets without changing switch/slider geometry or transient optics.
+- Match native materialize frame progression more closely: remove content scaling and double-eased entry, delay text sharpening, and fit distinct entry/exit timing.
+
 - Add localized SDR contact light, soft bloom, rim response and scoped neighboring illumination across CSS/SVG and media glass.
 - Preserve visible feedback for quick taps; support pointer movement/cancellation, keyboard contact, disabled controls and cleanup.
 - Add interruptible materialization through `GlassPresence`, `present`, and a framework-independent presence controller.

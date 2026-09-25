@@ -9,7 +9,7 @@ test('contact light has a bounded bright core, soft bloom and no idle emission',
 test('materialize has neutral endpoints and resolves the material separately from its labels',()=>{
  const hidden=glassPresenceFrame(0),shown=glassPresenceFrame(1),middle=glassPresenceFrame(.4);
  for(const key of ['lensing','diffusion','material','edge','contentOpacity']){assert.equal(hidden[key],0);assert.equal(shown[key],1);}
- assert.equal(shown.contentBlur,0);assert.equal(shown.contentScale,1);assert.ok(middle.contentBlur>0);assert.notEqual(middle.contentOpacity,middle.material);
+ assert.equal(shown.contentBlur,0);assert.equal(shown.contentScale,1);assert.ok(middle.contentBlur>0);assert.equal(middle.contentScale,1);
  let prior=hidden;for(let i=1;i<=100;i++){const frame=glassPresenceFrame(i/100);for(const key of ['lensing','diffusion','material','edge','contentOpacity'])assert.ok(frame[key]>=prior[key]&&frame[key]<=1);assert.ok(frame.contentBlur<=prior.contentBlur);prior=frame;}
  assert.throws(()=>glassPresenceFrame(NaN));assert.equal(glassPresenceFrame(-1).progress,0);assert.equal(glassPresenceFrame(2).progress,1);
 });

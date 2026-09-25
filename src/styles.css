@@ -47,7 +47,7 @@
 .prism-material:is([data-prism-renderer=webgl-media],[data-prism-renderer=overlay]) > .prism-lens::before,
 .prism-material:is([data-prism-renderer=webgl-media],[data-prism-renderer=overlay]) > .prism-lens::after { display:none; }
 .prism-material[data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(calc(var(--prism-blur, 14px) * var(--prism-diffusion,1))) saturate(var(--prism-saturation, 1.65)) brightness(var(--prism-brightness, 1)); backdrop-filter: blur(calc(var(--prism-blur, 14px) * var(--prism-diffusion,1))) saturate(var(--prism-saturation, 1.65)) brightness(var(--prism-brightness, 1)); }
-.prism-material[data-variant=clear][data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(calc(var(--prism-blur, 2.5px) * var(--prism-diffusion,1))) saturate(1.1) brightness(1.09); backdrop-filter: blur(calc(var(--prism-blur, 2.5px) * var(--prism-diffusion,1))) saturate(1.1) brightness(1.09); }
+.prism-material[data-variant=clear][data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(calc(var(--prism-blur, 1.5px) * var(--prism-diffusion,1))) saturate(1.1) brightness(1.09); backdrop-filter: blur(calc(var(--prism-blur, 1.5px) * var(--prism-diffusion,1))) saturate(1.1) brightness(1.09); }
 .prism-material[data-prism-renderer=webgl-media] > .prism-lens { background: transparent; box-shadow: 0 1px 3px var(--prism-shadow); }
 .prism-content { position: relative; z-index: 1; }
 .prism-surface { padding: 20px; }
@@ -141,7 +141,7 @@
 .prism-material[data-prism-presence] > .prism-content { opacity:var(--prism-content-opacity,1); filter:blur(var(--prism-content-blur,0px)); scale:var(--prism-content-scale,1); }
 .prism-material[data-prism-presence=hidden] { visibility:hidden !important; pointer-events:none; }
 .prism-material[data-prism-presence=exiting] { pointer-events:none; }
-.prism-popover { transition:display 260ms allow-discrete,overlay 260ms allow-discrete; }
+.prism-popover { transition:display 290ms allow-discrete,overlay 290ms allow-discrete; }
 @media(prefers-reduced-motion:reduce) {
   .prism-lens::before,.prism-lens::after { opacity:.65; }
   .prism-popover { transition-duration:90ms; }
