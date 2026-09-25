@@ -33,6 +33,7 @@
   },
   "scripts": {
     "build": "tsc && node scripts/build.mjs",
+    "build:pages": "npm run build && node scripts/build-pages.mjs",
     "test": "npm run build && node --test tests/*.test.mjs",
     "dev": "vite",
     "typecheck": "tsc --noEmit",

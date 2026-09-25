@@ -23,7 +23,7 @@ try:
     driver = webdriver.Safari()
     driver.set_window_size(1280, 1000)
     print('Native Safari:', json.dumps(driver.capabilities), flush=True)
-    driver.get('http://localhost:4173')
+    driver.get('http://localhost:4173/optics.html')
     wait = WebDriverWait(driver, 30)
     wait.until(lambda d: d.find_element(By.ID, 'status').text == 'SVG source')
     driver.find_element(By.ID, 'pin').click()

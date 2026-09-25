@@ -40,7 +40,7 @@ function MediaExample() {
   }
   return <section className="media-example" aria-label="Shared media refraction">
     <GlassMediaScene source={video} media={options} variant={variant} className="flower-player" aria-label="Flower video player">
-      <video ref={video} src="/assets/flower.mp4" muted playsInline loop preload="auto" aria-label="Garden flowers and leaves"
+      <video ref={video} src="./assets/flower.mp4" muted playsInline loop preload="auto" aria-label="Garden flowers and leaves"
         onLoadedMetadata={event => setDuration(event.currentTarget.duration)} onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)}
         onPlay={() => setPlaying(true)} onPause={event => { setPlaying(false); setCurrentTime(event.currentTarget.currentTime); }} onSeeked={event => setCurrentTime(event.currentTarget.currentTime)} />
       <div className="prism-media-controls"><div className="playback-row">
@@ -66,7 +66,7 @@ function Library() {
   const [count, setCount] = useState(0), [enabled, setEnabled] = useState(true), [volume, setVolume] = useState(50);
   const [dark, setDark] = useState(false), [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
   return <GlassProvider appearance={dark ? 'dark' : 'light'}><div className="library" data-theme={dark ? 'dark' : 'light'}>
-    <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#components">Components</a><a href="/optics.html">Optics</a><a href="#api">API</a></nav></header>
+    <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#components">Components</a><a href="./optics.html">Optics</a><a href="#api">API</a></nav></header>
     <main><section className="library-intro"><h1>A material. A family of controls.</h1><p>Live refraction, clear interactions.<br />{' '}Liquid glass for the web, from the renderer to the button.</p></section>
       <MediaExample />
       <section id="components" className="component-library"><div className="section-title"><h2>Made for interaction.</h2><p>One material system. Familiar, accessible controls.</p></div>

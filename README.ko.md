@@ -2,6 +2,8 @@
 
 Aave의 공개 렌더링 방식과 Apple의 Liquid Glass 디자인 원칙을 바탕으로 만든 웹 라이브러리입니다. TypeScript 코어와 선택형 React 컴포넌트를 제공합니다. npm에는 아직 공개하지 않았습니다.
 
+[공개 데모](https://meapri.github.io/prism-glass/) · [광학 실험실](https://meapri.github.io/prism-glass/optics.html)
+
 ## 실행
 
 ```sh
@@ -73,3 +75,7 @@ DOM 원본에는 내부 `overflow: hidden; isolation: isolate` 레이어를 사�
 [검증 기록](docs/VALIDATION.md)에 실제 실행한 브라우저와 테스트 결과를 구분해 기록합니다. Apple/Aave의 비공개 셰이더를 복제한 구현은 아니며, 물리적인 iOS 기기와 장시간 GPU 성능을 자동 WebKit 결과만으로 보증하지 않습니다.
 
 [전체 API](README.md) · [디자인 원칙과 지원 범위](docs/LIQUID_GLASS.md) · [렌더링 구조](docs/ARCHITECTURE.md)
+
+## GitHub Pages 배포
+
+`npm run build:pages`로 데모 두 페이지와 영상만 `pages-dist/`에 모읍니다. 이 디렉터리를 `gh-pages` 브랜치 루트에 게시합니다. `main` 변경만으로는 공개 데모가 갱신되지 않습니다.

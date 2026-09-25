@@ -4,7 +4,7 @@ An independent, source-first Liquid Glass library inspired by the rendering arch
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
 
-[한국어 빠른 시작](README.ko.md)
+[Live demo](https://meapri.github.io/prism-glass/) · [한국어 빠른 시작](README.ko.md)
 
 ## What this version does
 
@@ -237,6 +237,12 @@ Diagnostics expose the selected rendering path and counters, **not** a verified 
 9. Strict CSP must permit these generated optical map images (`img-src data:`), and the application's usual style policy must permit the styles used by its integration. No images or page content are sent to a server.
 10. The components and stylesheet handle reduced motion, reduced transparency, increased contrast, forced colors, focus and fallback fills. Low-level renderer users must supply readable HTML controls and fallback styling. `live` is a repaint policy for animated canvas/DOM, not a decorative motion API.
 11. Spatial frost blends sharp and Gaussian-blurred refracted pixels with a shape-aware mask. It is a visual approximation rather than a continuously varying blur kernel. It needs an extra map and additional composition passes; choose uniform frost when that distinction is not needed.
+
+## GitHub Pages demo
+
+The component library is published at [meapri.github.io/prism-glass](https://meapri.github.io/prism-glass/), with the [optical playground](https://meapri.github.io/prism-glass/optics.html) alongside it.
+
+`npm run build:pages` assembles `pages-dist/` with `index.html`, `optics.html`, the local CC0 video, and `.nojekyll`. Relative asset/navigation URLs support the repository subpath. Publish this directory to the root of the `gh-pages` branch, which is the configured Pages source. Updating `main` alone does not republish this branch-based demo.
 
 ## Development
 

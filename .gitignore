@@ -5,6 +5,7 @@ playwright-report/
 demo/index.html
 demo/optics.html
 dist/
+pages-dist/
 .env
 .env.*
 !.env.example
