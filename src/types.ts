@@ -1,4 +1,4 @@
-import type { Lens } from './optics.js';
+import type { Lens, SurfaceProfile, BlurMode } from './optics.js';
 export interface GlassOptions {
   lens: Lens;
   /** Maximum sampling offset in CSS pixels. Default 24; range 0–64. */
@@ -6,7 +6,15 @@ export interface GlassOptions {
   /** Refractive index of the single-interface approximation. Default 1.5. */
   ior?: number;
   bevel?: number;
+  /** Rim keeps the center flat; dome curves the full lens; concave reverses the bend. */
+  surface?: SurfaceProfile;
+  /** Relative surface height. 0–4, default 1. */
+  depth?: number;
+  /** Superellipse surface exponent. 2–8, default 4. */
+  curvature?: number;
   blur?: number;
+  /** Uniform frosting, a frosted center, or a frosted rim with a clear center. */
+  blurMode?: BlurMode;
   highlight?: number;
   /** Longest displacement-map side; capped at 512. Independent of DPR. */
   resolution?: number;

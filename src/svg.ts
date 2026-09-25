@@ -1,4 +1,4 @@
-import { generateMaps, type OpticalShape, type Lens } from './optics.js';
+import { generateMaps, type OpticalShape, type Lens, type BlurMode } from './optics.js';
 const NS = 'http://www.w3.org/2000/svg';
 export interface MapAssets { urls: string[]; width: number; height: number; dispose(): void }
 export async function buildAssets(doc: Document, shape: OpticalShape, resolution: number): Promise<MapAssets> {
@@ -6,7 +6,9 @@ export async function buildAssets(doc: Document, shape: OpticalShape, resolution
   const urls: string[] = [];
   const URL = doc.defaultView!.URL;
   try {
-    for (const bytes of [pixels.displacement, pixels.mask, pixels.highlight]) {
+    const channels = [pixels.displacement, pixels.mask, pixels.highlight];
+    if (pixels.frost) channels.push(pixels.frost);
+    for (const bytes of channels) {
       const canvas = doc.createElement('canvas');
       canvas.width = pixels.width; canvas.height = pixels.height;
       const ctx = canvas.getContext('2d');
@@ -42,6 +44,11 @@ export function createFilter(doc: Document, id: string) {
   const mask = el('feImage', { result: 'lensMask', preserveAspectRatio: 'none' });
   const blur = el('feGaussianBlur', { in: 'SourceGraphic', stdDeviation: 0, result: 'softSource' });
   const displacement = el('feDisplacementMap', { in: 'SourceGraphic', in2: 'map', scale: 48, xChannelSelector: 'R', yChannelSelector: 'G', result: 'bent' });
+  const softDisplacement = el('feDisplacementMap', { in: 'softSource', in2: 'map', scale: 48, xChannelSelector: 'R', yChannelSelector: 'G', result: 'bentSoft' });
+  const frost = el('feImage', { result: 'frostMask', preserveAspectRatio: 'none' });
+  const frostedPart = el('feComposite', { in: 'bentSoft', in2: 'frostMask', operator: 'in', result: 'frostedPart' });
+  const clearPart = el('feComposite', { in: 'bent', in2: 'frostMask', operator: 'out', result: 'clearPart' });
+  const mixed = el('feComposite', { in: 'frostedPart', in2: 'clearPart', operator: 'arithmetic', k1: 0, k2: 1, k3: 1, k4: 0, result: 'mixed' });
   const inside = el('feComposite', { in: 'bent', in2: 'lensMask', operator: 'in', result: 'inside' });
   const outside = el('feComposite', { in: 'SourceGraphic', in2: 'lensMask', operator: 'out', result: 'outside' });
   const reunite = el('feComposite', { in: 'inside', in2: 'outside', operator: 'arithmetic', k1: 0, k2: 1, k3: 1, k4: 0, result: 'reunited' });
@@ -49,18 +56,22 @@ export function createFilter(doc: Document, id: string) {
   const light = el('feComponentTransfer', { in: 'shine', result: 'light' });
   const alpha = el('feFuncA', { type: 'linear', slope: 0.55 }); light.append(alpha);
   const finish = el('feComposite', { in: 'light', in2: 'reunited', operator: 'over' });
-  filter.append(map, correct, mask, blur, displacement, inside, outside, reunite, highlight, light, finish);
+  filter.append(map, correct, mask, blur, displacement, softDisplacement, frost, frostedPart, clearPart, mixed, inside, outside, reunite, highlight, light, finish);
   doc.body.append(svg);
   return {
     svg, filter,
-    maps(assets: MapAssets) { [map, mask, highlight].forEach((node, i) => node.setAttribute('href', assets.urls[i])); },
-    layout(lens: Lens, width: number, height: number, strength: number, softness: number, shine: number) {
+    maps(assets: MapAssets) {
+      [map, mask, highlight].forEach((node, i) => node.setAttribute('href', assets.urls[i]));
+      if (assets.urls[3]) frost.setAttribute('href', assets.urls[3]); else frost.removeAttribute('href');
+    },
+    layout(lens: Lens, width: number, height: number, strength: number, softness: number, shine: number, mode: BlurMode = 'uniform') {
       filter.setAttribute('width', String(width)); filter.setAttribute('height', String(height));
-      for (const node of [map, mask, highlight, displacement, inside, light]) {
+      for (const node of [map, mask, highlight, displacement, softDisplacement, frost, frostedPart, clearPart, mixed, inside, light]) {
         for (const [key, value] of Object.entries({ x: lens.x, y: lens.y, width: lens.width, height: lens.height })) node.setAttribute(key, String(value));
       }
       displacement.setAttribute('scale', String(strength * 2));
-      displacement.setAttribute('in', softness > 0 ? 'softSource' : 'SourceGraphic');
+      softDisplacement.setAttribute('scale', String(strength * 2));
+      inside.setAttribute('in', softness === 0 ? 'bent' : mode === 'uniform' ? 'bentSoft' : 'mixed');
       blur.setAttribute('stdDeviation', String(softness)); alpha.setAttribute('slope', String(shine));
     },
     destroy() { svg.remove(); },

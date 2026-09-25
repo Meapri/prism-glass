@@ -36,3 +36,20 @@ test('keyboard selection uses live controls', async ({ page }) => {
   await expect(page.getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('tab', { name: 'Details', exact: true })).toBeFocused();
 });
+
+test('shape and material presets drive the live lens and component controls', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption('button');
+  await expect(page.locator('#map-size')).toHaveText('160 × 160');
+  await expect(page.getByRole('combobox', { name: 'Surface', exact: true })).toHaveValue('dome');
+  await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption('panel');
+  await expect(page.locator('#map-size')).toHaveText('236 × 140');
+  await expect(page.getByRole('combobox', { name: 'Frost distribution', exact: true })).toHaveValue('center');
+  await page.getByRole('button', { name: 'Press glass button', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Press glass button', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('switch', { name: 'Glass switch', exact: true }).click();
+  await expect(page.getByRole('switch', { name: 'Glass switch', exact: true })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('slider', { name: 'Glass slider', exact: true }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#slider-value')).toHaveText('51');
+});

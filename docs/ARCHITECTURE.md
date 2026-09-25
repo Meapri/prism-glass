@@ -4,11 +4,15 @@
 
 `optics.ts` computes rounded-rectangle signed distance, estimates the outward normal, evaluates a bounded squircle-dome slope, then uses a single refraction event to derive a normalized sample offset. It emits displacement, silhouette and directional highlight pixel maps. Coordinates outside the rounded silhouette are masked out. The center is neutral.
 
-Map generation is pure and bounded to at most 512 pixels per dimension. The strength is applied later by the SVG primitive, so changing strength does not regenerate pixel maps. Width, height, radius, bevel, refractive index or resolution changes invalidate the map key.
+Map generation is pure and bounded to at most 512 pixels per dimension. The strength is applied later by the SVG primitive, so changing strength does not regenerate pixel maps. Width, height, radius, shape, bevel, refractive index, surface, depth, curvature, frost distribution or resolution changes invalidate the map key.
+
+Circles use radial distance; capsules use the rounded-rectangle distance with full caps; ellipses use a first-order signed-distance estimate with an exact silhouette and a guarded center. The normal follows that shape. Rim profiles preserve a flat center, dome profiles bend across the whole lens, and concave profiles reverse the bend. Depth changes the surface slope and curvature changes the dome exponent.
 
 ## SVG composition
 
 The displacement map is delivered to `feImage` as a decoded PNG blob URL. A color matrix maps integer channel 128 to exactly 0.5. The graph runs in sRGB. `SourceGraphic` feeds the distortion; a silhouette composite keeps the original pixels outside the lens. An optional blur supplies the distorted input. A separate narrow highlight is composited over the result.
+
+Center/edge frost adds a fourth map only when requested. It blends the sharp and blurred refracted branches, using complementary weights before applying the common silhouette. A zero blur uses the sharp branch directly; uniform blur uses the blurred branch directly. The varying frost is an opacity blend, not a physically varying Gaussian kernel. The demo does not add a CSS border, inset border-shadow or decorative inner arc around the main lens; its edge-light slider controls the optical highlight.
 
 Filter region origin remains `(0,0)` and covers the source, because the original DOM must remain visible outside the lens. The renderer deliberately does not transform the filtered source. Changing the filter ID is configurable and automatic for WebKit's known cache behavior. These measures reduce known incompatibilities; they do not prove native Safari rendering is correct.
 

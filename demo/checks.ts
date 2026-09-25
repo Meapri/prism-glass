@@ -1,4 +1,4 @@
-import { createGlass, type GlassController } from '../src/index.js';
+import { createGlass, lensFor, type GlassController } from '../src/index.js';
 const nextFrame = () => new Promise<void>(r => requestAnimationFrame(() => r()));
 async function waitFor(test: () => boolean, message: string) {
   const start = performance.now();
@@ -59,6 +59,16 @@ export async function runChecks(host: HTMLElement, output: HTMLElement, button: 
     source.style.filter = 'contrast(1.1)'; glass.destroy();
     assert(source.style.filter === 'contrast(1.1)', 'Cleanup preserves a later external filter edit');
     source.style.filter = '';
+    glass = createGlass(source, { lens: lensFor('circle', { x: 60, y: 20, width: 80, height: 80 }),
+      surface: 'dome', blurMode: 'center', blur: 2, respectReducedTransparency: false });
+    await waitFor(() => glass!.getDiagnostics().state === 'ready', 'circle material');
+    assert(glass.getDiagnostics().mapSize[0] === glass.getDiagnostics().mapSize[1], 'A circular material generates a square map');
+    const materialBuilds = glass.getDiagnostics().mapBuilds;
+    glass.update({ blur: 6 }); await nextFrame(); await nextFrame();
+    assert(glass.getDiagnostics().mapBuilds === materialBuilds, 'Spatial frost strength reuses the material map');
+    glass.update({ blurMode: 'edge' });
+    await waitFor(() => glass!.getDiagnostics().mapBuilds === materialBuilds + 1 && glass!.getDiagnostics().state === 'ready', 'frost distribution');
+    assert(glass.getDiagnostics().mapBuilds === materialBuilds + 1, 'Changing frost distribution regenerates its mask');
     lines.push(`\n${lines.length} checks passed. Visual fidelity and GPU timing require separate checks.`);
     output.dataset.result = 'passed'; output.textContent = lines.join('\n');
   } catch (error) {

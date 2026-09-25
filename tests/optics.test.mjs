@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateMaps, normalizeLens, sampleDisplacement } from '../dist/optics.js';
+import { generateMaps, normalizeLens, sampleDisplacement, lensFor } from '../dist/optics.js';
 const shape = { width: 200, height: 100, radius: 25, bevel: 20, ior: 1.5 };
 test('displacement obeys mirror symmetry and moves inward', () => {
   for (let t = 1; t < 19; t++) {
@@ -44,6 +44,63 @@ test('bad or incomplete geometry fails before allocating', () => {
 });
 test('radius is capped to the smaller half dimension', () => {
   assert.equal(normalizeLens({x:0,y:0,width:200,height:100,radius:100}).radius,50);
+});
+test('named shapes fit bounds and keep their geometry contracts', () => {
+  const circle = lensFor('circle', { x: 10, y: 20, width: 200, height: 100 });
+  assert.deepEqual(circle, { x: 60, y: 20, width: 100, height: 100, radius: 50, shape: 'circle' });
+  assert.equal(lensFor('capsule', { x: 0, y: 0, width: 200, height: 60, radius: 2 }).radius, 30);
+  assert.throws(() => normalizeLens({ ...circle, width: 120 }));
+  assert.throws(() => lensFor('triangle', { x: 0, y: 0, width: 100, height: 100 }));
+});
+test('circle dome bends radially and is symmetric on both axes', () => {
+  const s = { ...shape, ...lensFor('circle', { x: 0, y: 0, width: 100, height: 100 }), surface: 'dome', curvature: 2 };
+  const top = sampleDisplacement(50, 10, s), left = sampleDisplacement(10, 50, s);
+  assert.ok(top.dy > 0 && left.dx > 0);
+  assert.ok(Math.abs(top.dy - left.dx) < 1e-10);
+  assert.ok(Math.abs(top.dx) < 1e-10);
+  assert.equal(sampleDisplacement(1, 1, s).mask, 0);
+});
+test('ellipse uses its own silhouette and remains finite at its center', () => {
+  const s = { ...shape, shape: 'ellipse' };
+  assert.equal(sampleDisplacement(25, 2, s).mask, 0);
+  assert.equal(sampleDisplacement(100, 50, s).mask, 1);
+  assert.ok(Object.values(sampleDisplacement(100, 50, s)).every(Number.isFinite));
+  const a = sampleDisplacement(100, 5, s), b = sampleDisplacement(100, 95, s);
+  assert.ok(Math.abs(a.dy + b.dy) < 1e-10);
+});
+test('dome extends refraction beyond the rim, concave reverses it, and zero depth is flat', () => {
+  const point = [100, 30];
+  assert.equal(Math.abs(sampleDisplacement(...point, shape).dy), 0);
+  const dome = sampleDisplacement(...point, { ...shape, surface: 'dome', curvature: 2 });
+  const concave = sampleDisplacement(...point, { ...shape, surface: 'concave', curvature: 2 });
+  assert.ok(dome.dy > 0);
+  assert.ok(Math.abs(dome.dy + concave.dy) < 1e-10);
+  assert.equal(Math.abs(sampleDisplacement(100, 1, { ...shape, depth: 0 }).dy), 0);
+});
+test('center and edge frosting are complementary and masks stay within the lens', () => {
+  for (const y of [1, 5, 10, 20, 50]) {
+    const center = sampleDisplacement(100, y, { ...shape, blurMode: 'center' });
+    const edge = sampleDisplacement(100, y, { ...shape, blurMode: 'edge' });
+    assert.ok(Math.abs(center.frost + edge.frost - 1) < 1e-10);
+  }
+  assert.equal(sampleDisplacement(100, 50, { ...shape, blurMode: 'edge' }).frost, 0);
+  assert.equal(sampleDisplacement(0, 0, { ...shape, blurMode: 'center' }).frost, 0);
+  assert.equal(generateMaps(shape).frost, undefined);
+  assert.equal(generateMaps({ ...shape, blurMode: 'center' }).frost.length, 200 * 100 * 4);
+});
+test('surface parameters and material names are validated before map generation', () => {
+  for (const extra of [{ depth: NaN }, { depth: -1 }, { curvature: 1 }, { surface: 'unknown' }, { blurMode: 'unknown' }]) {
+    assert.throws(() => generateMaps({ ...shape, ...extra }));
+  }
+});
+test('component presets scale to their lens and keep slider refraction gentler', async () => {
+  const { getGlassPreset } = await import('../dist/index.js');
+  const lens = lensFor('capsule', { x: 0, y: 0, width: 90, height: 60 });
+  assert.ok(getGlassPreset('slider', lens).strength < getGlassPreset('switch', lens).strength);
+  for (const name of ['button', 'switch', 'slider', 'tab', 'panel']) {
+    const config = getGlassPreset(name, lens);
+    assert.doesNotThrow(() => generateMaps({ ...config, ...config.lens }));
+  }
 });
 test('core and React adapter import safely without window/document', async () => {
   const core=await import('../dist/index.js');assert.equal(typeof core.createGlass,'function');

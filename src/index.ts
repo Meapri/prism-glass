@@ -2,15 +2,18 @@ import { clamp, finite, normalizeLens } from './optics.js';
 import { buildAssets, createFilter, type MapAssets } from './svg.js';
 import type { GlassController, GlassOptions, GlassPatch, GlassDiagnostics } from './types.js';
 export type { GlassController, GlassOptions, GlassPatch, GlassDiagnostics } from './types.js';
-export type { Lens } from './optics.js';
+export { lensFor } from './optics.js';
+export { getGlassPreset, type GlassPreset } from './presets.js';
+export type { Lens, LensShape, SurfaceProfile, BlurMode } from './optics.js';
 type Normalized = Required<Omit<GlassOptions, 'onStatus'>> & Pick<GlassOptions, 'onStatus'>;
 const owners = new WeakSet<HTMLElement>();
 const defaults = { strength: 24, ior: 1.5, bevel: 24, blur: 0, highlight: 0.55,
+  surface: 'rim' as const, depth: 1, curvature: 4, blurMode: 'uniform' as const,
   resolution: 256, maxSourcePixels: 4_000_000, enabled: true, live: false,
   respectReducedTransparency: true, refreshFilterId: 'auto' as const };
 function normalize(options: GlassOptions): Normalized {
   const o = { ...defaults, ...options, lens: normalizeLens(options.lens) };
-  const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 16], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [10_000, 64_000_000] } as const;
+  const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 16], depth: [0, 4], curvature: [2, 8], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [10_000, 64_000_000] } as const;
   for (const key of Object.keys(ranges) as (keyof typeof ranges)[]) {
     const [min, max] = ranges[key]; o[key] = clamp(finite(o[key], key), min, max);
   }
@@ -19,6 +22,8 @@ function normalize(options: GlassOptions): Normalized {
     if (typeof o[name] !== 'boolean') throw new TypeError(`${name} must be boolean`);
   }
   if (!['auto', 'always', 'never'].includes(o.refreshFilterId)) throw new TypeError('Invalid refreshFilterId');
+  if (!['rim', 'dome', 'concave'].includes(o.surface)) throw new TypeError('Invalid surface');
+  if (!['uniform', 'center', 'edge'].includes(o.blurMode)) throw new TypeError('Invalid blurMode');
   return o;
 }
 
@@ -56,7 +61,7 @@ export function createGlass(source: HTMLElement, options: GlassOptions): GlassCo
   }
   function schedule() { if (!dead && !frame) frame = win!.requestAnimationFrame(render); }
   function write() {
-    graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight);
+    graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight, config.blurMode);
     if (config.refreshFilterId === 'always' || (config.refreshFilterId === 'auto' && webkit)) {
       graph.filter.id = `${id}-${++revision}`;
     }
@@ -78,15 +83,16 @@ export function createGlass(source: HTMLElement, options: GlassOptions): GlassCo
     diagnostic.sourcePixels = Math.round(lastWidth * lastHeight * win!.devicePixelRatio ** 2);
     if (!lastWidth || !lastHeight) { restoreFilter(); status('paused', 'empty-source'); return; }
     if (diagnostic.sourcePixels > config.maxSourcePixels) { restoreFilter(); status('limited', 'source-pixel-budget'); return; }
-    const { width, height, radius } = config.lens;
-    const nextKey = [width, height, radius, config.bevel, config.ior, config.resolution].join(':');
+    const { width, height, radius, shape } = config.lens;
+    const nextKey = [width, height, radius, shape, config.bevel, config.ior, config.resolution, config.surface, config.depth, config.curvature, config.blurMode].join(':');
     if (key === nextKey && pendingKey && pendingKey !== nextKey) { generation++; pendingKey = ''; }
     if (key !== nextKey) {
       if (pendingKey !== nextKey) {
         pendingKey = nextKey; const ticket = ++generation;
         const start = win!.performance.now();
         status('loading', 'building-map');
-        void buildAssets(doc, { width, height, radius, bevel: config.bevel, ior: config.ior }, config.resolution).then(next => {
+        void buildAssets(doc, { width, height, radius, shape, bevel: config.bevel, ior: config.ior,
+          surface: config.surface, depth: config.depth, curvature: config.curvature, blurMode: config.blurMode }, config.resolution).then(next => {
           if (dead || ticket !== generation) { next.dispose(); return; }
           const previous = assets; assets = next; graph.maps(next);
           key = nextKey; pendingKey = ''; diagnostic.mapBuilds++;

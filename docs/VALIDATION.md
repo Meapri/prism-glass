@@ -4,9 +4,10 @@ Date: 2026-09-25. Release: `0.1.0-alpha.1`.
 
 ## Completed
 
-- `npm test`: **9/9 passed**. Covers displacement symmetry and direction, neutral centers/index, rounded-corner masks, finite edge calculations, bounded map allocation, neutral-channel encoding, invalid geometry, radius normalization, and server-side imports/rendering of the core and React adapter.
-- Interactive checks in a managed Chromium browser: **17/17 passed**. Covers original DOM/event preservation, map reuse for position/strength, shape invalidation, atomic validation, exclusive source ownership, disable/enable, pixel-budget suspension, disposal, remounting, filter-ID refresh, and preserving later external filter edits during cleanup.
+- `npm test`: **16/16 passed**. Covers displacement symmetry and direction, neutral centers/index, rounded-corner masks, finite edge calculations, bounded map allocation, neutral-channel encoding, invalid geometry, radius normalization, server-side imports/rendering of the core and React adapter, circle/ellipse geometry, dome/concave direction, complementary frost masks, and preset behavior.
+- Interactive checks in a managed Chromium browser: **20/20 passed**. Covers original DOM/event preservation, map reuse for position/strength, shape invalidation, atomic validation, exclusive source ownership, disable/enable, pixel-budget suspension, disposal, remounting, filter-ID refresh, preserving later external filter edits during cleanup, circular material maps, frost-strength cache reuse and frost-distribution invalidation.
 - Visual inspection in that Chromium environment: text, grid lines and the background ribbon bend inside the lens; turning refraction off restores their original geometry. The separate tab controls select correctly.
+- Shape/material follow-up: circular dome refraction was visually inspected; button and switch clicks and a keyboard slider change produced the expected states. Hard CSS outlines on the main demo lens were removed independently of frost.
 - The observed demo's main source was approximately **0.40 megapixels**, with a **236 × 140** optical map. These are diagnostics for this viewport, not performance benchmarks.
 - `npm pack` and installation of that tarball into a separate empty project passed. The installed core and optics ESM exports imported successfully without React or other runtime dependencies.
 - No application error was observed in the browser log during these checks. The browser extension emitted unrelated metadata errors.

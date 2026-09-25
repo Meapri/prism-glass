@@ -37,6 +37,19 @@ glass.destroy(); // 컴포넌트를 제거할 때 호출
 
 React에서는 `@meapri/prism-glass/react`의 `GlassSource` 또는 `useGlass`를 사용합니다. 전체 API와 예제는 [README.md](README.md)에 있습니다.
 
+## 형태와 재질
+
+원형·타원형·캡슐형·둥근 사각형을 지원합니다. 형태에 맞춰 굴절 방향을 계산하며, 중앙이 평평한 표면·전체가 볼록한 표면·오목한 표면을 선택할 수 있습니다. 블러는 전체·중앙·가장자리에 적용할 수 있습니다.
+
+```ts
+import { createGlass, lensFor, getGlassPreset } from '@meapri/prism-glass';
+
+const lens = lensFor('circle', { x: 20, y: 20, width: 96, height: 96 });
+const glass = createGlass(source, getGlassPreset('button', lens));
+```
+
+`button`, `switch`, `slider`, `tab`, `panel` 프리셋은 용도와 렌즈 크기에 맞춰 강도·깊이·블러를 설정합니다. Aave의 비공개 설정을 복제한 값은 아닙니다. 데모의 `Component preset`에서 비교하고, 아래의 원형 버튼·스위치·슬라이더도 직접 조작할 수 있습니다. 주 렌즈에 겹쳐 있던 CSS 테두리는 제거했으며, 가장자리 광택은 `Edge light`로 조절합니다.
+
 ## 이 구조가 맞는 경우
 
 - 탭, 선택 표시, 작은 카드처럼 굴절할 원본 영역을 직접 지정할 수 있는 UI
@@ -47,7 +60,7 @@ React에서는 `@meapri/prism-glass/react`의 `GlassSource` 또는 `useGlass`를
 
 ## 현재 확인한 범위
 
-순수 계산·SSR 테스트 9개와 Chromium 브라우저 검사 17개를 통과했고, 굴절 전후를 시각적으로 확인했습니다. 네이티브 Safari·Firefox 실기기, React 클라이언트 통합, GPU 성능은 추가 검증이 필요합니다. 전 브라우저·전 기기에서 성능 문제가 없다고 보증하는 버전은 아닙니다.
+순수 계산·SSR 테스트 16개를 통과했습니다. 브라우저 검사와 실제 확인한 범위는 아래 검증 기록에 기재합니다. 네이티브 Safari·Firefox 실기기, React 클라이언트 통합, GPU 성능은 추가 검증이 필요합니다. 전 브라우저·전 기기에서 성능 문제가 없다고 보증하는 버전은 아닙니다.
 
 작은 렌즈라도 원본 전체를 필터링하므로 앱 전체를 `source`로 감싸지 마세요. 이 알파는 원본 하나당 렌즈 하나를 지원하며, 다중 렌즈 합성·자동 배경 복제·영상용 WebGL 렌더러는 포함하지 않습니다.
 
