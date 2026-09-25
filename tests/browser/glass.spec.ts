@@ -6,6 +6,13 @@ test('source refraction changes scene pixels, preserves DOM, and toggles off', a
   await expect(page.locator('#status')).toHaveText('SVG source');
   await page.getByRole('button', { name: 'Follow pointer' }).click();
   await page.mouse.move(0, 0);
+  // A highlight alone must never count as working refraction.
+  await page.getByText('Shape size & surface depth', { exact: true }).click();
+  await page.locator('#highlight').fill('0');
+  await page.locator('#blur').fill('0');
+  await page.locator('#strength').fill('40');
+  await expect(page.locator('#highlight-value')).toHaveText('0');
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const scene = page.locator('#source');
   const bent = PNG.sync.read(await scene.screenshot());
   await page.getByRole('button', { name: 'Refraction on', exact: true }).click();
