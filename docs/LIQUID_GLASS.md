@@ -2,7 +2,7 @@
 
 Prism Glass 0.2 is an independent web implementation. The optical model and shader are authored here; Apple and Aave do not publish a normative shader that this package can claim to reproduce exactly.
 
-The rendering split follows [Aave's public article](https://aave.com/design/building-glass-for-the-web): explicit live DOM through SVG, direct media through a shared WebGL renderer, and a portable shape map. Material placement and legibility follow [Apple's Materials guidance](https://developer.apple.com/design/human-interface-guidelines/materials) and [Meet Liquid Glass](https://developer.apple.com/videos/play/wwdc2025/219/).
+The rendering split follows [Aave's public article](https://aave.com/design/building-glass-for-the-web): explicit live DOM through SVG, direct media through a shared WebGL renderer, and a portable shape map. Material placement and legibility follow [Apple's Materials guidance](https://developer.apple.com/design/human-interface-guidelines/materials) and the [WWDC26 platform refinements](https://developer.apple.com/videos/play/wwdc2026/102/).
 
 ## Design contract
 
@@ -29,6 +29,8 @@ Use `GlassProvider` to choose a consistent variant and light/dark appearance. `a
 
 ## Scope and visual reference
 
-The media example follows the supplied reference's structure: a broad rounded media viewport, a large central playback lens, smaller skip controls, and a low capsule scrubber. All controls operate the real media. The bundled MDN CC0 clip is different footage from the Aave screenshot; no Aave media or brand assets are redistributed. The wider page is a component explorer, not a copy of the Aave article.
+Native iOS 27 SwiftUI captures are the visual target. The media example now uses restrained 104px/60px playback controls, regular diffusion by default, a narrow rim, and neutral system colors. The screenshot originally supplied from Aave is not a style target. The same CC0 flower frame is used for native/web calibration; no Aave media or brand assets are redistributed. See [reference evidence](IOS27_REFERENCE.md).
+
+`tintLevel` on the provider or an individual material adjusts regular fill and diffusion from 0 to 1. It is an application preference, not access to an operating system setting. Idle switches/sliders have white capsule thumbs; optical effects activate during a press. Visual control bounds remain inside 44px interaction targets.
 
 Implemented optical effects include shape-aware refraction, directional rim light, blur/frost, media chromatic fringe and touch lighting. The implementation does not claim Apple's private material physics, automatic DOM luminance analysis, arbitrary glass merging, spring morphing between unrelated silhouettes, video DRM capture, or a fixed frame-rate guarantee. Performance and physical iOS behavior must be assessed on the devices and content used by the application.

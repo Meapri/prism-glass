@@ -7,6 +7,8 @@ export interface MediaLens {
   lens: Lens;
   variant?: GlassVariant;
   appearance?: GlassAppearance;
+  /** Web analogue of the iOS 27 appearance preference: 0 clearer, 1 more tinted. */
+  tintLevel?: number;
   strength?: number;
   bevel?: number;
   ior?: number;
@@ -15,6 +17,7 @@ export interface MediaLens {
   curvature?: number;
   blurMode?: BlurMode;
   blur?: number;
+  saturation?: number;
   highlight?: number;
   /** Chromatic fringe in CSS pixels, 0–3. */
   chroma?: number;

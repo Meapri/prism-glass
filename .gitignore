@@ -10,3 +10,5 @@ pages-dist/
 .env.*
 !.env.example
 .DS_Store
+
+demo/calibration.html

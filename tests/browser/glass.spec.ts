@@ -135,10 +135,10 @@ test('shape and material presets drive the live lens and component controls', as
   await page.goto('/optics.html');
   await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption('button');
   await expect(page.locator('#map-size')).toHaveText('160 × 160');
-  await expect(page.getByRole('combobox', { name: 'Surface', exact: true })).toHaveValue('dome');
+  await expect(page.getByRole('combobox', { name: 'Surface', exact: true })).toHaveValue('rim');
   await page.getByRole('combobox', { name: 'Component preset', exact: true }).selectOption('panel');
   await expect(page.locator('#map-size')).toHaveText('236 × 140');
-  await expect(page.getByRole('combobox', { name: 'Frost distribution', exact: true })).toHaveValue('center');
+  await expect(page.getByRole('combobox', { name: 'Frost distribution', exact: true })).toHaveValue('uniform');
   await page.getByRole('button', { name: 'Press glass button', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Press glass button', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('switch', { name: 'Glass switch', exact: true }).click();

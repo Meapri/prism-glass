@@ -46,7 +46,7 @@ export function GlassPopover({ trigger, triggerLabel, children, onOpenChange, cl
     const observer = new win.ResizeObserver(place); observer.observe(panel.current!);
     return () => { win.removeEventListener('resize', place); win.removeEventListener('scroll', place, true); observer.disconnect(); };
   }, [open]);
-  return <><GlassButton ref={button} variant={props.variant} appearance={props.appearance}
+  return <><GlassButton ref={button} variant={props.variant} appearance={props.appearance} tintLevel={props.tintLevel}
     onClick={() => { const target = panel.current!; if (target.matches(':popover-open')) target.hidePopover(); else target.showPopover(); }}
     aria-label={triggerLabel} aria-haspopup="dialog" aria-expanded={open} aria-controls={id}>{trigger}</GlassButton>
     <GlassSurface {...props} local id={id} ref={panel} popover="auto" role="dialog" tabIndex={props.tabIndex ?? -1} className={classes('prism-popover', className)}>{children}</GlassSurface></>;

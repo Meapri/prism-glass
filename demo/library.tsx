@@ -23,7 +23,8 @@ const timeLabel = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Mat
 function MediaExample() {
   const video = useRef<HTMLVideoElement | null>(null), [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(0), [currentTime, setCurrentTime] = useState(0);
-  const [variant, setVariant] = useState<GlassVariant>('clear'), [status, setStatus] = useState('loading');
+  const [variant, setVariant] = useState<GlassVariant>('regular'), [status, setStatus] = useState('loading');
+  const [tintLevel, setTintLevel] = useState(0.5);
   const options = useRef({ onStatus: (d: MediaGlassDiagnostics) => setStatus(d.state) }).current;
   useEffect(() => {
     const media = video.current!;
@@ -39,16 +40,15 @@ function MediaExample() {
     media.currentTime = Math.max(0, Math.min(media.duration, value)); setCurrentTime(media.currentTime);
   }
   return <section className="media-example" aria-label="Shared media refraction">
-    <GlassMediaScene source={video} media={options} variant={variant} className="flower-player" aria-label="Flower video player">
+    <GlassMediaScene source={video} media={options} variant={variant} tintLevel={tintLevel} className="flower-player" aria-label="Flower video player">
       <video ref={video} src="./assets/flower.mp4" muted playsInline loop preload="auto" aria-label="Garden flowers and leaves"
         onLoadedMetadata={event => setDuration(event.currentTarget.duration)} onTimeUpdate={event => setCurrentTime(event.currentTarget.currentTime)}
         onPlay={() => setPlaying(true)} onPause={event => { setPlaying(false); setCurrentTime(event.currentTarget.currentTime); }} onSeeked={event => setCurrentTime(event.currentTarget.currentTime)} />
       <div className="prism-media-controls"><div className="playback-row">
-        <GlassButton shape="circle" className="skip-control" aria-label="Back 15 seconds" onClick={() => seek((video.current?.currentTime ?? 0) - 15)} optics={{ blur: 0.25, strength: 18 }}><SkipIcon /></GlassButton>
-        <GlassButton shape="circle" className="play-control" aria-label={playing ? 'Pause video' : 'Play video'} onClick={toggle}
-          optics={{ surface: 'dome', depth: 1.3, curvature: 2.4, strength: 42, blur: variant === 'clear' ? 0 : 6 }}><PlaybackIcon playing={playing} /></GlassButton>
-        <GlassButton shape="circle" className="skip-control" aria-label="Forward 15 seconds" onClick={() => seek((video.current?.currentTime ?? 0) + 15)} optics={{ blur: 0.25, strength: 18 }}><SkipIcon forward /></GlassButton>
-      </div><GlassSurface shape="capsule" className="scrub-glass" optics={{ strength: 16, bevel: 22, blur: variant === 'clear' ? 0.4 : 6 }}>
+        <GlassButton shape="circle" className="skip-control" aria-label="Back 15 seconds" onClick={() => seek((video.current?.currentTime ?? 0) - 15)}><SkipIcon /></GlassButton>
+        <GlassButton shape="circle" className="play-control" aria-label={playing ? 'Pause video' : 'Play video'} onClick={toggle}><PlaybackIcon playing={playing} /></GlassButton>
+        <GlassButton shape="circle" className="skip-control" aria-label="Forward 15 seconds" onClick={() => seek((video.current?.currentTime ?? 0) + 15)}><SkipIcon forward /></GlassButton>
+      </div><GlassSurface shape="capsule" className="scrub-glass">
         <input className="video-seek" type="range" min="0" max={duration || 1} step="0.01" value={Math.min(currentTime, duration || 1)}
           disabled={!duration} aria-label="Video position" aria-valuetext={`${timeLabel(currentTime)} of ${timeLabel(duration)}`}
           style={{ '--video-progress': `${duration ? currentTime / duration * 100 : 0}%` } as CSSProperties}
@@ -57,23 +57,23 @@ function MediaExample() {
     </GlassMediaScene>
     <div className="media-caption"><p>One video. Four lenses. Every frame stays live.</p><div className="media-options">
       <label>Material <select aria-label="Video material" value={variant} onChange={event => setVariant(event.target.value as GlassVariant)}><option value="clear">Clear</option><option value="regular">Regular</option></select></label>
+      <label className="tint-preference">Tint <input type="range" min="0" max="1" step="0.05" value={tintLevel} disabled={variant === 'clear'} aria-label="Glass tint" onChange={event => setTintLevel(event.currentTarget.valueAsNumber)} /></label>
       <span id="media-status" role="status">{status === 'ready' ? 'Live refraction' : status === 'paused' ? 'Idle while offscreen' : status === 'disabled' ? 'Accessible material' : status === 'fallback' || status === 'error' ? 'Refraction unavailable' : 'Preparing media'}</span>
     </div></div>
   </section>;
 }
-function Artwork() { return <span className="sample-artwork"><span /></span>; }
 function Library() {
   const [count, setCount] = useState(0), [enabled, setEnabled] = useState(true), [volume, setVolume] = useState(50);
   const [dark, setDark] = useState(false), [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
   return <GlassProvider appearance={dark ? 'dark' : 'light'}><div className="library" data-theme={dark ? 'dark' : 'light'}>
     <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#components">Components</a><a href="./optics.html">Optics</a><a href="#api">API</a></nav></header>
-    <main><section className="library-intro"><h1>A material. A family of controls.</h1><p>Live refraction, clear interactions.<br />{' '}Liquid glass for the web, from the renderer to the button.</p></section>
+    <main><section className="library-intro"><h1>A material. A family of controls.</h1><p>Familiar controls. A lighter touch.<br />{' '}Calibrated against native iOS 27 materials.</p></section>
       <MediaExample />
       <section id="components" className="component-library"><div className="section-title"><h2>Made for interaction.</h2><p>One material system. Familiar, accessible controls.</p></div>
         <div className="component-row">
-          <article className="component-example"><h3>Button</h3><div className="example-stage"><GlassButton refractionTarget={<Artwork />} onClick={() => setCount(value => value + 1)}>Add item <span aria-hidden="true">＋</span></GlassButton></div><p role="status" id="item-count">{count ? `${count} ${count === 1 ? 'item' : 'items'} added` : 'A little light with every press.'}</p></article>
-          <article className="component-example"><h3>Switch</h3><div className="example-stage switch-example"><span>Notifications</span><GlassSwitch checked={enabled} onCheckedChange={setEnabled} aria-label="Notifications" /></div><p id="notification-value">{enabled ? 'On' : 'Off'} · The lens follows the track.</p></article>
-          <article className="component-example"><h3>Slider</h3><div className="example-stage"><GlassSlider value={volume} onValueChange={setVolume} aria-label="Volume" /></div><p><output id="volume-value">{volume}%</output> · A gentler bend for precise input.</p></article>
+          <article className="component-example"><h3>Button</h3><div className="example-stage"><GlassButton onClick={() => setCount(value => value + 1)}>Add item <span aria-hidden="true">＋</span></GlassButton></div><p role="status" id="item-count">{count ? `${count} ${count === 1 ? 'item' : 'items'} added` : 'A little light with every press.'}</p></article>
+          <article className="component-example"><h3>Switch</h3><div className="example-stage switch-example"><span>Notifications</span><GlassSwitch checked={enabled} onCheckedChange={setEnabled} aria-label="Notifications" /></div><p id="notification-value">{enabled ? 'On' : 'Off'} · A glass touch, a familiar switch.</p></article>
+          <article className="component-example"><h3>Slider</h3><div className="example-stage"><GlassSlider value={volume} onValueChange={setVolume} aria-label="Volume" /></div><p><output id="volume-value">{volume}%</output> · Precise input, soft press feedback.</p></article>
         </div>
         <div className="component-row wide-row">
           <article className="component-example tabs-example"><h3>Tabs</h3><GlassTabs aria-label="Library guide" items={[
@@ -81,13 +81,13 @@ function Library() {
             { value: 'motion', label: 'Motion', content: 'Selection moves with a spring. Press feedback responds immediately. Reduced motion removes the elastic response.' },
             { value: 'accessibility', label: 'Accessibility', content: 'Keyboard controls, visible focus, reduced transparency, increased contrast, and forced colors are part of the same system.' },
           ]} /></article>
-          <article className="component-example"><h3>Toolbar &amp; popover</h3><div className="toolbar-example"><GlassToolbar aria-label="Text alignment" refractionTarget={<Artwork />}>
+          <article className="component-example"><h3>Toolbar &amp; popover</h3><div className="toolbar-example"><GlassToolbar aria-label="Text alignment">
             {(['left', 'center', 'right'] as const).map(value => <GlassButton key={value} shape="rounded-rect" aria-label={`Align ${value}`} aria-pressed={alignment === value} onClick={() => setAlignment(value)}><AlignIcon alignment={value} /></GlassButton>)}
           </GlassToolbar><GlassPopover trigger="Display options" aria-label="Display options"><h4>Display options</h4><div className="setting-row"><span>Dark appearance</span><GlassSwitch checked={dark} onCheckedChange={setDark} aria-label="Dark appearance" /></div><p>One glass layer. Controls inside remain simple.</p></GlassPopover></div><p className="alignment-sample" style={{ textAlign: alignment }}>Content stays clear.</p></article>
         </div>
       </section>
       <section id="api" className="api-section"><div><h2>Choose the source.<br />Keep the controls.</h2><p>Use SVG for an explicit DOM source and one shared WebGL renderer for media. Your labels, buttons, and keyboard behavior remain ordinary HTML.</p><div className="source-links"><a href="https://aave.com/design/building-glass-for-the-web">Aave’s rendering approach ↗</a><a href="https://developer.apple.com/design/human-interface-guidelines/materials">Apple’s material guidance ↗</a></div></div>
-        <pre><code>{`import { GlassProvider, GlassButton,\n  GlassSwitch } from '@meapri/prism-glass/react';\nimport '@meapri/prism-glass/styles.css';\n\n<GlassProvider variant="regular">\n  <GlassButton refractionTarget={<Artwork />}>\n    Add item\n  </GlassButton>\n  <GlassSwitch aria-label="Notifications"\n    checked={enabled}\n    onCheckedChange={setEnabled} />\n</GlassProvider>`}</code></pre>
+        <pre><code>{`import { GlassProvider, GlassButton,\n  GlassSwitch } from '@meapri/prism-glass/react';\nimport '@meapri/prism-glass/styles.css';\n\n<GlassProvider variant="regular">\n  <GlassButton>\n    Add item\n  </GlassButton>\n  <GlassSwitch aria-label="Notifications"\n    checked={enabled}\n    onCheckedChange={setEnabled} />\n</GlassProvider>`}</code></pre>
       </section>
     </main><footer><span>Prism Glass · Independent web implementation</span><span>TypeScript core · React components · Source-first optics</span></footer>
   </div></GlassProvider>;

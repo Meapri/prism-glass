@@ -1,19 +1,20 @@
 /* Prism Glass: optical sources and readable controls are separate layers. */
 .prism-material {
-  --prism-ink: #17201e; --prism-fill: rgb(248 251 247 / .64); --prism-solid: #f2f4f1;
-  --prism-rim: rgb(255 255 255 / .65); --prism-shadow: rgb(19 37 28 / .13);
-  --prism-press: 0; --prism-pointer-x: 50%; --prism-pointer-y: 50%; --prism-accent: #427f67;
+  --prism-ink: #000; --prism-fill: rgb(255 255 255 / .52); --prism-solid: #f2f2f7;
+  --prism-rim: rgb(255 255 255 / .65); --prism-shadow: rgb(0 0 0 / .06);
+  --prism-press: 0; --prism-pointer-x: 50%; --prism-pointer-y: 50%; --prism-accent: #0088ff;
   position: relative; color: var(--prism-ink); font: inherit; box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
 .prism-material[data-appearance=dark] {
-  --prism-ink: #fff; --prism-fill: rgb(22 29 26 / .66); --prism-solid: #222a27;
+  --prism-ink: #fff; --prism-fill: rgb(20 20 23 / .52); --prism-solid: #1c1c1e;
   --prism-rim: rgb(255 255 255 / .25); --prism-shadow: rgb(0 0 0 / .25);
 }
 .prism-material[data-variant=clear] {
-  --prism-ink: #fff; --prism-fill: rgb(0 0 0 / .35); --prism-solid: #222a27;
+  --prism-ink: #fff; --prism-fill: rgb(0 0 0 / .35); --prism-solid: #1c1c1e;
   --prism-rim: rgb(255 255 255 / .42); --prism-shadow: rgb(0 0 0 / .16);
 }
+.prism-source-mask { position: absolute; inset: 0; pointer-events: none; clip-path: inset(var(--prism-lens-y, 0px) calc(100% - var(--prism-lens-x, 0px) - var(--prism-lens-width, 100%)) calc(100% - var(--prism-lens-y, 0px) - var(--prism-lens-height, 100%)) var(--prism-lens-x, 0px) round var(--prism-lens-radius, 999px)); }
 .prism-source { position: absolute; inset: 0; display: block; overflow: hidden; border-radius: inherit; pointer-events: none; }
 .prism-artwork { position: absolute; inset: 0; display: block; overflow: hidden; isolation: isolate; }
 .prism-artwork > img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -23,25 +24,25 @@
   width: var(--prism-lens-width, 100%); height: var(--prism-lens-height, 100%);
   border-radius: var(--prism-lens-radius, inherit);
   background: var(--prism-fill);
-  box-shadow: inset 0 1px 1px var(--prism-rim), inset 0 -1px 1px rgb(255 255 255 / .13), 0 4px 16px var(--prism-shadow);
+  box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .18), inset 0 1px .5px var(--prism-rim), inset 0 -1px .5px rgb(255 255 255 / .25), 0 4px 12px var(--prism-shadow);
 }
 .prism-lens::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   background: radial-gradient(ellipse at var(--prism-pointer-x) var(--prism-pointer-y), rgb(255 255 255 / calc(var(--prism-press) * .22)), transparent 75%);
 }
-.prism-material[data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(12px) saturate(1.15); backdrop-filter: blur(12px) saturate(1.15); }
-.prism-material[data-variant=clear][data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
-.prism-material[data-prism-renderer=webgl-media] > .prism-lens { background: transparent; box-shadow: 0 4px 18px var(--prism-shadow); }
+.prism-material[data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(var(--prism-blur, 14px)) saturate(var(--prism-saturation, 1.65)) brightness(var(--prism-brightness, 1)); backdrop-filter: blur(var(--prism-blur, 14px)) saturate(var(--prism-saturation, 1.65)) brightness(var(--prism-brightness, 1)); }
+.prism-material[data-variant=clear][data-prism-renderer=css-material] > .prism-lens { -webkit-backdrop-filter: blur(var(--prism-blur, 2.5px)) saturate(1.1) brightness(1.09); backdrop-filter: blur(var(--prism-blur, 2.5px)) saturate(1.1) brightness(1.09); }
+.prism-material[data-prism-renderer=webgl-media] > .prism-lens { background: transparent; box-shadow: 0 1px 3px var(--prism-shadow); }
 .prism-content { position: relative; z-index: 1; }
 .prism-surface { padding: 20px; }
 .prism-button {
   display: inline-flex; justify-content: center; align-items: center; gap: 8px;
-  border: 0; background: transparent; border-radius: 999px; min-height: 44px; padding: 11px 20px;
-  font-size: 14px; line-height: 1.4; font-weight: 600; white-space: nowrap; cursor: pointer;
+  --prism-control-height: 34px; border: 0; background: transparent; border-radius: 999px; min-height: 44px; padding: 5px 14px;
+  font-size: 17px; line-height: 22px; font-weight: 400; white-space: nowrap; cursor: pointer;
 }
 .prism-button > .prism-content { display: inline-flex; align-items: center; justify-content: center; gap: 8px; transform: scale(calc(1 - var(--prism-press) * .035)); }
 .prism-button[data-shape=rounded-rect] { border-radius: 14px; }
-.prism-button[data-shape=circle] { width: 48px; height: 48px; padding: 0; border-radius: 50%; }
+.prism-button[data-shape=circle] { --prism-control-height: 32px; width: 44px; height: 44px; padding: 0; border-radius: 50%; }
 .prism-material[data-prism-renderer=overlay] > .prism-lens { background: transparent; box-shadow: none; }
 .prism-button[data-prism-renderer=overlay]:hover > .prism-lens { background: rgb(127 127 127 / .12); }
 .prism-button:disabled,.prism-switch:disabled,.prism-slider[data-disabled=true] { opacity: .45; cursor: not-allowed; }
@@ -50,28 +51,32 @@
 }
 .prism-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px; width: fit-content; }
 .prism-toolbar > .prism-content { display: flex; align-items: center; gap: 4px; }
-.prism-switch { border: 0; width: 72px; height: 44px; padding: 0; border-radius: 999px; background: #d8dfd9; cursor: pointer; flex: none; }
-.prism-switch-fill { position: absolute; inset: 0; background: var(--prism-accent); opacity: .08; transition: opacity 180ms ease; }
+/* iOS 27 visual bounds are smaller than their 44px interaction targets. */
+.prism-switch { border: 0; width: 64px; height: 44px; padding: 0; border-radius: 999px; background: transparent; cursor: pointer; flex: none; }
+.prism-switch-track { position: absolute; left: 0; right: 0; top: 8px; height: 28px; overflow: hidden; border-radius: 999px; background: rgb(120 120 128 / .16); }
+.prism-switch-fill { position: absolute; inset: 0; background: var(--prism-switch-color, #34c759); opacity: 0; transition: opacity 180ms ease; }
 .prism-switch[data-checked=true] .prism-switch-fill { opacity: 1; }
-.prism-switch > .prism-lens { background: rgb(255 255 255 / .54); box-shadow: inset 0 1px 1px #fffd, 0 2px 5px #173a3433; }
-.prism-switch[data-prism-renderer=overlay] > .prism-lens { background: var(--prism-solid); box-shadow: 0 1px 4px #0002; }
-.prism-slider { display: inline-block; width: 240px; max-width: 100%; height: 36px; border-radius: 999px; vertical-align: middle; }
-.prism-slider-track { position: absolute; height: 7px; top: calc(50% - 3.5px); left: 18px; right: 18px; border-radius: 99px; overflow: hidden; background: rgb(84 106 96 / .22); }
+.prism-switch > .prism-lens,.prism-slider > .prism-lens { background: rgb(255 255 255 / calc(1 - var(--prism-press) * .65)); box-shadow: inset 0 1px .5px #fff9, 0 2px 10px #00000012; }
+.prism-switch[data-prism-renderer=overlay] > .prism-lens,.prism-slider[data-prism-renderer=overlay] > .prism-lens { background: #fff; box-shadow: 0 1px 4px #0002; }
+.prism-slider { display: inline-block; width: 240px; max-width: 100%; height: 44px; border-radius: 999px; vertical-align: middle; }
+.prism-slider-track { position: absolute; height: 6px; top: calc(50% - 3px); left: 18px; right: 18px; border-radius: 99px; overflow: hidden; background: rgb(120 120 128 / .16); }
 .prism-slider-fill { display: block; height: 100%; width: var(--prism-progress); background: var(--prism-accent); }
 .prism-slider:dir(rtl) .prism-slider-fill { margin-left: auto; }
-.prism-slider > .prism-lens { background: rgb(245 251 247 / .48); box-shadow: inset 0 1px 1px #fffd, 0 2px 8px #173a342c; }
-.prism-slider > input { appearance: none; -webkit-appearance: none; position: absolute; inset: -4px 0; width: 100%; height: 44px; margin: 0; border: 0; background: transparent; cursor: pointer; z-index: 2; }
-.prism-slider > input::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 36px; height: 36px; border: 0; background: transparent; }
-.prism-slider > input::-moz-range-thumb { width: 36px; height: 36px; border: 0; background: transparent; }
+.prism-slider > input { appearance: none; -webkit-appearance: none; position: absolute; inset: 0; width: 100%; height: 44px; margin: 0; border: 0; background: transparent; cursor: pointer; z-index: 2; }
+.prism-slider > input::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 36px; height: 26px; border: 0; background: transparent; }
+.prism-slider > input::-moz-range-thumb { width: 36px; height: 26px; border: 0; background: transparent; }
 .prism-slider > input::-moz-range-track { background: transparent; }
 .prism-slider > input:focus-visible { outline: 2px solid var(--prism-ink); outline-offset: 5px; border-radius: 99px; }
-.prism-tabs { display: grid; grid-template-columns: repeat(var(--prism-tab-count), minmax(0,1fr)); padding: 4px; min-height: 48px; border-radius: 999px; background: rgb(80 111 92 / .08); }
-.prism-tabs-highlight { position: absolute; left: var(--prism-lens-x); top: 4px; width: var(--prism-lens-width); height: calc(100% - 8px); border-radius: 999px; background: linear-gradient(110deg,#edf4e8,#d8e6d8); }
-.prism-tabs button { position: relative; z-index: 1; border: 0; padding: 10px 16px; border-radius: 999px; min-width: 0; background: transparent; color: inherit; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; }
-.prism-tabs button[aria-selected=true] { font-weight: 650; }
+.prism-tabs { display: grid; grid-template-columns: repeat(var(--prism-tab-count), minmax(0,1fr)); padding: 0 2px; height: 44px; border-radius: 999px; }
+.prism-tabs::before { content: ''; position: absolute; inset: 6px 0; border-radius: inherit; background: rgb(118 118 128 / .12); }
+.prism-tabs-highlight { position: absolute; left: var(--prism-lens-x); top: var(--prism-lens-y); width: var(--prism-lens-width); height: var(--prism-lens-height); border-radius: 999px; background: #fff; }
+.prism-tabs[data-appearance=dark] .prism-tabs-highlight { background: #636366; }
+.prism-tabs > .prism-lens { background: rgb(255 255 255 / .01); box-shadow: 0 1px 3px #00000008; }
+.prism-tabs button { position: relative; z-index: 1; border: 0; padding: 0 12px; border-radius: 999px; min-width: 0; background: transparent; color: inherit; font: inherit; font-size: 13px; font-weight: 400; cursor: pointer; }
+.prism-tabs button[aria-selected=true] { font-weight: 600; }
 .prism-tabs button:disabled { opacity: .45; cursor: not-allowed; }
 .prism-tab-panel { padding: 16px 4px 0; font-size: 14px; line-height: 1.7; }
-.prism-popover { position: fixed; inset: auto; margin: 0; border: 0; width: 300px; max-height: calc(100dvh - 24px); overflow: auto; font: inherit; box-shadow: 0 12px 40px rgb(18 33 24 / .16); }
+.prism-popover { position: fixed; inset: auto; margin: 0; border: 0; width: 300px; max-height: calc(100dvh - 24px); overflow: auto; background: transparent; font: inherit; box-shadow: 0 12px 40px rgb(18 33 24 / .16); }
 .prism-popover::backdrop { background: transparent; }
 .prism-media-scene { position: relative; isolation: isolate; overflow: hidden; border-radius: 24px; aspect-ratio: 16/9; background: #17261b; }
 .prism-media-scene > video,.prism-media-scene > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: var(--prism-media-fit,cover); object-position: var(--prism-media-position,50% 50%); z-index: 0; }
@@ -95,9 +100,13 @@
 @media(forced-colors: active) {
   .prism-material { color: ButtonText; --prism-ink: ButtonText; --prism-accent: Highlight; }
   .prism-material > .prism-lens { background: ButtonFace!important; outline: 2px solid ButtonText; -webkit-backdrop-filter: none!important; backdrop-filter: none!important; }
-  .prism-source { visibility: hidden; }
-  .prism-switch[data-checked=true] { background: Highlight; }
+  .prism-source-mask { position: absolute; inset: 0; pointer-events: none; clip-path: inset(var(--prism-lens-y, 0px) calc(100% - var(--prism-lens-x, 0px) - var(--prism-lens-width, 100%)) calc(100% - var(--prism-lens-y, 0px) - var(--prism-lens-height, 100%)) var(--prism-lens-x, 0px) round var(--prism-lens-radius, 999px)); }
+.prism-source { visibility: hidden; }
+  .prism-switch[data-checked=true] .prism-switch-track { background: Highlight; }
+  .prism-switch .prism-source,.prism-slider .prism-source { visibility: visible; }
   .prism-slider > input { appearance: auto; -webkit-appearance: auto; }
   .prism-slider > input::-webkit-slider-thumb { appearance: auto; -webkit-appearance: auto; }
   .prism-slider > input::-moz-range-thumb { background: ButtonText; }
 }
+
+.prism-material[data-prism-renderer=css-material][data-variant=regular] > .prism-lens { background: color-mix(in srgb, var(--prism-fill), #b0b0b0 6%); }

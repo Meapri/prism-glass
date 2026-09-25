@@ -13,6 +13,8 @@ export interface GlassOptions {
   /** Superellipse surface exponent. 2–8, default 4. */
   curvature?: number;
   blur?: number;
+  /** Color diffusion/vibrancy inside the lens. 0–3, default 1. */
+  saturation?: number;
   /** Uniform frosting, a frosted center, or a frosted rim with a clear center. */
   blurMode?: BlurMode;
   highlight?: number;

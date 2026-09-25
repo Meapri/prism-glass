@@ -3,15 +3,15 @@ import { createMediaGlass } from '../media.js';
 import type { GlassMediaSource, MediaGlassController, MediaGlassOptions, MediaLens } from '../media-types.js';
 import { classes, GlassContext, MediaContext, useTheme, type MaterialProps } from './context.js';
 
-export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance'> {
+export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance' | 'tintLevel'> {
   source: RefObject<GlassMediaSource | null>;
   media?: Omit<MediaGlassOptions, 'lenses'>;
 }
 /** Place the source media and ordinary GlassButton/GlassSurface children in one scene. */
-export function GlassMediaScene({ source, media, variant = 'clear', appearance, children, className, style, ...props }: GlassMediaSceneProps) {
+export function GlassMediaScene({ source, media, variant = 'clear', appearance, tintLevel, children, className, style, ...props }: GlassMediaSceneProps) {
   const root = useRef<HTMLDivElement | null>(null), canvas = useRef<HTMLCanvasElement | null>(null), controller = useRef<MediaGlassController | null>(null);
   const latest = useRef(media); latest.current = media;
-  const theme = useTheme({ variant, appearance });
+  const theme = useTheme({ variant, appearance, tintLevel });
   const readers = useRef(new Map<string, () => MediaLens | null>()), frame = useRef(0);
   const context = useMemo(() => {
     function invalidate() {

@@ -56,3 +56,12 @@ test('all public React components and media API import and render without browse
     React.createElement(GlassSurface,null,'Surface'),React.createElement(GlassMediaScene,{source:React.createRef()},'Media')));
   assert.match(output,/role="switch"/);assert.match(output,/type="range"/);assert.match(output,/role="tabpanel"/);assert.match(output,/popover="auto"/);assert.ok(!output.includes('filter:'));
 });
+
+test('tint preference increases diffusion and opacity without changing the clear material',()=>{
+  const clear=getGlassMaterial('regular','light',0), tinted=getGlassMaterial('regular','light',1);
+  assert.ok(tinted.blur>clear.blur);assert.ok(tinted.tint[3]>clear.tint[3]);
+  assert.deepEqual(getGlassMaterial('clear','light',0),getGlassMaterial('clear','light',1));
+  assert.throws(()=>getGlassMaterial('regular','light',NaN));
+  assert.deepEqual(getGlassMaterial('regular','light',-1),clear);
+  assert.deepEqual(getGlassMaterial('regular','light',2),tinted);
+});

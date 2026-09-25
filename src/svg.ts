@@ -57,7 +57,8 @@ export function createFilter(doc: Document, id: string, onImageLoad: () => void)
   const frostedPart = el('feComposite', { in: 'bentSoft', in2: 'frostMask', operator: 'in', result: 'frostedPart' });
   const clearPart = el('feComposite', { in: 'bent', in2: 'frostMask', operator: 'out', result: 'clearPart' });
   const mixed = el('feComposite', { in: 'frostedPart', in2: 'clearPart', operator: 'arithmetic', k1: 0, k2: 1, k3: 1, k4: 0, result: 'mixed' });
-  const inside = el('feComposite', { in: 'bent', in2: 'lensMask', operator: 'in', result: 'inside' });
+  const saturation = el('feColorMatrix', { in: 'bent', type: 'saturate', values: 1, result: 'vibrant' });
+  const inside = el('feComposite', { in: 'vibrant', in2: 'lensMask', operator: 'in', result: 'inside' });
   const outside = el('feComposite', { in: 'SourceGraphic', in2: 'lensMask', operator: 'out', result: 'outside' });
   const reunite = el('feComposite', { in: 'inside', in2: 'outside', operator: 'arithmetic', k1: 0, k2: 1, k3: 1, k4: 0, result: 'reunited' });
   const highlight = el('feImage', { result: 'shine', preserveAspectRatio: 'none' });
@@ -66,7 +67,7 @@ export function createFilter(doc: Document, id: string, onImageLoad: () => void)
   const finish = el('feComposite', { in: 'light', in2: 'reunited', operator: 'over' });
   // Do not leave an unused, unloaded feImage in the graph: WebKit can reject
   // the entire filter even when that image is not part of the output branch.
-  filter.append(map, correct, mask, displacement, inside, outside, reunite, highlight, light, finish);
+  filter.append(map, correct, mask, displacement, saturation, inside, outside, reunite, highlight, light, finish);
   const images = [map, mask, highlight, frost];
   for (const node of images) node.addEventListener('load', onImageLoad);
   let pipeline = 'clear';
@@ -80,7 +81,7 @@ export function createFilter(doc: Document, id: string, onImageLoad: () => void)
         node.setAttributeNS(XLINK, 'xlink:href', url);
       });
     },
-    layout(lens: Lens, width: number, height: number, strength: number, softness: number, shine: number, mode: BlurMode = 'uniform') {
+    layout(lens: Lens, width: number, height: number, strength: number, softness: number, shine: number, mode: BlurMode = 'uniform', vibrancy = 1) {
       const nextPipeline = softness === 0 ? 'clear' : mode;
       if (nextPipeline !== pipeline) {
         pipeline = nextPipeline;
@@ -89,9 +90,9 @@ export function createFilter(doc: Document, id: string, onImageLoad: () => void)
           nodes.push(blur, softDisplacement);
           if (mode !== 'uniform') nodes.push(frost, frostedPart, clearPart, mixed);
         }
-        filter.replaceChildren(...nodes, inside, outside, reunite, highlight, light, finish);
+        filter.replaceChildren(...nodes, saturation, inside, outside, reunite, highlight, light, finish);
       }
-      for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, inside, outside, reunite, light, finish]) {
+      for (const node of [correct, blur, displacement, softDisplacement, frostedPart, clearPart, mixed, saturation, inside, outside, reunite, light, finish]) {
         for (const [key, value] of Object.entries({ x: 0, y: 0, width: 1, height: 1 })) node.setAttribute(key, String(value));
       }
       for (const node of images) {
@@ -105,7 +106,8 @@ export function createFilter(doc: Document, id: string, onImageLoad: () => void)
       correct.setAttribute('values', `${255 / 254 * sx} 0 0 0 ${0.5 - 128 / 254 * sx} 0 ${255 / 254 * sy} 0 0 ${0.5 - 128 / 254 * sy} 0 0 1 0 0 0 0 0 1 0`);
       displacement.setAttribute('scale', String(strength * 2 / unit));
       softDisplacement.setAttribute('scale', String(strength * 2 / unit));
-      inside.setAttribute('in', softness === 0 ? 'bent' : mode === 'uniform' ? 'bentSoft' : 'mixed');
+      saturation.setAttribute('in', softness === 0 ? 'bent' : mode === 'uniform' ? 'bentSoft' : 'mixed');
+      saturation.setAttribute('values', String(vibrancy));
       blur.setAttribute('stdDeviation', `${softness / width} ${softness / height}`); alpha.setAttribute('slope', String(shine));
     },
     destroy() { for (const node of images) node.removeEventListener('load', onImageLoad); svg.remove(); },

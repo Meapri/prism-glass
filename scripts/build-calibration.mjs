@@ -1,0 +1,6 @@
+import {build} from 'esbuild';
+import {readFile,writeFile} from 'node:fs/promises';
+const bundle=await build({entryPoints:['tests/fixtures/calibration.tsx'],bundle:true,jsx:'automatic',format:'iife',write:false});
+let script=bundle.outputFiles[0].text;
+for(const [token,path] of [['NATIVE_CONTROLS','docs/visual/native-controls.png'],['BACKGROUND','tests/fixtures/material-background.png'],['NATIVE_LIGHT','docs/visual/native-materials-light.png'],['NATIVE_DARK','docs/visual/native-materials-dark.png']])script=script.replace(token,`data:image/png;base64,${(await readFile(path)).toString('base64')}`);
+await writeFile('demo/calibration.html',`<!doctype html><meta charset="utf-8"><title>Native material calibration</title><style>${await readFile('src/styles.css','utf8')}*{box-sizing:border-box}body{margin:0;background:#eee;font-family:-apple-system,BlinkMacSystemFont,sans-serif}header{display:flex;height:40px;width:804px;align-items:center;font-size:12px}header span{width:402px;text-align:center}a{margin-left:10px}main{display:flex;width:804px;height:675px}.reference{width:402px;height:675px}.control-comparison{display:flex;width:804px;margin-top:30px;background:white}.control-comparison>img,.control-samples{width:402px;height:200px}.control-samples{position:relative}</style><div id="root"></div><script>${script.replace(/<\/script/gi,'<\\/script')}</script>`);

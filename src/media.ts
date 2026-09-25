@@ -1,6 +1,7 @@
 import { clamp, finite, generateMaps, normalizeLens } from './optics.js';
 import { getGlassMaterial, observeGlassPreferences, type GlassPreferences } from './materials.js';
 import { vertexShader, fragmentShader } from './media-shaders.js';
+import { createMediaBlur } from './media-blur.js';
 import type { GlassMediaSource, MediaGlassOptions, MediaGlassDiagnostics, MediaGlassController, MediaLens } from './media-types.js';
 export type * from './media-types.js';
 
@@ -9,16 +10,16 @@ type NormalLens = ReturnType<typeof normalizeMediaLens>;
 function normalizeMediaLens(input: MediaLens) {
   if (!input.id || typeof input.id !== 'string') throw new TypeError('Every media lens needs an id');
   const lens = normalizeLens(input.lens);
-  const material = getGlassMaterial(input.variant, input.appearance);
-  const options = { ...input, lens, material, strength: input.strength ?? Math.min(24, Math.min(lens.width, lens.height) * 0.2),
-    bevel: input.bevel ?? Math.min(24, Math.min(lens.width, lens.height) * 0.3), ior: input.ior ?? 1.5,
+  const material = getGlassMaterial(input.variant, input.appearance, input.tintLevel);
+  const options = { ...input, lens, material, strength: input.strength ?? Math.min(7, Math.min(lens.width, lens.height) * 0.08),
+    bevel: input.bevel ?? Math.min(9, Math.min(lens.width, lens.height) * 0.18), ior: input.ior ?? 1.5,
     surface: input.surface ?? 'rim', depth: input.depth ?? 1, curvature: input.curvature ?? 4,
-    blurMode: input.blurMode ?? 'uniform', blur: input.blur ?? material.blur,
+    blurMode: input.blurMode ?? 'uniform', blur: input.blur ?? material.blur, saturation: input.saturation ?? material.saturation,
     highlight: input.highlight ?? material.highlight, chroma: input.chroma ?? material.chroma,
     dimming: input.dimming ?? material.dimming, press: input.press ?? 0, hover: input.hover ?? 0,
     pointer: input.pointer ?? [0.5, 0.5] as const };
   const ranges = { strength: [0, 64], bevel: [1, 512], ior: [1, 3], depth: [0, 4], curvature: [2, 8],
-    blur: [0, 16], highlight: [0, 1], chroma: [0, 3], dimming: [0, 1], press: [0, 1], hover: [0, 1] } as const;
+    blur: [0, 24], saturation: [0, 3], highlight: [0, 1], chroma: [0, 3], dimming: [0, 1], press: [0, 1], hover: [0, 1] } as const;
   for (const key of Object.keys(ranges) as (keyof typeof ranges)[]) {
     const [min, max] = ranges[key]; options[key] = clamp(finite(options[key], key), min, max);
   }
@@ -66,6 +67,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   const initial = { width: canvas.width, height: canvas.height, state: canvas.getAttribute('data-prism-state') };
   let dead = false, lost = false, failed = false, visible = true, dirty = true, frame = 0, videoFrame = 0;
   let program: WebGLProgram | undefined, buffer: WebGLBuffer | undefined, mediaTexture: WebGLTexture | undefined;
+  let diffusion: ReturnType<typeof createMediaBlur> | undefined;
   const uniforms = new Map<string, WebGLUniformLocation | null>();
   const maps = new Map<string, { map: WebGLTexture; finish: WebGLTexture }>();
   let preferences: GlassPreferences = { reducedMotion: false, reducedTransparency: false, increasedContrast: false, forcedColors: false, dark: false };
@@ -107,7 +109,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
       mediaTexture = texture();
-      for (const name of ['view', 'rect', 'radius', 'ellipse', 'surfaceSign', 'pixelRatio', 'sourceRect', 'backgroundColor', 'source', 'map', 'finish', 'tint', 'strength', 'blur', 'chroma', 'dimming', 'highlight', 'press', 'hover', 'pointer']) {
+      for (const name of ['view', 'rect', 'radius', 'ellipse', 'surfaceSign', 'pixelRatio', 'sourceRect', 'backgroundColor', 'source', 'map', 'finish', 'diffuse', 'hasDiffuse', 'tint', 'brightness', 'strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'press', 'hover', 'pointer']) {
         uniforms.set(name, gl.getUniformLocation(program, `u_${name}`));
       }
       dirty = true;
@@ -122,6 +124,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   function disposeResources() {
     if (!gl) return;
     releaseMaps();
+    diffusion?.destroy(); diffusion = undefined;
     if (mediaTexture) gl.deleteTexture(mediaTexture); if (buffer) gl.deleteBuffer(buffer); if (program) gl.deleteProgram(program);
     mediaTexture = undefined; buffer = undefined; program = undefined; uniforms.clear();
   }
@@ -198,13 +201,24 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       gl.uniform3f(uniform('backgroundColor'), ...config.backgroundColor);
       const fit = config.fit === 'cover' ? Math.max(width / sourceWidth, height / sourceHeight) : Math.min(width / sourceWidth, height / sourceHeight);
       const displayWidth = config.fit === 'fill' ? width : sourceWidth * fit, displayHeight = config.fit === 'fill' ? height : sourceHeight * fit;
-      gl.uniform4f(uniform('sourceRect'), (width - displayWidth) * config.position[0], (height - displayHeight) * config.position[1], displayWidth, displayHeight);
+      const sourceRect: [number, number, number, number] = [(width - displayWidth) * config.position[0], (height - displayHeight) * config.position[1], displayWidth, displayHeight];
+      gl.uniform4f(uniform('sourceRect'), ...sourceRect);
+      diffusion?.begin();
       const active = new Set<string>();
       for (const item of lenses) {
         const key = mapKey(item); active.add(key);
         // Creating map textures can change the active texture binding. Rebind all
         // three units before each draw, including the one shared media texture.
         const entry = opticalMap(item, key);
+        let diffuseTexture: WebGLTexture | undefined;
+        if (item.blur > 2) {
+          if (!diffusion) diffusion = createMediaBlur(gl);
+          diffuseTexture = diffusion.get(mediaTexture!, [width, height], sourceRect, config.backgroundColor, item.blur, diagnostic.textureUploads);
+        }
+        gl.useProgram(program!); gl.viewport(0, 0, w, h); gl.bindBuffer(gl.ARRAY_BUFFER, buffer!);
+        gl.enableVertexAttribArray(attribute); gl.vertexAttribPointer(attribute, 2, gl.FLOAT, false, 0, 0);
+        gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, diffuseTexture ?? mediaTexture!);
+        gl.uniform1i(uniform('diffuse'), 3); gl.uniform1f(uniform('hasDiffuse'), diffuseTexture ? 1 : 0);
         gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, mediaTexture!);
         gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, entry.map);
         gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, entry.finish);
@@ -214,11 +228,13 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         gl.uniform1f(uniform('ellipse'), l.shape === 'circle' || l.shape === 'ellipse' ? 1 : 0);
         gl.uniform1f(uniform('surfaceSign'), item.surface === 'concave' ? -1 : 1);
         gl.uniform4f(uniform('tint'), ...material.tint);
-        for (const name of ['strength', 'blur', 'chroma', 'dimming', 'highlight', 'hover'] as const) gl.uniform1f(uniform(name), item[name]);
+        gl.uniform1f(uniform('brightness'), material.brightness);
+        for (const name of ['strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'hover'] as const) gl.uniform1f(uniform(name), item[name]);
         gl.uniform1f(uniform('press'), config.respectPreferences && preferences.reducedMotion ? 0 : item.press);
         gl.uniform2f(uniform('pointer'), ...item.pointer);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
+      diffusion?.end();
       for (const [key, entry] of maps) if (!active.has(key)) { gl.deleteTexture(entry.map); gl.deleteTexture(entry.finish); maps.delete(key); }
       diagnostic.renders++; status('ready', ratio < config.pixelRatio ? 'pixel-budget-downsampled' : 'webgl-media-selected'); trackFrames();
     } catch (error) {
@@ -229,7 +245,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   const onLost = (event: Event) => { event.preventDefault(); lost = true; cancelVideo(); status('fallback', 'webgl-context-lost'); };
   const onRestored = () => {
     // Restoring a context invalidates old GPU handles; do not delete them in the new context.
-    lost = false; maps.clear(); mediaTexture = undefined; buffer = undefined; program = undefined; uniforms.clear(); refresh();
+    lost = false; maps.clear(); diffusion = undefined; mediaTexture = undefined; buffer = undefined; program = undefined; uniforms.clear(); refresh();
   };
   canvas.addEventListener('webglcontextlost', onLost); canvas.addEventListener('webglcontextrestored', onRestored);
   // Canvas layout changes affect sampling coordinates, not the source texture.
@@ -252,7 +268,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
     setLenses(next) {
       if (dead) throw new Error('Cannot update a destroyed media controller');
       const normalized = normalizeLenses(next); inputs = copyInputs(next); lenses = normalized; diagnostic.lenses = lenses.length;
-      if (!lenses.length) releaseMaps();
+      if (!lenses.length) { releaseMaps(); diffusion?.clear(); }
       schedule();
     },
     updateLens(id, patch) {

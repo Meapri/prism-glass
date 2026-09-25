@@ -16,6 +16,8 @@ async function fixture(page:Page){
     const source=document.querySelector<HTMLCanvasElement>('#source')!,ctx=source.getContext('2d')!;
     for(const [color,x,y] of [['#f02020',0,0],['#20e030',160,0],['#2030f0',0,100],['#e0c020',160,100]] as const){ctx.fillStyle=color;ctx.fillRect(x,y,160,100);}
     ctx.fillStyle='#ffffff';for(let x=20;x<320;x+=20)ctx.fillRect(x,0,3,200);
+    // Retain the static WebGL fixture for deterministic software-compositor screenshots.
+    document.querySelector<HTMLCanvasElement>('#glass')!.getContext('webgl',{preserveDrawingBuffer:true});
     window.mediaFixture=window.PrismGlassMedia.createMediaGlass(document.querySelector<HTMLCanvasElement>('#glass')!,source,{lenses:[options]});
   },lens);
   await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().state)).toBe('ready');
@@ -90,5 +92,20 @@ test('contain sampling retains the configured letterbox instead of stretching ed
   });
   const result=PNG.sync.read(await page.locator('#stage').screenshot({scale:'css'}));
   const color=pixel(result,125,45);
-  for(const [value,expected] of color.map((value,i)=>[value,[40,71,106][i]]))expect(Math.abs(value-expected)).toBeLessThan(12);
+  for(const [value,expected] of color.map((value,i)=>[value,[64,98,135][i]]))expect(Math.abs(value-expected)).toBeLessThan(12);
+});
+
+test('broad diffusion blends nearby colors and retains vertical orientation',async({page})=>{
+  await fixture(page);
+  const renders=await page.evaluate(()=>window.mediaFixture.getDiagnostics().renders);
+  await page.evaluate(()=>window.mediaFixture.updateLens('first',{blur:14,strength:0,saturation:1}));
+  await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().renders)).toBeGreaterThan(renders);
+  const png=PNG.sync.read(await page.locator('#stage').screenshot({scale:'css'}));
+  const upper=pixel(png,130,65),lower=pixel(png,130,122),boundary=pixel(png,130,100);
+  expect(upper[0]-upper[2]).toBeGreaterThan(100);expect(lower[2]-lower[0]).toBeGreaterThan(100);
+  expect(boundary[0]).toBeGreaterThan(80);expect(boundary[2]).toBeGreaterThan(80);
+  // A continuous Gaussian must suppress the repeated 3px white bars; sparse taps leave ghosts.
+  let maxStep=0;
+  for(let x=98;x<144;x++)maxStep=Math.max(maxStep,Math.abs(pixel(png,x,70)[1]-pixel(png,x+1,70)[1]));
+  expect(maxStep).toBeLessThan(9);
 });

@@ -9,13 +9,13 @@ export { getGlassMaterial, materialOptics, observeGlassPreferences, type GlassMa
 export { bindGlassInteraction, stepSpring, type GlassInteraction, type GlassInteractionController, type SpringState } from './motion.js';
 type Normalized = Required<Omit<GlassOptions, 'onStatus'>> & Pick<GlassOptions, 'onStatus'>;
 const owners = new WeakSet<HTMLElement>();
-const defaults = { strength: 24, ior: 1.5, bevel: 24, blur: 0, highlight: 0.55,
+const defaults = { strength: 24, ior: 1.5, bevel: 24, blur: 0, saturation: 1, highlight: 0.55,
   surface: 'rim' as const, depth: 1, curvature: 4, blurMode: 'uniform' as const,
   resolution: 256, maxSourcePixels: 4_000_000, enabled: true, live: false,
   respectReducedTransparency: true, refreshFilterId: 'auto' as const };
 function normalize(options: GlassOptions): Normalized {
   const o = { ...defaults, ...options, lens: normalizeLens(options.lens) };
-  const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 16], depth: [0, 4], curvature: [2, 8], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [10_000, 64_000_000] } as const;
+  const ranges = { strength: [0, 64], ior: [1, 3], bevel: [1, 512], blur: [0, 24], saturation: [0, 3], depth: [0, 4], curvature: [2, 8], highlight: [0, 1], resolution: [32, 512], maxSourcePixels: [10_000, 64_000_000] } as const;
   for (const key of Object.keys(ranges) as (keyof typeof ranges)[]) {
     const [min, max] = ranges[key]; o[key] = clamp(finite(o[key], key), min, max);
   }
@@ -64,7 +64,7 @@ export function createGlass(source: HTMLElement, options: GlassOptions): GlassCo
   }
   function schedule() { if (!dead && !frame) frame = win!.requestAnimationFrame(render); }
   function write() {
-    graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight, config.blurMode);
+    graph.layout(config.lens, lastWidth, lastHeight, config.strength, config.blur, config.highlight, config.blurMode, config.saturation);
     if (config.refreshFilterId === 'always' || (config.refreshFilterId === 'auto' && webkit)) {
       graph.filter.id = `${id}-${++revision}`;
     }

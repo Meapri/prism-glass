@@ -1,5 +1,6 @@
 import type { GlassOptions } from './types.js';
 import type { Lens } from './optics.js';
+import { clamp, finite } from './optics.js';
 
 export type GlassVariant = 'regular' | 'clear';
 export type GlassAppearance = 'light' | 'dark';
@@ -10,34 +11,41 @@ export interface GlassMaterial {
   dimming: number;
   chroma: number;
   blur: number;
+  saturation: number;
+  brightness: number;
   highlight: number;
   foreground: string;
   opaque: string;
 }
 
 /** Web material choices derived from public design guidance, not Apple's shader. */
-export function getGlassMaterial(variant: GlassVariant = 'regular', appearance: GlassAppearance = 'light'): GlassMaterial {
+export function getGlassMaterial(variant: GlassVariant = 'regular', appearance: GlassAppearance = 'light', tintLevel = 0.5): GlassMaterial {
   if (variant !== 'regular' && variant !== 'clear') throw new TypeError('Invalid glass variant');
   if (appearance !== 'light' && appearance !== 'dark') throw new TypeError('Invalid glass appearance');
   const dark = appearance === 'dark';
+  const tint = clamp(finite(tintLevel, 'tintLevel'), 0, 1);
   return {
     variant, appearance,
-    tint: variant === 'clear' ? [1, 1, 1, 0.025] : dark ? [0.06, 0.08, 0.09, 0.66] : [0.98, 0.985, 1, 0.64],
+    // Calibrated against native iOS 27 captures. These are web approximations,
+    // not numeric constants published by Apple (see docs/IOS27_REFERENCE.md).
+    tint: variant === 'clear' ? [1, 1, 1, 0.125] : dark ? [0.43, 0.43, 0.44, 0.42 + tint * 0.16] : [1, 1, 1, 0.24 + tint * 0.56],
     dimming: variant === 'clear' ? 0.35 : 0,
-    chroma: variant === 'clear' ? 0.35 : 0.15,
-    blur: variant === 'clear' ? 0.35 : 6,
-    highlight: variant === 'clear' ? 0.62 : 0.42,
-    foreground: variant === 'clear' || dark ? '#ffffff' : '#17201e',
-    opaque: variant === 'clear' || dark ? '#222a27' : '#f2f4f1',
+    chroma: 0,
+    blur: variant === 'clear' ? 2.5 : 8 + tint * 12,
+    saturation: variant === 'clear' ? 1.1 : dark ? 2.2 : 1.65,
+    brightness: variant === 'clear' ? 1.09 : 1,
+    highlight: variant === 'clear' ? 0.7 : dark ? 0.12 : 0.2,
+    foreground: variant === 'clear' || dark ? '#ffffff' : '#000000',
+    opaque: variant === 'clear' || dark ? '#1c1c1e' : '#f2f2f7',
   };
 }
 
 /** Useful defaults for the existing DOM renderer; foreground styling stays separate. */
-export function materialOptics(lens: Lens, variant: GlassVariant = 'regular'): GlassOptions {
+export function materialOptics(lens: Lens, variant: GlassVariant = 'regular', tintLevel = 0.5, appearance: GlassAppearance = 'light'): GlassOptions {
   const half = Math.min(lens.width, lens.height) / 2;
-  const material = getGlassMaterial(variant);
-  return { lens, surface: 'rim', strength: Math.min(24, half * 0.45), bevel: Math.min(24, half * 0.7),
-    ior: 1.5, depth: 1, curvature: 4, blur: material.blur, blurMode: 'uniform', highlight: material.highlight };
+  const material = getGlassMaterial(variant, appearance, tintLevel);
+  return { lens, surface: 'rim', strength: Math.min(7, half * 0.16), bevel: Math.min(9, half * 0.35),
+    ior: 1.5, depth: 1, curvature: 4, blur: material.blur, saturation: material.saturation, blurMode: 'uniform', highlight: material.highlight };
 }
 
 export interface GlassPreferences {

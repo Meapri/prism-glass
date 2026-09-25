@@ -1,25 +1,26 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type Ref, type RefObject } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode, type Ref, type RefObject } from 'react';
 import { createGlass } from '../index.js';
 import { lensFor, type Lens, type LensShape } from '../optics.js';
-import { materialOptics, observeGlassPreferences, type GlassAppearance, type GlassVariant } from '../materials.js';
+import { getGlassMaterial, materialOptics, observeGlassPreferences, type GlassAppearance, type GlassVariant } from '../materials.js';
 import { bindGlassInteraction, stepSpring, type GlassInteraction } from '../motion.js';
 import type { GlassController, GlassOptions } from '../types.js';
 import type { MediaLens } from '../media-types.js';
 
-export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; nested: boolean }
-export const GlassContext = createContext<GlassTheme>({ variant: 'regular', appearance: 'light', nested: false });
-export interface GlassProviderProps { children: ReactNode; variant?: GlassVariant; appearance?: GlassAppearance | 'auto' }
-export function GlassProvider({ children, variant = 'regular', appearance = 'auto' }: GlassProviderProps) {
+export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; tintLevel: number; nested: boolean }
+export const GlassContext = createContext<GlassTheme>({ variant: 'regular', appearance: 'light', tintLevel: 0.5, nested: false });
+export interface GlassProviderProps { children: ReactNode; variant?: GlassVariant; appearance?: GlassAppearance | 'auto'; tintLevel?: number }
+export function GlassProvider({ children, variant = 'regular', appearance = 'auto', tintLevel = 0.5 }: GlassProviderProps) {
   const [dark, setDark] = useState(false);
   useEffect(() => {
     if (appearance !== 'auto') return;
     return observeGlassPreferences(window, preferences => setDark(preferences.dark));
   }, [appearance]);
-  return <GlassContext.Provider value={{ variant, appearance: appearance === 'auto' ? dark ? 'dark' : 'light' : appearance, nested: false }}>{children}</GlassContext.Provider>;
+  return <GlassContext.Provider value={{ variant, appearance: appearance === 'auto' ? dark ? 'dark' : 'light' : appearance, tintLevel, nested: false }}>{children}</GlassContext.Provider>;
 }
 export interface MaterialProps {
   variant?: GlassVariant;
   appearance?: GlassAppearance;
+  tintLevel?: number;
   /** Explicit, decorative source pixels. With no source, the surface uses CSS material. */
   refractionTarget?: ReactNode;
   optics?: Partial<Omit<GlassOptions, 'lens' | 'onStatus'>>;
@@ -40,12 +41,20 @@ export function useControllable<T>(controlled: T | undefined, initial: T, notify
 }
 export function useTheme(props: MaterialProps) {
   const inherited = useContext(GlassContext);
-  return { ...inherited, variant: props.variant ?? inherited.variant, appearance: props.appearance ?? inherited.appearance };
+  return { ...inherited, variant: props.variant ?? inherited.variant, appearance: props.appearance ?? inherited.appearance, tintLevel: props.tintLevel ?? inherited.tintLevel };
+}
+export function materialStyle(theme: GlassTheme): CSSProperties {
+  const material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel);
+  const [r, g, b, a] = material.tint;
+  return { '--prism-fill': theme.variant === 'clear' ? `rgb(55 55 55 / .43)` : `rgb(${r * 255} ${g * 255} ${b * 255} / ${a})`,
+    '--prism-blur': `${material.blur}px`, '--prism-saturation': material.saturation, '--prism-brightness': material.brightness,
+    '--prism-ink': material.foreground, '--prism-solid': material.opaque } as CSSProperties;
 }
 export interface LensSpec {
   id: string;
   variant: GlassVariant;
   appearance: GlassAppearance;
+  tintLevel?: number;
   shape?: LensShape;
   radius?: number;
   optics?: MaterialProps['optics'];
@@ -53,6 +62,8 @@ export interface LensSpec {
   nested?: boolean;
   local?: boolean;
   animate?: boolean;
+  transient?: boolean;
+  pressScale?: number;
   geometry?: (width: number, height: number) => Lens;
 }
 
@@ -66,7 +77,7 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     const element = root.current, target = source.current, win = element?.ownerDocument.defaultView;
     if (!element || !win) return;
     let controller: GlassController | undefined, frame = 0, time = 0, reducedMotion = false;
-    let current: Lens | undefined, destination: Lens | undefined;
+    let current: Lens | undefined, painted: Lens | undefined, destination: Lens | undefined;
     let velocity = { x: 0, y: 0 };
     let interaction: GlassInteraction = { press: 0, hover: 0, pointer: [0.5, 0.5], reducedMotion: false };
     const geometry = () => {
@@ -76,12 +87,16 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     };
     function write(lens: Lens) {
       current = lens;
-      for (const [key, value] of Object.entries({ x: lens.x, y: lens.y, width: lens.width, height: lens.height, radius: lens.radius })) {
+      const scale = 1 + (reducedMotion ? 0 : interaction.press) * (latest.current.pressScale ?? 0);
+      painted = { ...lens, x: lens.x + lens.width * (1 - scale) / 2, y: lens.y + lens.height * (1 - scale) / 2,
+        width: lens.width * scale, height: lens.height * scale, radius: lens.radius * scale };
+      for (const [key, value] of Object.entries({ x: painted.x, y: painted.y, width: painted.width, height: painted.height, radius: painted.radius })) {
         element!.style.setProperty(`--prism-lens-${key}`, `${value}px`);
       }
       if (useMedia) { media!.invalidate(); return; }
       if (!target || !latest.current.enabled) return;
-      const options = { ...materialOptics(lens, latest.current.variant), ...latest.current.optics, lens };
+      const options = { ...materialOptics(painted, latest.current.variant, latest.current.tintLevel, latest.current.appearance), ...latest.current.optics, lens: painted };
+      if (latest.current.transient) options.enabled = (options.enabled ?? true) && interaction.press > 0.01;
       options.strength = (options.strength ?? 0) * (1 + interaction.press * 0.12);
       options.highlight = Math.min(1, (options.highlight ?? 0.4) + interaction.press * 0.18);
       if (!controller) controller = createGlass(target, options); else controller.update(options);
@@ -104,10 +119,10 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     }
     refresh.current = measure;
     const unregister = useMedia ? media!.register(spec.id, () => {
-      const rect = element.getBoundingClientRect(), bounds = media!.bounds(), lens = current ?? geometry();
+      const rect = element.getBoundingClientRect(), bounds = media!.bounds(), lens = painted ?? current ?? geometry();
       if (!bounds || !lens || !rect.width || !rect.height || !element.isConnected || element.closest('[hidden]')) return null;
       return { id: latest.current.id, lens: { ...lens, x: rect.left - bounds.left + lens.x, y: rect.top - bounds.top + lens.y },
-        variant: latest.current.variant, appearance: latest.current.appearance, ...latest.current.optics,
+        variant: latest.current.variant, appearance: latest.current.appearance, tintLevel: latest.current.tintLevel, ...latest.current.optics,
         press: interaction.press, hover: interaction.hover, pointer: interaction.pointer };
     }) : undefined;
     const feedback = bindGlassInteraction(element, next => { interaction = next; if (current) write(current); });

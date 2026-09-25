@@ -1,10 +1,12 @@
 # Prism Glass
 
-An independent, source-first Liquid Glass library inspired by the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.2.0-alpha.1`; the package name is provisional and has not been published to npm.
+An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.2.0-alpha.2`; the package name is provisional and has not been published to npm.
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
 
 [Live demo](https://meapri.github.io/prism-glass/) · [한국어 빠른 시작](README.ko.md)
+
+See the [native iOS 27 comparison and measured defaults](docs/IOS27_REFERENCE.md). Aave informs the renderer; native SwiftUI and Apple guidance are the visual target.
 
 ## What this version does
 
@@ -32,10 +34,10 @@ npm run build
 npm pack
 ```
 
-This creates `meapri-prism-glass-0.2.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
+This creates `meapri-prism-glass-0.2.0-alpha.2.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
 
 ```sh
-npm install ./meapri-prism-glass-0.2.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.2.0-alpha.2.tgz
 ```
 
 The package is not published to the npm registry. Install the local tarball until a registry release is announced.
@@ -47,7 +49,7 @@ import { GlassProvider, GlassButton, GlassSwitch, GlassSlider,
   GlassTabs, GlassToolbar, GlassPopover } from '@meapri/prism-glass/react';
 import '@meapri/prism-glass/styles.css';
 
-<GlassProvider variant="regular" appearance="auto">
+<GlassProvider variant="regular" appearance="auto" tintLevel={0.5}>
   <GlassButton refractionTarget={<DecorativeArtwork />}>Add item</GlassButton>
   <GlassSwitch aria-label="Notifications" checked={enabled}
     onCheckedChange={setEnabled} />
@@ -209,7 +211,8 @@ For an existing element, `useGlass(sourceRef, options)` returns a ref to the con
 | `surface` | `'rim'` | `'rim'`: flat center; `'dome'`: full curved surface; `'concave'`: reversed dome refraction |
 | `depth` | `1` | Relative surface height, 0–4; zero disables geometric bend |
 | `curvature` | `4` | Surface exponent, 2–8; lower values give a broader dome |
-| `blur` | `0` | Gaussian standard deviation, 0–16 px; center detail is affected |
+| `blur` | `0` | Gaussian standard deviation, 0–24 px; center detail is affected |
+| `saturation` | `1` | Source color saturation inside the lens, 0–3 |
 | `blurMode` | `'uniform'` | `'center'` preserves clearer edges; `'edge'` preserves a clear center; transition width uses `bevel` |
 | `highlight` | `0.55` | Rim-light opacity multiplier, 0–1 |
 | `resolution` | `256` | Longest map side, clamped to 32–512 |

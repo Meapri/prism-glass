@@ -21,7 +21,7 @@ npm run dev
 
 ```sh
 npm pack
-npm install ./meapri-prism-glass-0.2.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.2.0-alpha.2.tgz
 ```
 
 ## React 컴포넌트
