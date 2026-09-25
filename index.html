@@ -115,6 +115,15 @@
 }
 
 .prism-material[data-prism-renderer=css-material][data-variant=regular] > .prism-lens { background: color-mix(in srgb, var(--prism-fill), #b0b0b0 6%); }
+/* Surface presets scale elevation without adding another glass layer. */
+.prism-material[data-preset] > .prism-lens { box-shadow: inset 0 0 0 .5px rgb(0 0 0 / .18), inset 0 1px .5px var(--prism-rim), 0 calc(4px * var(--prism-elevation,1)) calc(12px * var(--prism-elevation,1)) rgb(0 0 0 / calc(.09 * var(--prism-separation,1))); }
+.prism-material[data-preset][data-prism-renderer=webgl-media] > .prism-lens { box-shadow: 0 calc(2px * var(--prism-elevation,1)) calc(8px * var(--prism-elevation,1)) rgb(0 0 0 / calc(.09 * var(--prism-separation,1))); }
+.prism-material[data-prism-adaptation=resolved] { transition: color 180ms ease; }
+.prism-material[data-prism-adaptation=resolved] > .prism-lens { transition: background-color 180ms ease, box-shadow 180ms ease; }
+@media(prefers-reduced-motion:reduce) { .prism-material[data-prism-adaptation] , .prism-material[data-prism-adaptation] > .prism-lens { transition: none; } }
+
+/* Nested foregrounds follow the resolved parent without adding another adaptive layer. */
+.prism-material[data-prism-renderer=overlay] { color: inherit; --prism-ink: inherit !important; }
 
 :root{font-family:-apple-system,BlinkMacSystemFont,ui-sans-serif,'Segoe UI',sans-serif;font-synthesis:none;color:#1d1d1f;background:#fff;color-scheme:light}
 *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}a{color:inherit;text-decoration:none}button,a,input,select{-webkit-tap-highlight-color:transparent}a:focus-visible,select:focus-visible{outline:3px solid #0088ff;outline-offset:5px}
@@ -149,6 +158,8 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
 .video-seek:focus-visible{outline-color:var(--seek-ink)}
 .tint-preference input{width:72px;height:28px;accent-color:#0088ff;margin:0}
 @media(max-width:850px){.play-control.prism-button{width:76px;height:76px}.skip-control.prism-button{width:48px;height:48px}.playback-row{gap:24px;padding-bottom:24px}.scrub-glass.prism-surface{height:48px;bottom:6%}.media-options{gap:12px;flex-wrap:wrap}.tint-preference input{width:62px}}
+.materials-lab{padding-top:72px;scroll-margin-top:28px}.materials-workbench{display:grid;grid-template-columns:180px minmax(0,1fr);gap:32px}.preset-list{display:flex;flex-direction:column;gap:4px}.preset-list button{border:0;border-radius:10px;background:transparent;color:inherit;text-align:left;padding:11px 14px;cursor:pointer;font-size:14px}.preset-list button[aria-pressed=true]{background:#0088ff12;color:#0088ff;font-weight:600}.preset-scene{aspect-ratio:3/2;border-radius:24px}.preset-glass{display:grid;place-items:center;font-size:16px}.preset-glass>.prism-content{width:100%}.sample-nav{display:flex;justify-content:space-between;align-items:center;gap:24px;width:100%}.sample-nav strong{font-weight:600}.sample-search{display:flex;align-items:center;gap:12px;opacity:.75}.sample-menu{display:flex;flex-direction:column;gap:14px}.sample-menu>span{display:flex;justify-content:space-between;font-size:14px}.sample-menu>strong{font-size:15px;margin-bottom:4px}.sample-menu small{font-size:11px;opacity:.6;margin-top:20px}.sample-panel small{font-size:10px;letter-spacing:1px;opacity:.55}.sample-panel h4{font-size:20px;margin:10px 0 8px;letter-spacing:-.5px}.sample-panel p{font-size:12px;line-height:1.6;opacity:.75;margin:0 0 14px}.sample-action{border:0;color:inherit;background:#80808026;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer}.preview-options{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:18px;font-size:12px;color:var(--page-muted)}.preview-options label{display:flex;align-items:center;gap:8px}.preview-options select{border:0;color:inherit;background:transparent;max-width:130px;padding:6px 0}.preview-options input{width:90px;accent-color:#0088ff}.preset-description{margin-top:26px}.preset-description h3{font-size:18px;margin:0 0 8px}.preset-description p{font-size:13px;color:var(--page-muted);line-height:1.65;margin:0 0 16px}.preset-description code{font-size:12px;display:block;overflow:auto;background:#8881;padding:14px;border-radius:10px}.preset-description dl{display:flex;justify-content:space-between;gap:16px;font-size:12px;margin:20px 0 0}.preset-description dt{color:var(--page-muted);font-size:10px;margin-bottom:5px}.preset-description dd{margin:0}.dom-example{display:grid;grid-template-columns:.65fr 1fr;gap:48px;margin-top:50px;border-top:1px solid var(--page-line);padding-top:32px}.dom-example h3{font-size:21px;margin:0 0 14px}.dom-example p{font-size:13px;line-height:1.6;color:var(--page-muted)}.dom-example button{background:transparent;border:1px solid var(--page-line);border-radius:999px;color:inherit;padding:9px 14px;cursor:pointer;font-size:12px}.dom-scroll{height:310px;overflow:auto;position:relative;border-radius:22px;isolation:isolate;background:#f7f3eb}.dom-bar{position:sticky;top:20px;margin:20px 24px -74px;z-index:2;pointer-events:none}.dom-bar .prism-surface{padding:16px 20px;font-size:14px;pointer-events:auto}.dom-chapters article{height:300px;padding:120px 40px 20px;background:#f7f3eb;color:#262a31}.dom-chapters article:nth-child(2),.dom-scroll[data-dark=true] .dom-chapters article:first-child{background:#151a26;color:#f5f5f7}.dom-scroll[data-dark=true] .dom-chapters article:nth-child(2){background:#f7f3eb;color:#262a31}.dom-chapters small{font-size:10px;letter-spacing:1px;opacity:.5}.dom-chapters h4{font-size:22px;margin:12px 0}.dom-chapters p{color:inherit;opacity:.65;margin:0}
+@media(max-width:850px){.materials-workbench{grid-template-columns:1fr;gap:20px}.preset-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.preset-list button{font-size:12px;padding:10px 8px;text-align:center}.preset-scene{aspect-ratio:1/1.05}.preview-options{gap:10px;justify-content:space-between}.preview-options label{gap:4px}.preview-options input{width:64px}.preset-description dl{flex-wrap:wrap;justify-content:flex-start;gap:18px 25px}.dom-example{grid-template-columns:1fr;gap:18px}.materials-lab{padding-top:48px}.sample-nav{gap:15px;font-size:14px}.preset-glass[data-preset=sidebar]{max-height:85%}}
 </style></head><body><div id="root"></div><script>"use strict";
 (() => {
   var __create = Object.create;
@@ -1186,6 +1197,289 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
         module.exports = null;
       } else {
         module.exports = require_react_development();
+      }
+    }
+  });
+
+  // node_modules/react/cjs/react-jsx-runtime.development.js
+  var require_react_jsx_runtime_development = __commonJS({
+    "node_modules/react/cjs/react-jsx-runtime.development.js"(exports) {
+      "use strict";
+      (function() {
+        function getComponentNameFromType(type) {
+          if (null == type) return null;
+          if ("function" === typeof type)
+            return type.$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+          if ("string" === typeof type) return type;
+          switch (type) {
+            case REACT_FRAGMENT_TYPE:
+              return "Fragment";
+            case REACT_PROFILER_TYPE:
+              return "Profiler";
+            case REACT_STRICT_MODE_TYPE:
+              return "StrictMode";
+            case REACT_SUSPENSE_TYPE:
+              return "Suspense";
+            case REACT_SUSPENSE_LIST_TYPE:
+              return "SuspenseList";
+            case REACT_ACTIVITY_TYPE:
+              return "Activity";
+            case REACT_VIEW_TRANSITION_TYPE:
+              return "ViewTransition";
+          }
+          if ("object" === typeof type)
+            switch ("number" === typeof type.tag && console.error(
+              "Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."
+            ), type.$typeof) {
+              case REACT_PORTAL_TYPE:
+                return "Portal";
+              case REACT_CONTEXT_TYPE:
+                return type.displayName || "Context";
+              case REACT_CONSUMER_TYPE:
+                return (type._context.displayName || "Context") + ".Consumer";
+              case REACT_FORWARD_REF_TYPE:
+                var innerType = type.render;
+                type = type.displayName;
+                type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
+                return type;
+              case REACT_MEMO_TYPE:
+                return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
+              case REACT_LAZY_TYPE:
+                innerType = type._payload;
+                type = type._init;
+                try {
+                  return getComponentNameFromType(type(innerType));
+                } catch (x) {
+                }
+            }
+          return null;
+        }
+        function testStringCoercion(value) {
+          return "" + value;
+        }
+        function checkKeyStringCoercion(value) {
+          try {
+            testStringCoercion(value);
+            var JSCompiler_inline_result = false;
+          } catch (e) {
+            JSCompiler_inline_result = true;
+          }
+          if (JSCompiler_inline_result) {
+            JSCompiler_inline_result = console;
+            var JSCompiler_temp_const = JSCompiler_inline_result.error;
+            var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+            JSCompiler_temp_const.call(
+              JSCompiler_inline_result,
+              "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",
+              JSCompiler_inline_result$jscomp$0
+            );
+            return testStringCoercion(value);
+          }
+        }
+        function getTaskName(type) {
+          if (type === REACT_FRAGMENT_TYPE) return "<>";
+          if ("object" === typeof type && null !== type && type.$typeof === REACT_LAZY_TYPE)
+            return "<...>";
+          try {
+            var name = getComponentNameFromType(type);
+            return name ? "<" + name + ">" : "<...>";
+          } catch (x) {
+            return "<...>";
+          }
+        }
+        function getOwner() {
+          var dispatcher = ReactSharedInternals.A;
+          return null === dispatcher ? null : dispatcher.getOwner();
+        }
+        function UnknownOwner() {
+          return Error("react-stack-top-frame");
+        }
+        function hasValidKey(config) {
+          if (hasOwnProperty.call(config, "key")) {
+            var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+            if (getter && getter.isReactWarning) return false;
+          }
+          return void 0 !== config.key;
+        }
+        function defineKeyPropWarningGetter(props, displayName) {
+          function warnAboutAccessingKey() {
+            specialPropKeyWarningShown || (specialPropKeyWarningShown = true, console.error(
+              "%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",
+              displayName
+            ));
+          }
+          warnAboutAccessingKey.isReactWarning = true;
+          Object.defineProperty(props, "key", {
+            get: warnAboutAccessingKey,
+            configurable: true
+          });
+        }
+        function elementRefGetterWithDeprecationWarning() {
+          var componentName = getComponentNameFromType(this.type);
+          didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = true, console.error(
+            "Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."
+          ));
+          componentName = this.props.ref;
+          return void 0 !== componentName ? componentName : null;
+        }
+        function ReactElement(type, key, props, owner, debugStack, debugTask) {
+          var refProp = props.ref;
+          type = {
+            $typeof: REACT_ELEMENT_TYPE,
+            type,
+            key,
+            props,
+            _owner: owner
+          };
+          null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
+            enumerable: false,
+            get: elementRefGetterWithDeprecationWarning
+          }) : Object.defineProperty(type, "ref", { enumerable: false, value: null });
+          type._store = {};
+          Object.defineProperty(type._store, "validated", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: 0
+          });
+          Object.defineProperty(type, "_debugInfo", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: null
+          });
+          Object.defineProperty(type, "_debugStack", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: debugStack
+          });
+          Object.defineProperty(type, "_debugTask", {
+            configurable: false,
+            enumerable: false,
+            writable: true,
+            value: debugTask
+          });
+          Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+          return type;
+        }
+        function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
+          var children = config.children;
+          if (void 0 !== children)
+            if (isStaticChildren)
+              if (isArrayImpl(children)) {
+                for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++)
+                  validateChildKeys(children[isStaticChildren]);
+                Object.freeze && Object.freeze(children);
+              } else
+                console.error(
+                  "React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead."
+                );
+            else validateChildKeys(children);
+          if (hasOwnProperty.call(config, "key")) {
+            children = getComponentNameFromType(type);
+            var keys = Object.keys(config).filter(function(k) {
+              return "key" !== k;
+            });
+            isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
+            didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error(
+              'A props object containing a "key" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />',
+              isStaticChildren,
+              children,
+              keys,
+              children
+            ), didWarnAboutKeySpread[children + isStaticChildren] = true);
+          }
+          children = null;
+          void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
+          hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
+          if ("key" in config) {
+            maybeKey = {};
+            for (var propName in config)
+              "key" !== propName && (maybeKey[propName] = config[propName]);
+          } else maybeKey = config;
+          children && defineKeyPropWarningGetter(
+            maybeKey,
+            "function" === typeof type ? type.displayName || type.name || "Unknown" : type
+          );
+          return ReactElement(
+            type,
+            children,
+            maybeKey,
+            getOwner(),
+            debugStack,
+            debugTask
+          );
+        }
+        function validateChildKeys(node) {
+          isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
+        }
+        function isValidElement(object) {
+          return "object" === typeof object && null !== object && object.$typeof === REACT_ELEMENT_TYPE;
+        }
+        var React = require_react(), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_VIEW_TRANSITION_TYPE = /* @__PURE__ */ Symbol.for("react.view_transition"), REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+          return null;
+        };
+        React = {
+          react_stack_bottom_frame: function(callStackForError) {
+            return callStackForError();
+          }
+        };
+        var specialPropKeyWarningShown;
+        var didWarnAboutElementRef = {};
+        var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(
+          React,
+          UnknownOwner
+        )();
+        var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
+        var didWarnAboutKeySpread = {};
+        exports.Fragment = REACT_FRAGMENT_TYPE;
+        exports.jsx = function(type, config, maybeKey) {
+          var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+          if (trackActualOwner) {
+            var previousStackTraceLimit = Error.stackTraceLimit;
+            Error.stackTraceLimit = 10;
+            var debugStackDEV = Error("react-stack-top-frame");
+            Error.stackTraceLimit = previousStackTraceLimit;
+          } else debugStackDEV = unknownOwnerDebugStack;
+          return jsxDEVImpl(
+            type,
+            config,
+            maybeKey,
+            false,
+            debugStackDEV,
+            trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask
+          );
+        };
+        exports.jsxs = function(type, config, maybeKey) {
+          var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+          if (trackActualOwner) {
+            var previousStackTraceLimit = Error.stackTraceLimit;
+            Error.stackTraceLimit = 10;
+            var debugStackDEV = Error("react-stack-top-frame");
+            Error.stackTraceLimit = previousStackTraceLimit;
+          } else debugStackDEV = unknownOwnerDebugStack;
+          return jsxDEVImpl(
+            type,
+            config,
+            maybeKey,
+            true,
+            debugStackDEV,
+            trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask
+          );
+        };
+      })();
+    }
+  });
+
+  // node_modules/react/jsx-runtime.js
+  var require_jsx_runtime = __commonJS({
+    "node_modules/react/jsx-runtime.js"(exports, module) {
+      "use strict";
+      if (false) {
+        module.exports = null;
+      } else {
+        module.exports = require_react_jsx_runtime_development();
       }
     }
   });
@@ -23703,292 +23997,8 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
     }
   });
 
-  // node_modules/react/cjs/react-jsx-runtime.development.js
-  var require_react_jsx_runtime_development = __commonJS({
-    "node_modules/react/cjs/react-jsx-runtime.development.js"(exports) {
-      "use strict";
-      (function() {
-        function getComponentNameFromType(type) {
-          if (null == type) return null;
-          if ("function" === typeof type)
-            return type.$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
-          if ("string" === typeof type) return type;
-          switch (type) {
-            case REACT_FRAGMENT_TYPE:
-              return "Fragment";
-            case REACT_PROFILER_TYPE:
-              return "Profiler";
-            case REACT_STRICT_MODE_TYPE:
-              return "StrictMode";
-            case REACT_SUSPENSE_TYPE:
-              return "Suspense";
-            case REACT_SUSPENSE_LIST_TYPE:
-              return "SuspenseList";
-            case REACT_ACTIVITY_TYPE:
-              return "Activity";
-            case REACT_VIEW_TRANSITION_TYPE:
-              return "ViewTransition";
-          }
-          if ("object" === typeof type)
-            switch ("number" === typeof type.tag && console.error(
-              "Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."
-            ), type.$typeof) {
-              case REACT_PORTAL_TYPE:
-                return "Portal";
-              case REACT_CONTEXT_TYPE:
-                return type.displayName || "Context";
-              case REACT_CONSUMER_TYPE:
-                return (type._context.displayName || "Context") + ".Consumer";
-              case REACT_FORWARD_REF_TYPE:
-                var innerType = type.render;
-                type = type.displayName;
-                type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
-                return type;
-              case REACT_MEMO_TYPE:
-                return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
-              case REACT_LAZY_TYPE:
-                innerType = type._payload;
-                type = type._init;
-                try {
-                  return getComponentNameFromType(type(innerType));
-                } catch (x) {
-                }
-            }
-          return null;
-        }
-        function testStringCoercion(value) {
-          return "" + value;
-        }
-        function checkKeyStringCoercion(value) {
-          try {
-            testStringCoercion(value);
-            var JSCompiler_inline_result = false;
-          } catch (e) {
-            JSCompiler_inline_result = true;
-          }
-          if (JSCompiler_inline_result) {
-            JSCompiler_inline_result = console;
-            var JSCompiler_temp_const = JSCompiler_inline_result.error;
-            var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
-            JSCompiler_temp_const.call(
-              JSCompiler_inline_result,
-              "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.",
-              JSCompiler_inline_result$jscomp$0
-            );
-            return testStringCoercion(value);
-          }
-        }
-        function getTaskName(type) {
-          if (type === REACT_FRAGMENT_TYPE) return "<>";
-          if ("object" === typeof type && null !== type && type.$typeof === REACT_LAZY_TYPE)
-            return "<...>";
-          try {
-            var name = getComponentNameFromType(type);
-            return name ? "<" + name + ">" : "<...>";
-          } catch (x) {
-            return "<...>";
-          }
-        }
-        function getOwner() {
-          var dispatcher = ReactSharedInternals.A;
-          return null === dispatcher ? null : dispatcher.getOwner();
-        }
-        function UnknownOwner() {
-          return Error("react-stack-top-frame");
-        }
-        function hasValidKey(config) {
-          if (hasOwnProperty.call(config, "key")) {
-            var getter = Object.getOwnPropertyDescriptor(config, "key").get;
-            if (getter && getter.isReactWarning) return false;
-          }
-          return void 0 !== config.key;
-        }
-        function defineKeyPropWarningGetter(props, displayName) {
-          function warnAboutAccessingKey() {
-            specialPropKeyWarningShown || (specialPropKeyWarningShown = true, console.error(
-              "%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)",
-              displayName
-            ));
-          }
-          warnAboutAccessingKey.isReactWarning = true;
-          Object.defineProperty(props, "key", {
-            get: warnAboutAccessingKey,
-            configurable: true
-          });
-        }
-        function elementRefGetterWithDeprecationWarning() {
-          var componentName = getComponentNameFromType(this.type);
-          didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = true, console.error(
-            "Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."
-          ));
-          componentName = this.props.ref;
-          return void 0 !== componentName ? componentName : null;
-        }
-        function ReactElement(type, key, props, owner, debugStack, debugTask) {
-          var refProp = props.ref;
-          type = {
-            $typeof: REACT_ELEMENT_TYPE,
-            type,
-            key,
-            props,
-            _owner: owner
-          };
-          null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
-            enumerable: false,
-            get: elementRefGetterWithDeprecationWarning
-          }) : Object.defineProperty(type, "ref", { enumerable: false, value: null });
-          type._store = {};
-          Object.defineProperty(type._store, "validated", {
-            configurable: false,
-            enumerable: false,
-            writable: true,
-            value: 0
-          });
-          Object.defineProperty(type, "_debugInfo", {
-            configurable: false,
-            enumerable: false,
-            writable: true,
-            value: null
-          });
-          Object.defineProperty(type, "_debugStack", {
-            configurable: false,
-            enumerable: false,
-            writable: true,
-            value: debugStack
-          });
-          Object.defineProperty(type, "_debugTask", {
-            configurable: false,
-            enumerable: false,
-            writable: true,
-            value: debugTask
-          });
-          Object.freeze && (Object.freeze(type.props), Object.freeze(type));
-          return type;
-        }
-        function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
-          var children = config.children;
-          if (void 0 !== children)
-            if (isStaticChildren)
-              if (isArrayImpl(children)) {
-                for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++)
-                  validateChildKeys(children[isStaticChildren]);
-                Object.freeze && Object.freeze(children);
-              } else
-                console.error(
-                  "React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead."
-                );
-            else validateChildKeys(children);
-          if (hasOwnProperty.call(config, "key")) {
-            children = getComponentNameFromType(type);
-            var keys = Object.keys(config).filter(function(k) {
-              return "key" !== k;
-            });
-            isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
-            didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error(
-              'A props object containing a "key" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />',
-              isStaticChildren,
-              children,
-              keys,
-              children
-            ), didWarnAboutKeySpread[children + isStaticChildren] = true);
-          }
-          children = null;
-          void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
-          hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
-          if ("key" in config) {
-            maybeKey = {};
-            for (var propName in config)
-              "key" !== propName && (maybeKey[propName] = config[propName]);
-          } else maybeKey = config;
-          children && defineKeyPropWarningGetter(
-            maybeKey,
-            "function" === typeof type ? type.displayName || type.name || "Unknown" : type
-          );
-          return ReactElement(
-            type,
-            children,
-            maybeKey,
-            getOwner(),
-            debugStack,
-            debugTask
-          );
-        }
-        function validateChildKeys(node) {
-          isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
-        }
-        function isValidElement(object) {
-          return "object" === typeof object && null !== object && object.$typeof === REACT_ELEMENT_TYPE;
-        }
-        var React = require_react(), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_VIEW_TRANSITION_TYPE = /* @__PURE__ */ Symbol.for("react.view_transition"), REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
-          return null;
-        };
-        React = {
-          react_stack_bottom_frame: function(callStackForError) {
-            return callStackForError();
-          }
-        };
-        var specialPropKeyWarningShown;
-        var didWarnAboutElementRef = {};
-        var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(
-          React,
-          UnknownOwner
-        )();
-        var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
-        var didWarnAboutKeySpread = {};
-        exports.Fragment = REACT_FRAGMENT_TYPE;
-        exports.jsx = function(type, config, maybeKey) {
-          var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-          if (trackActualOwner) {
-            var previousStackTraceLimit = Error.stackTraceLimit;
-            Error.stackTraceLimit = 10;
-            var debugStackDEV = Error("react-stack-top-frame");
-            Error.stackTraceLimit = previousStackTraceLimit;
-          } else debugStackDEV = unknownOwnerDebugStack;
-          return jsxDEVImpl(
-            type,
-            config,
-            maybeKey,
-            false,
-            debugStackDEV,
-            trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask
-          );
-        };
-        exports.jsxs = function(type, config, maybeKey) {
-          var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-          if (trackActualOwner) {
-            var previousStackTraceLimit = Error.stackTraceLimit;
-            Error.stackTraceLimit = 10;
-            var debugStackDEV = Error("react-stack-top-frame");
-            Error.stackTraceLimit = previousStackTraceLimit;
-          } else debugStackDEV = unknownOwnerDebugStack;
-          return jsxDEVImpl(
-            type,
-            config,
-            maybeKey,
-            true,
-            debugStackDEV,
-            trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask
-          );
-        };
-      })();
-    }
-  });
-
-  // node_modules/react/jsx-runtime.js
-  var require_jsx_runtime = __commonJS({
-    "node_modules/react/jsx-runtime.js"(exports, module) {
-      "use strict";
-      if (false) {
-        module.exports = null;
-      } else {
-        module.exports = require_react_jsx_runtime_development();
-      }
-    }
-  });
-
-  // demo/library.tsx
+  // demo/materials-lab.tsx
   var import_react7 = __toESM(require_react(), 1);
-  var import_client = __toESM(require_client(), 1);
 
   // src/optics.ts
   function finite(value, name) {
@@ -24328,6 +24338,51 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
     return store.subscribe(callback);
   }
 
+  // src/surface-presets.ts
+  var profiles = {
+    navigation: { label: "Navigation", description: "Quiet refraction with continuous separation above scrolling content.", shape: "capsule", radius: 28, bevel: 7, strength: 3.5, depth: 0.7, curvature: 5.8, diffusion: 1.05, elevation: 0.6, adaptation: "flip", variant: "regular" },
+    toolbar: { label: "Toolbar", description: "A shared compact surface for a group of actions.", shape: "capsule", radius: 24, bevel: 8, strength: 4, depth: 0.8, curvature: 5.2, diffusion: 1, elevation: 0.7, adaptation: "flip", variant: "regular" },
+    "tab-bar": { label: "Tab bar", description: "A broad capsule that remains readable over changing content.", shape: "capsule", radius: 30, bevel: 10, strength: 5, depth: 0.9, curvature: 5, diffusion: 1.1, elevation: 0.85, adaptation: "flip", variant: "regular" },
+    search: { label: "Search field", description: "Restrained lensing and extra diffusion behind text input.", shape: "capsule", radius: 22, bevel: 6, strength: 3, depth: 0.65, curvature: 6, diffusion: 1.12, elevation: 0.45, adaptation: "flip", variant: "regular" },
+    button: { label: "Button", description: "A small responsive lens with a narrow rounded edge.", shape: "capsule", radius: 22, bevel: 7, strength: 5, depth: 0.9, curvature: 4, diffusion: 0.92, elevation: 0.55, adaptation: "flip", variant: "regular" },
+    "floating-action": { label: "Floating action", description: "A compact circle with a fuller curved edge and distinct elevation.", shape: "circle", radius: 32, bevel: 11, strength: 8, depth: 1.1, curvature: 3.2, diffusion: 0.88, elevation: 1, adaptation: "flip", variant: "regular" },
+    selection: { label: "Selection", description: "A shallow standalone selection surface; use simple fills when already inside glass.", shape: "capsule", radius: 18, bevel: 5, strength: 2.5, depth: 0.55, curvature: 5.8, diffusion: 0.85, elevation: 0.3, adaptation: "flip", variant: "regular" },
+    menu: { label: "Menu", description: "Thicker material, soft scattering and a stable reading surface.", shape: "rounded-rect", radius: 28, bevel: 16, strength: 10, depth: 1.25, curvature: 4.8, diffusion: 1.2, elevation: 1.5, adaptation: "ambient", variant: "regular" },
+    popover: { label: "Popover", description: "A focused floating panel with concentrated edge refraction.", shape: "rounded-rect", radius: 28, bevel: 18, strength: 11, depth: 1.35, curvature: 5.2, diffusion: 1.25, elevation: 1.7, adaptation: "ambient", variant: "regular" },
+    sidebar: { label: "Sidebar", description: "A large ambient surface with quiet center and stable label appearance.", shape: "rounded-rect", radius: 30, bevel: 20, strength: 10, depth: 1.4, curvature: 6, diffusion: 1.25, elevation: 1.25, adaptation: "ambient", variant: "regular" },
+    sheet: { label: "Sheet", description: "Substantial raised glass with the widest edge and deepest scattering.", shape: "rounded-rect", radius: 36, bevel: 24, strength: 14, depth: 1.65, curvature: 5.5, diffusion: 1.4, elevation: 2, adaptation: "ambient", variant: "regular" },
+    media: { label: "Media overlay", description: "Clear glass for bold white controls over rich imagery, with local dimming.", shape: "capsule", radius: 32, bevel: 9, strength: 7, depth: 1, curvature: 4, diffusion: 1, elevation: 0.8, adaptation: "flip", variant: "clear" }
+  };
+  for (const value of Object.values(profiles)) Object.freeze(value);
+  var glassSurfacePresets = Object.freeze(profiles);
+  function getGlassSurfaceProfile(name) {
+    if (!Object.hasOwn(profiles, name)) throw new TypeError("Unknown glass surface preset");
+    return profiles[name];
+  }
+  function resolveGlassSurface(preset, bounds, options = {}) {
+    const profile = getGlassSurfaceProfile(preset), short = Math.min(bounds.width, bounds.height);
+    finite(short, "surface size");
+    const shape = bounds.shape ?? profile.shape;
+    const lens = lensFor(shape, { ...bounds, x: bounds.x ?? 0, y: bounds.y ?? 0, radius: bounds.radius ?? Math.min(profile.radius, short * 0.24) });
+    const material = getGlassMaterial(options.variant ?? profile.variant, options.appearance, options.tintLevel);
+    const size = clamp(Math.sqrt(short / 100), 0.65, 1.4);
+    material.blur = clamp(material.blur * profile.diffusion, 0, 24);
+    const optics = {
+      lens,
+      surface: "rim",
+      ior: 1.5,
+      depth: profile.depth,
+      curvature: profile.curvature,
+      strength: Math.min(profile.strength * size, short * 0.18),
+      bevel: Math.min(profile.bevel * size, short * 0.3),
+      blur: material.blur,
+      saturation: material.saturation,
+      blurMode: "uniform",
+      highlight: material.highlight
+    };
+    return { lens, optics, material, elevation: profile.elevation, adaptation: profile.adaptation };
+  }
+
   // src/motion.ts
   function stepSpring(state, target, seconds, stiffness = 360, damping = 32) {
     for (const [name, value2] of Object.entries({ value: state.value, velocity: state.velocity, target, seconds, stiffness, damping })) finite(value2, name);
@@ -24454,6 +24509,333 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
         else element.style.removeProperty(name);
       }
     } };
+  }
+
+  // src/adaptive.ts
+  var linearChannel = (value) => value <= 0.04045 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+  var relativeLuminance = (rgb) => 0.2126 * linearChannel(rgb[0]) + 0.7152 * linearChannel(rgb[1]) + 0.0722 * linearChannel(rgb[2]);
+  function summarizeBackdrop(colors, source, confidence = 1) {
+    if (!colors.length) return null;
+    const color = [0, 0, 0];
+    let mean = 0, squared = 0;
+    for (const rgb of colors) {
+      const l = relativeLuminance(rgb);
+      mean += l;
+      squared += l * l;
+      for (let c = 0; c < 3; c++) color[c] += rgb[c];
+    }
+    mean /= colors.length;
+    for (let c = 0; c < 3; c++) color[c] /= colors.length;
+    return { luminance: mean, variance: Math.max(0, squared / colors.length - mean * mean), color, source, confidence };
+  }
+  function validBackdrop(sample) {
+    return !!sample && Number.isFinite(sample.luminance) && sample.luminance >= 0 && sample.luminance <= 1 && Number.isFinite(sample.variance) && sample.variance >= 0 && sample.confidence > 0 && sample.color.length === 3 && sample.color.every((v) => Number.isFinite(v) && v >= 0 && v <= 1);
+  }
+  function updateGlassAdaptation(previous, sample, now, fallback, policy = "flip") {
+    if (!validBackdrop(sample)) return { appearance: fallback, luminance: 0.5, variance: 0, color: [0.5, 0.5, 0.5], at: now, candidate: fallback, since: now, available: false };
+    const blend = previous?.available ? 1 - Math.exp(-Math.max(0, now - previous.at) / 160) : 1;
+    const luminance = (previous?.luminance ?? sample.luminance) * (1 - blend) + sample.luminance * blend;
+    const variance = (previous?.variance ?? sample.variance) * (1 - blend) + sample.variance * blend;
+    let appearance = previous?.available ? previous.appearance : fallback;
+    const candidate = policy === "ambient" ? fallback : luminance >= 0.3 ? "light" : luminance <= 0.18 ? "dark" : appearance;
+    const since = previous?.candidate === candidate ? previous.since : now;
+    if (!previous?.available || policy === "ambient" || now - since >= 180) appearance = candidate;
+    const color = sample.color.map((v, i) => (previous?.color[i] ?? v) * (1 - blend) + v * blend);
+    return { appearance, luminance, variance, color, at: now, candidate, since, available: true };
+  }
+  function adaptGlassMaterial(material, state) {
+    if (material.variant === "clear" || !state.available) return material;
+    const busy = clamp(Math.sqrt(state.variance) * 2, 0, 0.55);
+    const opposite = material.appearance === "light" ? 1 - state.luminance : state.luminance;
+    let alpha = clamp(material.tint[3] + busy * 0.2 + opposite * 0.08, 0, 0.88);
+    let tint = [material.tint[0], material.tint[1], material.tint[2]];
+    const white = material.foreground === "#ffffff", spread = Math.min(0.35, Math.sqrt(state.variance));
+    const source = state.color.map((value) => clamp(value + (white ? spread : -spread), 0, 1));
+    const luma = 0.2126 * source[0] + 0.7152 * source[1] + 0.0722 * source[2];
+    const transmitted = source.map((value) => (luma + (value - luma) * material.saturation) * material.brightness * (1 - material.dimming));
+    const contrast = (rgb) => {
+      const luminance = relativeLuminance(rgb);
+      return white ? 1.05 / (luminance + 0.05) : (luminance + 0.05) / 0.05;
+    };
+    const composite = () => transmitted.map((value, i) => clamp(value * (1 - alpha) + tint[i] * alpha, 0, 1));
+    const startAlpha = alpha, startTint = [...tint];
+    for (let step = 1; step <= 12 && contrast(composite()) < 4.5; step++) {
+      const t = step / 12;
+      alpha = startAlpha + (0.94 - startAlpha) * t;
+      tint = startTint.map((value) => value + ((white ? 0.12 : 1) - value) * t);
+    }
+    return { ...material, tint: [...tint, alpha], blur: Math.min(24, material.blur + busy * 4) };
+  }
+  function blendGlassMaterial(from, to, amount) {
+    const t = clamp(amount, 0, 1), mix = (a, b) => a + (b - a) * t;
+    return {
+      ...to,
+      tint: from.tint.map((a, i) => mix(a, to.tint[i])),
+      blur: mix(from.blur, to.blur),
+      saturation: mix(from.saturation, to.saturation),
+      brightness: mix(from.brightness, to.brightness),
+      highlight: mix(from.highlight, to.highlight)
+    };
+  }
+
+  // src/backdrop.ts
+  var split = (text) => text.split(/,(?![^()]*\))/).map((s) => s.trim());
+  var over = (front, back) => {
+    const a = front[3] + back[3] * (1 - front[3]);
+    return a ? [(front[0] * front[3] + back[0] * back[3] * (1 - front[3])) / a, (front[1] * front[3] + back[1] * back[3] * (1 - front[3])) / a, (front[2] * front[3] + back[2] * back[3] * (1 - front[3])) / a, a] : [0, 0, 0, 0];
+  };
+  function mediaSourceRect(width, height, sourceWidth, sourceHeight, fit, position) {
+    const scale = fit === "cover" ? Math.max(width / sourceWidth, height / sourceHeight) : Math.min(width / sourceWidth, height / sourceHeight);
+    const w = fit === "fill" ? width : sourceWidth * scale, h = fit === "fill" ? height : sourceHeight * scale;
+    return [(width - w) * position[0], (height - h) * position[1], w, h];
+  }
+  function createBackdropSampler(doc) {
+    const canvas = doc.createElement("canvas");
+    canvas.width = canvas.height = 64;
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    const colorCanvas = doc.createElement("canvas");
+    colorCanvas.width = colorCanvas.height = 1;
+    const colorContext = colorCanvas.getContext("2d", { willReadFrequently: true });
+    let frames = /* @__PURE__ */ new WeakMap();
+    let styles = /* @__PURE__ */ new WeakMap();
+    const colors = /* @__PURE__ */ new Map();
+    function color(value) {
+      if (colors.has(value)) return colors.get(value);
+      if (!colorContext) return null;
+      colorContext.fillStyle = "#010203";
+      colorContext.fillStyle = value;
+      const first = colorContext.fillStyle;
+      colorContext.fillStyle = "#040506";
+      colorContext.fillStyle = value;
+      if (first !== colorContext.fillStyle) return null;
+      colorContext.clearRect(0, 0, 1, 1);
+      colorContext.fillRect(0, 0, 1, 1);
+      const d = colorContext.getImageData(0, 0, 1, 1).data;
+      const result = [d[0] / 255, d[1] / 255, d[2] / 255, d[3] / 255];
+      if (colors.size > 256) colors.clear();
+      colors.set(value, result);
+      return result;
+    }
+    function pixels(source) {
+      if (frames.has(source)) return frames.get(source);
+      let result = null;
+      try {
+        const video = source, img = source;
+        const width = source.tagName === "VIDEO" ? video.videoWidth : source.tagName === "IMG" ? img.naturalWidth : source.width;
+        const height = source.tagName === "VIDEO" ? video.videoHeight : source.tagName === "IMG" ? img.naturalHeight : source.height;
+        if (context && width > 0 && height > 0 && (source.tagName !== "VIDEO" || video.readyState >= 2)) {
+          canvas.width = 64;
+          context.clearRect(0, 0, 64, 64);
+          context.drawImage(source, 0, 0, 64, 64);
+          result = { data: context.getImageData(0, 0, 64, 64).data, width, height };
+        }
+      } catch {
+      }
+      frames.set(source, result);
+      return result;
+    }
+    function pixel(source, x, y, rect) {
+      const frame = pixels(source);
+      if (!frame) return null;
+      const u = (x - rect[0]) / rect[2], v = (y - rect[1]) / rect[3];
+      if (u < 0 || v < 0 || u > 1 || v > 1) return [0, 0, 0, 0];
+      const index = (Math.min(63, Math.floor(v * 64)) * 64 + Math.min(63, Math.floor(u * 64))) * 4, d = frame.data;
+      return [d[index] / 255, d[index + 1] / 255, d[index + 2] / 255, d[index + 3] / 255];
+    }
+    function gradient(image, x, y, w, h) {
+      const match = /^(linear|radial)-gradient\((.*)\)$/.exec(image);
+      if (!match) return null;
+      const parts = split(match[2]);
+      let direction = parts[0], angle = 180, radial = match[1] === "radial";
+      if (!color(direction)) {
+        parts.shift();
+        if (radial && direction !== "ellipse" && direction !== "circle") return null;
+        if (!radial) {
+          const dirs = { "to top": 0, "to right": 90, "to bottom": 180, "to left": 270, "to top right": 45, "to bottom right": 135, "to bottom left": 225, "to top left": 315 };
+          if (direction in dirs) angle = dirs[direction];
+          else if (/^-?[\d.]+deg$/.test(direction)) angle = parseFloat(direction);
+          else return null;
+        }
+      }
+      const stops = parts.map((part) => {
+        let c = color(part), at;
+        if (!c) {
+          const m = /^(.*)\s+(-?[\d.]+)%$/.exec(part);
+          if (m) {
+            c = color(m[1]);
+            at = parseFloat(m[2]) / 100;
+          }
+        }
+        return { c, at };
+      });
+      if (stops.length < 2 || stops.some((s) => !s.c)) return null;
+      stops[0].at ??= 0;
+      stops[stops.length - 1].at ??= 1;
+      for (let i = 1; i < stops.length; i++) if (stops[i].at != null) stops[i].at = Math.max(stops[i - 1].at ?? 0, stops[i].at);
+      for (let i = 1; i < stops.length - 1; i++) if (stops[i].at == null) {
+        let end = i + 1;
+        while (stops[end].at == null) end++;
+        const start = stops[i - 1].at;
+        for (let j = i; j < end; j++) stops[j].at = start + (stops[end].at - start) * (j - i + 1) / (end - i + 1);
+        i = end - 1;
+      }
+      const radians = angle * Math.PI / 180, dx = Math.sin(radians), dy = -Math.cos(radians);
+      const t = radial ? Math.hypot((x - w / 2) / (direction === "circle" ? Math.hypot(w, h) / 2 : w / Math.SQRT2), (y - h / 2) / (direction === "circle" ? Math.hypot(w, h) / 2 : h / Math.SQRT2)) : 0.5 + ((x - w / 2) * dx + (y - h / 2) * dy) / (Math.abs(w * dx) + Math.abs(h * dy));
+      let a = stops[0], b = stops[stops.length - 1];
+      for (let i = 1; i < stops.length; i++) if (t <= stops[i].at) {
+        a = stops[i - 1];
+        b = stops[i];
+        break;
+      }
+      const amount = clamp((t - a.at) / Math.max(1e-5, b.at - a.at), 0, 1);
+      const alpha = a.c[3] * (1 - amount) + b.c[3] * amount;
+      return [...[0, 1, 2].map((i) => alpha ? (a.c[i] * a.c[3] * (1 - amount) + b.c[i] * b.c[3] * amount) / alpha : 0), alpha];
+    }
+    function layer(node, x, y) {
+      let style = styles.get(node);
+      if (!style) {
+        style = doc.defaultView.getComputedStyle(node);
+        styles.set(node, style);
+      }
+      const rect = node.getBoundingClientRect();
+      let result = color(style.backgroundColor) ?? [0, 0, 0, 0];
+      if (style.backgroundImage !== "none") {
+        const g = gradient(style.backgroundImage, x - rect.left, y - rect.top, rect.width, rect.height);
+        if (!g) return null;
+        result = over(g, result);
+      }
+      if (["IMG", "VIDEO", "CANVAS"].includes(node.tagName)) {
+        const media = node, frame = pixels(media);
+        if (!frame) return null;
+        const positions = style.objectPosition.split(" ").map((v) => v.endsWith("%") ? parseFloat(v) / 100 : NaN);
+        if (positions.length !== 2 || positions.some((v) => !Number.isFinite(v))) return null;
+        const fit = style.objectFit;
+        if (!["cover", "contain", "fill"].includes(fit)) return null;
+        const c = pixel(media, x - rect.left, y - rect.top, mediaSourceRect(rect.width, rect.height, frame.width, frame.height, fit, positions));
+        if (!c) return null;
+        result = over(c, result);
+      }
+      result = [...result.slice(0, 3), result[3] * Number(style.opacity)];
+      return result;
+    }
+    const points = (r) => {
+      const result = [];
+      for (const u of [0.2, 0.5, 0.8]) for (const v of [0.2, 0.5, 0.8]) result.push([r.x + r.width * u, r.y + r.height * v]);
+      return result;
+    };
+    return {
+      begin() {
+        frames = /* @__PURE__ */ new WeakMap();
+        styles = /* @__PURE__ */ new WeakMap();
+      },
+      media(source, lens, sourceRect, background) {
+        const samples = [];
+        for (const [x, y] of points(lens)) {
+          const c = pixel(source, x, y, sourceRect);
+          if (!c) return null;
+          samples.push(over(c, [...background, 1]));
+        }
+        return summarizeBackdrop(samples, "pixels");
+      },
+      dom(element, source) {
+        const r = element.getBoundingClientRect();
+        if (!r.width || !r.height) return null;
+        const samples = [];
+        for (const [x, y] of points(r)) {
+          if (x < 0 || y < 0 || x >= doc.defaultView.innerWidth || y >= doc.defaultView.innerHeight) continue;
+          let layers;
+          if (source) {
+            layers = [];
+            for (let node = source; node; node = node.parentElement) layers.push(node);
+          } else {
+            const stack = doc.elementsFromPoint(x, y), index = stack.reduce((last, node, i) => node === element || element.contains(node) ? i : last, -1);
+            if (index < 0) continue;
+            layers = stack.slice(index + 1).filter((node) => !node.closest(".prism-material"));
+          }
+          let combined = [0, 0, 0, 0], unknown = false;
+          for (const node of layers) {
+            const c = layer(node, x, y);
+            if (!c) {
+              unknown = true;
+              break;
+            }
+            combined = over(combined, c);
+            if (combined[3] > 0.995) break;
+          }
+          if (!unknown && combined[3] > 0.995) samples.push(combined);
+        }
+        return samples.length >= 4 ? summarizeBackdrop(samples, "css", samples.length / 9) : null;
+      },
+      destroy() {
+        canvas.width = canvas.height = colorCanvas.width = colorCanvas.height = 1;
+        frames = /* @__PURE__ */ new WeakMap();
+        colors.clear();
+      }
+    };
+  }
+  var stores2 = /* @__PURE__ */ new WeakMap();
+  function observeGlassBackdrop(element, callback, options = {}) {
+    const win = element.ownerDocument.defaultView;
+    if (!win) throw new Error("Backdrop observation requires a window");
+    let store = stores2.get(win);
+    if (!store) {
+      const subscribers = /* @__PURE__ */ new Set(), sampler = createBackdropSampler(element.ownerDocument);
+      let frame = 0, timer = 0, pending = 0, last = -Infinity;
+      const refresh = () => {
+        if (frame || win.document.hidden) return;
+        const remaining = 120 - (win.performance.now() - last);
+        if (remaining > 0) {
+          if (!pending) pending = win.setTimeout(() => {
+            pending = 0;
+            refresh();
+          }, remaining);
+          return;
+        }
+        frame = win.requestAnimationFrame(() => {
+          frame = 0;
+          last = win.performance.now();
+          sampler.begin();
+          const results = [];
+          for (const sub of subscribers) {
+            const r = sub.element.getBoundingClientRect();
+            if (!sub.element.isConnected || !r.width || !r.height || r.bottom < 0 || r.top > win.innerHeight || r.right < 0 || r.left > win.innerWidth) continue;
+            let sample = null;
+            try {
+              sample = sub.options.sample ? sub.options.sample() : sampler.dom(sub.element, sub.options.source);
+            } catch {
+            }
+            results.push([sub, sample]);
+          }
+          for (const [sub, sample] of results) sub.callback(sample);
+        });
+      };
+      store = { refresh, add(sub) {
+        if (!subscribers.size) {
+          win.addEventListener("scroll", refresh, true);
+          win.addEventListener("resize", refresh);
+          win.document.addEventListener("visibilitychange", refresh);
+          timer = win.setInterval(refresh, 160);
+        }
+        subscribers.add(sub);
+        refresh();
+        return () => {
+          subscribers.delete(sub);
+          if (!subscribers.size) {
+            win.clearInterval(timer);
+            if (pending) win.clearTimeout(pending);
+            if (frame) win.cancelAnimationFrame(frame);
+            win.removeEventListener("scroll", refresh, true);
+            win.removeEventListener("resize", refresh);
+            win.document.removeEventListener("visibilitychange", refresh);
+            sampler.destroy();
+            stores2.delete(win);
+          }
+        };
+      } };
+      stores2.set(win, store);
+    }
+    const stop = store.add({ element, callback, options });
+    return { refresh: store.refresh, destroy: stop };
   }
 
   // src/index.ts
@@ -24666,14 +25048,14 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
   // src/components/context.tsx
   var import_react = __toESM(require_react(), 1);
   var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
-  var GlassContext = (0, import_react.createContext)({ variant: "regular", appearance: "light", tintLevel: 0.5, nested: false });
+  var GlassContext = (0, import_react.createContext)({ variant: "regular", appearance: "light", tintLevel: 0.5, nested: false, adaptive: false });
   function GlassProvider({ children, variant = "regular", appearance = "auto", tintLevel = 0.5 }) {
     const [dark, setDark] = (0, import_react.useState)(false);
     (0, import_react.useEffect)(() => {
-      if (appearance !== "auto") return;
+      if (appearance !== "auto" && appearance !== "adaptive") return;
       return observeGlassPreferences(window, (preferences) => setDark(preferences.dark));
     }, [appearance]);
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GlassContext.Provider, { value: { variant, appearance: appearance === "auto" ? dark ? "dark" : "light" : appearance, tintLevel, nested: false }, children });
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(GlassContext.Provider, { value: { variant, appearance: appearance === "auto" || appearance === "adaptive" ? dark ? "dark" : "light" : appearance, adaptive: appearance === "adaptive", provided: true, tintLevel, nested: false }, children });
   }
   var MediaContext = (0, import_react.createContext)(null);
   var classes = (...values) => values.filter(Boolean).join(" ");
@@ -24691,10 +25073,21 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
   }
   function useTheme(props) {
     const inherited = (0, import_react.useContext)(GlassContext);
-    return { ...inherited, variant: props.variant ?? inherited.variant, appearance: props.appearance ?? inherited.appearance, tintLevel: props.tintLevel ?? inherited.tintLevel };
+    const [systemDark, setSystemDark] = (0, import_react.useState)(false);
+    (0, import_react.useEffect)(() => {
+      if (props.appearance !== "auto" && props.appearance !== "adaptive") return;
+      return observeGlassPreferences(window, (p) => setSystemDark(p.dark));
+    }, [props.appearance]);
+    const mode = props.appearance;
+    return {
+      ...inherited,
+      variant: props.variant ?? inherited.variant,
+      appearance: mode === "adaptive" && inherited.provided ? inherited.appearance : mode === "adaptive" || mode === "auto" ? systemDark ? "dark" : "light" : mode ?? inherited.appearance,
+      adaptive: mode == null ? inherited.adaptive : mode === "adaptive",
+      tintLevel: props.tintLevel ?? inherited.tintLevel
+    };
   }
-  function materialStyle(theme) {
-    const material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel);
+  function materialStyle(theme, material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel)) {
     const [r, g, b, a] = material.tint;
     const clearAlpha = 1 - (1 - material.dimming) * (1 - a);
     const clearReflection = a * 255 / Math.max(clearAlpha, 1e-3);
@@ -24717,6 +25110,7 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
     (0, import_react.useEffect)(() => {
       const element = root.current, target = source.current, win = element?.ownerDocument.defaultView;
       if (!element || !win) return;
+      let adaptiveState;
       let controller, frame = 0, time = 0, reducedMotion = false;
       let current, painted, destination;
       let velocity = { x: 0, y: 0 };
@@ -24724,8 +25118,18 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
       const geometry = () => {
         const next = latest.current, width = element.clientWidth, height = element.clientHeight;
         if (!width || !height) return;
-        return next.geometry?.(width, height) ?? lensFor(next.shape ?? "rounded-rect", { x: 0, y: 0, width, height, radius: next.radius ?? 16 });
+        return next.geometry?.(width, height) ?? (next.preset ? resolveGlassSurface(next.preset, { width, height, shape: next.shape, radius: next.radius }).lens : void 0) ?? lensFor(next.shape ?? "rounded-rect", { x: 0, y: 0, width, height, radius: next.radius ?? 16 });
       };
+      function paintMaterial(material, elevation = 1, available = false, separationOverride) {
+        const next = latest.current;
+        const style = materialStyle({ ...next, nested: !!next.nested, adaptive: !!next.adaptive, tintLevel: next.tintLevel ?? 0.5 }, material);
+        for (const [key, value] of Object.entries(style)) element.style.setProperty(key, String(value));
+        element.dataset.appearance = material.appearance;
+        element.dataset.prismAdaptation = next.adaptive && !next.transient ? material.variant === "clear" ? "clear-static" : available ? "resolved" : "unavailable" : "off";
+        if (next.preset) element.style.setProperty("--prism-elevation", String(elevation));
+        const separation = separationOverride ?? (adaptiveState?.available ? 1 + Math.sqrt(adaptiveState.variance) * 1.5 + (1 - adaptiveState.luminance) * 0.2 : 1);
+        element.style.setProperty("--prism-separation", String(separation));
+      }
       function write(lens) {
         current = lens;
         const scale = 1 + (reducedMotion ? 0 : interaction.press) * (latest.current.pressScale ?? 0);
@@ -24744,8 +25148,20 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
           media.invalidate();
           return;
         }
-        if (!target || !latest.current.enabled) return;
-        const options = { ...materialOptics(painted, latest.current.variant, latest.current.tintLevel, latest.current.appearance), ...latest.current.optics, lens: painted };
+        const next = latest.current, appearance = next.adaptive && !next.transient ? adaptiveState?.appearance ?? next.appearance : next.appearance;
+        const preset = next.preset ? resolveGlassSurface(next.preset, painted, { variant: next.variant, appearance, tintLevel: next.tintLevel }) : void 0;
+        const base = preset?.material ?? getGlassMaterial(next.variant, appearance, next.tintLevel);
+        const material = adaptiveState && next.adaptive && !next.transient ? adaptGlassMaterial(base, adaptiveState) : base;
+        paintMaterial(material, preset?.elevation, adaptiveState?.available);
+        if (!target || !next.enabled) return;
+        const options = {
+          ...materialOptics(painted, next.variant, next.tintLevel, appearance),
+          ...preset?.optics,
+          blur: material.blur,
+          saturation: material.saturation,
+          ...next.optics,
+          lens: painted
+        };
         if (latest.current.transient) options.enabled = (options.enabled ?? true) && interaction.press > 0.01;
         options.strength = (options.strength ?? 0) * (1 + interaction.press * 0.12);
         options.highlight = Math.min(1, (options.highlight ?? 0.4) + interaction.press * 0.18);
@@ -24784,14 +25200,23 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
           id: latest.current.id,
           lens: { ...lens, x: rect.left - bounds.left + lens.x, y: rect.top - bounds.top + lens.y },
           variant: latest.current.variant,
-          appearance: latest.current.appearance,
+          appearance: latest.current.adaptive ? "adaptive" : latest.current.appearance,
+          fallbackAppearance: latest.current.appearance,
+          preset: latest.current.preset,
           tintLevel: latest.current.tintLevel,
           ...latest.current.optics,
+          onAppearance: (state) => paintMaterial(state.material, state.elevation, state.available, state.separation),
           press: interaction.press,
           hover: interaction.hover,
           pointer: interaction.pointer
         };
       }) : void 0;
+      const backdrop = spec.adaptive && !spec.transient && !spec.nested && !useMedia && spec.variant !== "clear" ? observeGlassBackdrop(element, (sample) => {
+        const next = latest.current;
+        const policy = next.preset ? resolveGlassSurface(next.preset, { width: element.clientWidth || 1, height: element.clientHeight || 1 }, { variant: next.variant }).adaptation : "flip";
+        adaptiveState = updateGlassAdaptation(adaptiveState, sample, win.performance.now(), next.appearance, policy);
+        if (current) write(current);
+      }, typeof spec.backdrop === "function" ? { sample: spec.backdrop } : { source: spec.backdrop }) : void 0;
       const feedback = bindGlassInteraction(element, (next) => {
         interaction = next;
         if (current) write(current);
@@ -24805,6 +25230,7 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
       measure();
       return () => {
         observer.disconnect();
+        backdrop?.destroy();
         unregister?.();
         unsubscribe();
         feedback.destroy();
@@ -24813,7 +25239,7 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
         refresh.current = () => {
         };
       };
-    }, [root, source, useMedia, media, spec.enabled, spec.nested, spec.id]);
+    }, [root, source, useMedia, media, spec.enabled, spec.nested, spec.id, spec.adaptive, spec.backdrop, spec.variant]);
     (0, import_react.useEffect)(() => {
       refresh.current();
     });
@@ -24823,10 +25249,12 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
   // src/components/surface.tsx
   var import_react2 = __toESM(require_react(), 1);
   var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
-  var GlassSurface = (0, import_react2.forwardRef)(function GlassSurface2({ children, refractionTarget, optics, variant, appearance, tintLevel, shape = "rounded-rect", radius = 28, local = false, className, style, ...props }, ref) {
+  var GlassSurface = (0, import_react2.forwardRef)(function GlassSurface2({ children, refractionTarget, optics, variant, appearance, tintLevel, preset, backdrop, shape: givenShape, radius: givenRadius, local = false, className, style, ...props }, ref) {
     const root = (0, import_react2.useRef)(null), source = (0, import_react2.useRef)(null);
-    const theme = useTheme({ variant, appearance, tintLevel }), id = (0, import_react2.useId)();
-    const renderer = useComponentLens(root, source, { id, ...theme, shape, radius, local, optics, enabled: refractionTarget != null });
+    const shape = givenShape ?? (preset ? getGlassSurfaceProfile(preset).shape : "rounded-rect");
+    const radius = givenRadius ?? (preset ? getGlassSurfaceProfile(preset).radius : 28);
+    const theme = useTheme({ variant: variant ?? (preset ? getGlassSurfaceProfile(preset).variant : void 0), appearance, tintLevel }), id = (0, import_react2.useId)();
+    const renderer = useComponentLens(root, source, { id, ...theme, preset, backdrop, shape, radius: givenRadius ?? (preset ? void 0 : radius), local, optics, enabled: refractionTarget != null });
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
       "div",
       {
@@ -24839,6 +25267,7 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
         "data-variant": theme.variant,
         "data-appearance": theme.appearance,
         "data-prism-renderer": renderer,
+        "data-preset": preset,
         "data-shape": shape,
         style: { ...materialStyle(theme), borderRadius: shape === "circle" || shape === "ellipse" ? "50%" : shape === "capsule" ? 999 : radius, ...style },
         children: [
@@ -24852,12 +25281,15 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
       }
     );
   });
-  var GlassButton = (0, import_react2.forwardRef)(function GlassButton2({ children, refractionTarget, optics, variant, appearance, tintLevel, shape = "capsule", className, style, type = "button", ...props }, ref) {
+  var GlassButton = (0, import_react2.forwardRef)(function GlassButton2({ children, refractionTarget, optics, variant, appearance, tintLevel, preset, backdrop, shape: givenShape, className, style, type = "button", ...props }, ref) {
     const root = (0, import_react2.useRef)(null), source = (0, import_react2.useRef)(null);
-    const theme = useTheme({ variant, appearance, tintLevel }), id = (0, import_react2.useId)();
+    const shape = givenShape ?? (preset && getGlassSurfaceProfile(preset).shape === "circle" ? "circle" : "capsule");
+    const theme = useTheme({ variant: variant ?? (preset ? getGlassSurfaceProfile(preset).variant : void 0), appearance, tintLevel }), id = (0, import_react2.useId)();
     const renderer = useComponentLens(root, source, {
       id,
       ...theme,
+      preset,
+      backdrop,
       shape,
       radius: 12,
       optics,
@@ -24881,6 +25313,7 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
         },
         className: classes("prism-material", "prism-button", className),
         "data-shape": shape,
+        "data-preset": preset,
         "data-prism-control": true,
         "data-variant": theme.variant,
         "data-appearance": theme.appearance,
@@ -25037,7 +25470,7 @@ footer{display:flex;justify-content:space-between;gap:20px;margin:72px auto 0;pa
       transient: true,
       optics: { strength: 3, bevel: 6, blur: 0.5, saturation: 1, ...optics },
       geometry: (width, height) => {
-        const cell = (width - 4) / items.length;
+        const cell = Math.max(1, width - 4) / items.length;
         const rtl = root.current && getComputedStyle(root.current).direction === "rtl";
         return lensFor("capsule", { x: 2 + (rtl ? items.length - 1 - selected : selected) * cell, y: (height - 28) / 2, width: cell, height: 28 });
       }
@@ -25419,17 +25852,21 @@ void main() {
   function normalizeMediaLens(input) {
     if (!input.id || typeof input.id !== "string") throw new TypeError("Every media lens needs an id");
     const lens = normalizeLens(input.lens);
-    const material = getGlassMaterial(input.variant, input.appearance, input.tintLevel);
+    if (input.appearance && !["auto", "adaptive", "light", "dark"].includes(input.appearance)) throw new TypeError("Invalid appearance mode");
+    const appearance = input.appearance === "auto" || input.appearance === "adaptive" ? input.fallbackAppearance ?? "light" : input.appearance;
+    const resolved = input.preset ? resolveGlassSurface(input.preset, lens, { variant: input.variant, appearance, tintLevel: input.tintLevel }) : void 0;
+    const material = resolved?.material ?? getGlassMaterial(input.variant, appearance, input.tintLevel);
+    const preset = resolved?.optics;
     const options = {
       ...input,
       lens,
       material,
-      strength: input.strength ?? Math.min(7, Math.min(lens.width, lens.height) * 0.08),
-      bevel: input.bevel ?? Math.min(9, Math.min(lens.width, lens.height) * 0.18),
+      strength: input.strength ?? preset?.strength ?? Math.min(7, Math.min(lens.width, lens.height) * 0.08),
+      bevel: input.bevel ?? preset?.bevel ?? Math.min(9, Math.min(lens.width, lens.height) * 0.18),
       ior: input.ior ?? 1.5,
-      surface: input.surface ?? "rim",
-      depth: input.depth ?? 1,
-      curvature: input.curvature ?? 4,
+      surface: input.surface ?? preset?.surface ?? "rim",
+      depth: input.depth ?? preset?.depth ?? 1,
+      curvature: input.curvature ?? preset?.curvature ?? 4,
       blurMode: input.blurMode ?? "uniform",
       blur: input.blur ?? material.blur,
       saturation: input.saturation ?? material.saturation,
@@ -25510,6 +25947,9 @@ void main() {
     let dead = false, lost = false, failed = false, visible = true, dirty = true, frame = 0, videoFrame = 0;
     let program, buffer, mediaTexture;
     let diffusion;
+    let sampler, adaptiveTimer = 0;
+    const appearanceNotifications = /* @__PURE__ */ new Map();
+    const adaptations = /* @__PURE__ */ new Map();
     const uniforms = /* @__PURE__ */ new Map();
     const maps = /* @__PURE__ */ new Map();
     let preferences = { reducedMotion: false, reducedTransparency: false, increasedContrast: false, forcedColors: false, dark: false };
@@ -25638,6 +26078,7 @@ void main() {
     }
     function refresh() {
       if (!dead) {
+        for (const entry of adaptations.values()) entry.sampled = -Infinity;
         dirty = true;
         failed = false;
         schedule();
@@ -25705,6 +26146,51 @@ void main() {
         return;
       }
       try {
+        let notifyAppearance2 = function(item, material, elevation, available, separation = 1) {
+          if (!item.onAppearance) return;
+          const key = [material.variant, material.appearance, ...material.tint.map((v) => v.toFixed(3)), material.blur.toFixed(1), material.saturation.toFixed(3), material.brightness, elevation, available, separation.toFixed(3)].join(":");
+          const previous = appearanceNotifications.get(item.id);
+          if (previous?.key === key && previous.callback === item.onAppearance) return;
+          appearanceNotifications.set(item.id, { key, callback: item.onAppearance });
+          item.onAppearance({ appearance: material.appearance, material, elevation, available, separation });
+        }, appearanceFor2 = function(item) {
+          const fallback = item.fallbackAppearance ?? (preferences.dark ? "dark" : "light");
+          const profile = item.preset ? resolveGlassSurface(item.preset, item.lens, { variant: item.variant, appearance: fallback, tintLevel: item.tintLevel }) : void 0;
+          const elevation = profile?.elevation ?? 1;
+          if (!adaptiveIds.has(item.id)) {
+            const material = item.appearance === "auto" ? profile?.material ?? getGlassMaterial(item.variant, fallback, item.tintLevel) : item.material;
+            notifyAppearance2(item, material, elevation, false);
+            return material;
+          }
+          let entry = adaptations.get(item.id);
+          if (!entry) {
+            entry = { sample: null, sampled: -Infinity, paintAt: now };
+            adaptations.set(item.id, entry);
+          }
+          const geometry = [item.lens.x, item.lens.y, item.lens.width, item.lens.height, ...sourceRect].join(":");
+          if (now - entry.sampled >= 120 || entry.geometry !== geometry) {
+            sampler ??= createBackdropSampler(doc);
+            if (!sampling) {
+              sampler.begin();
+              sampling = true;
+            }
+            entry.sample = sampler.media(source, item.lens, sourceRect, config.backgroundColor);
+            entry.sampled = now;
+            entry.geometry = geometry;
+          }
+          entry.state = updateGlassAdaptation(entry.state, entry.sample, now, fallback, profile?.adaptation ?? "flip");
+          const adaptedProfile = item.preset ? resolveGlassSurface(item.preset, item.lens, { variant: item.variant, appearance: entry.state.appearance, tintLevel: item.tintLevel }) : void 0;
+          const base = adaptedProfile?.material ?? getGlassMaterial(item.variant, entry.state.appearance, item.tintLevel);
+          const target = adaptGlassMaterial(base, entry.state);
+          const painted = entry.painted ? blendGlassMaterial(entry.painted, target, 1 - Math.exp(-Math.max(0, now - entry.paintAt) / 100)) : target;
+          const difference = Math.max(...painted.tint.map((v, i) => Math.abs(v - target.tint[i])), Math.abs(painted.saturation - target.saturation));
+          needsFollowup ||= difference > 1e-3 || entry.state.candidate !== entry.state.appearance || Math.abs(entry.state.luminance - (entry.sample?.luminance ?? 0.5)) > 2e-3;
+          entry.painted = painted;
+          entry.paintAt = now;
+          notifyAppearance2(item, target, elevation, entry.state.available, 1 + Math.sqrt(entry.state.variance) * 1.5 + (1 - entry.state.luminance) * 0.2);
+          return painted;
+        };
+        var notifyAppearance = notifyAppearance2, appearanceFor = appearanceFor2;
         if (!program) init();
         const ratio = Math.min(config.pixelRatio, Math.sqrt(config.maxPixels / (width * height)));
         const w = Math.max(1, Math.floor(width * ratio)), h = Math.max(1, Math.floor(height * ratio));
@@ -25750,15 +26236,27 @@ void main() {
         const sourceRect = [(width - displayWidth) * config.position[0], (height - displayHeight) * config.position[1], displayWidth, displayHeight];
         gl.uniform4f(uniform("sourceRect"), ...sourceRect);
         diffusion?.begin();
+        const now = win.performance.now();
+        let sampling = false, needsFollowup = false;
+        const adaptiveIds = new Set(lenses.filter((item) => item.appearance === "adaptive" && item.material.variant === "regular").map((item) => item.id));
+        for (const id of adaptations.keys()) if (!adaptiveIds.has(id)) adaptations.delete(id);
+        if (!adaptiveIds.size && sampler) {
+          sampler.destroy();
+          sampler = void 0;
+        }
+        for (const id of appearanceNotifications.keys()) if (!lenses.some((item) => item.id === id)) appearanceNotifications.delete(id);
         const active = /* @__PURE__ */ new Set();
-        for (const item of lenses) {
+        for (const [index, item] of lenses.entries()) {
+          const material = appearanceFor2(item);
+          const opticalBlur = inputs[index].blur ?? Math.round(material.blur * 2) / 2;
+          const opticalSaturation = inputs[index].saturation ?? material.saturation;
           const key = mapKey(item);
           active.add(key);
           const entry = opticalMap(item, key);
           let diffuseTexture;
-          if (item.blur > 2) {
+          if (opticalBlur > 2) {
             if (!diffusion) diffusion = createMediaBlur(gl);
-            diffuseTexture = diffusion.get(mediaTexture, [width, height], sourceRect, config.backgroundColor, item.blur, diagnostic.textureUploads);
+            diffuseTexture = diffusion.get(mediaTexture, [width, height], sourceRect, config.backgroundColor, opticalBlur, diagnostic.textureUploads);
           }
           gl.useProgram(program);
           gl.viewport(0, 0, w, h);
@@ -25775,14 +26273,16 @@ void main() {
           gl.bindTexture(gl.TEXTURE_2D, entry.map);
           gl.activeTexture(gl.TEXTURE2);
           gl.bindTexture(gl.TEXTURE_2D, entry.finish);
-          const l = item.lens, material = item.material;
+          const l = item.lens;
           gl.uniform4f(uniform("rect"), l.x, l.y, l.width, l.height);
           gl.uniform1f(uniform("radius"), l.radius);
           gl.uniform1f(uniform("ellipse"), l.shape === "circle" || l.shape === "ellipse" ? 1 : 0);
           gl.uniform1f(uniform("surfaceSign"), item.surface === "concave" ? -1 : 1);
           gl.uniform4f(uniform("tint"), ...material.tint);
           gl.uniform1f(uniform("brightness"), material.brightness);
-          for (const name of ["strength", "blur", "saturation", "chroma", "dimming", "highlight", "hover"]) gl.uniform1f(uniform(name), item[name]);
+          gl.uniform1f(uniform("blur"), opticalBlur);
+          gl.uniform1f(uniform("saturation"), opticalSaturation);
+          for (const name of ["strength", "chroma", "dimming", "highlight", "hover"]) gl.uniform1f(uniform(name), item[name]);
           gl.uniform1f(uniform("press"), config.respectPreferences && preferences.reducedMotion ? 0 : item.press);
           gl.uniform2f(uniform("pointer"), ...item.pointer);
           gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -25793,6 +26293,10 @@ void main() {
           gl.deleteTexture(entry.finish);
           maps.delete(key);
         }
+        if (needsFollowup && !adaptiveTimer) adaptiveTimer = win.setTimeout(() => {
+          adaptiveTimer = 0;
+          schedule();
+        }, 32);
         diagnostic.renders++;
         status("ready", ratio < config.pixelRatio ? "pixel-budget-downsampled" : "webgl-media-selected");
         trackFrames();
@@ -25883,6 +26387,10 @@ void main() {
       destroy() {
         if (dead) return;
         dead = true;
+        if (adaptiveTimer) win.clearTimeout(adaptiveTimer);
+        sampler?.destroy();
+        adaptations.clear();
+        appearanceNotifications.clear();
         if (frame) win.cancelAnimationFrame(frame);
         cancelVideo();
         resize.disconnect();
@@ -25907,7 +26415,7 @@ void main() {
 
   // src/components/media-scene.tsx
   var import_jsx_runtime6 = __toESM(require_jsx_runtime(), 1);
-  function GlassMediaScene({ source, media, variant = "clear", appearance, tintLevel, children, className, style, ...props }) {
+  function GlassMediaScene({ source, sourceVersion, media, variant = "clear", appearance, tintLevel, children, className, style, ...props }) {
     const root = (0, import_react6.useRef)(null), canvas = (0, import_react6.useRef)(null), controller = (0, import_react6.useRef)(null);
     const latest = (0, import_react6.useRef)(media);
     latest.current = media;
@@ -25937,6 +26445,7 @@ void main() {
       const node = root.current, win = node.ownerDocument.defaultView;
       const instance = createMediaGlass(canvas.current, source.current, { ...latest.current, onStatus: (diagnostics) => {
         node.dataset.prismState = diagnostics.state;
+        node.dataset.prismReason = diagnostics.reason;
         latest.current?.onStatus?.(diagnostics);
       } });
       controller.current = instance;
@@ -25956,8 +26465,14 @@ void main() {
       };
     }, [source, context]);
     (0, import_react6.useEffect)(() => {
+      controller.current?.refresh();
+    }, [sourceVersion]);
+    (0, import_react6.useEffect)(() => {
       if (media) controller.current?.update({ ...media, onStatus: (diagnostics) => {
-        if (root.current) root.current.dataset.prismState = diagnostics.state;
+        if (root.current) {
+          root.current.dataset.prismState = diagnostics.state;
+          root.current.dataset.prismReason = diagnostics.reason;
+        }
         latest.current?.onStatus?.(diagnostics);
       } });
     }, [media]);
@@ -25984,35 +26499,270 @@ void main() {
     );
   }
 
-  // demo/library.tsx
+  // demo/materials-lab.tsx
   var import_jsx_runtime7 = __toESM(require_jsx_runtime(), 1);
+  var layouts = {
+    navigation: { width: 360, height: 54, left: "50%", top: "14%", transform: "translateX(-50%)" },
+    toolbar: { width: 240, height: 52, left: "50%", top: "60%", transform: "translateX(-50%)" },
+    "tab-bar": { width: 340, height: 66, left: "50%", top: "70%", transform: "translateX(-50%)" },
+    search: { width: 320, height: 48, left: "50%", top: "16%", transform: "translateX(-50%)" },
+    button: { width: 126, height: 44, left: "50%", top: "46%", transform: "translateX(-50%)" },
+    "floating-action": { width: 72, height: 72, left: "70%", top: "60%", transform: "none" },
+    selection: { width: 118, height: 38, left: "50%", top: "46%", transform: "translateX(-50%)" },
+    menu: { width: 228, height: 184, left: "50%", top: "24%", transform: "translateX(-50%)" },
+    popover: { width: 270, height: 166, left: "50%", top: "26%", transform: "translateX(-50%)" },
+    sidebar: { width: 194, height: 286, left: "5%", top: "10%", transform: "none" },
+    sheet: { width: 360, height: 244, left: "50%", top: "30%", transform: "translateX(-50%)" },
+    media: { width: 340, height: 64, left: "50%", top: "70%", transform: "translateX(-50%)" }
+  };
+  function SurfaceContent({ preset }) {
+    if (preset === "search") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "sample-search", children: [
+      "\u2315 ",
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Search your collection" })
+    ] });
+    if (preset === "navigation") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-nav", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2039" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: "Collection" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2022\u2022\u2022" })
+    ] });
+    if (preset === "toolbar") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-nav", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u21B6" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\uFF0B" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2661" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2197" })
+    ] });
+    if (preset === "tab-bar") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-nav", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: "Library" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Explore" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Saved" })
+    ] });
+    if (preset === "floating-action") return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { style: { fontSize: 32, fontWeight: 300 }, children: "\uFF0B" });
+    if (preset === "button" || preset === "selection") return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: preset === "button" ? "Continue" : "Selected" });
+    if (preset === "media") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-nav", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u25B6" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Now playing" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2022\u2022\u2022" })
+    ] });
+    if (preset === "menu") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-menu", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: "Actions" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+        "Save to collection ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\uFF0B" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+        "Share this item ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2197" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { children: [
+        "View details ",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u203A" })
+      ] })
+    ] });
+    if (preset === "sidebar") return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-menu", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: "Your workspace" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Overview" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Recent files" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Collections" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Shared with you" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "Everything in its place." })
+    ] });
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-panel", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: preset === "sheet" ? "COLLECTION" : "QUICK LOOK" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h4", { children: "A little more space." }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { children: [
+        "Soft light. Clear information.",
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
+        "A surface that stays easy to read."
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", className: "sample-action", onClick: (e) => {
+        e.currentTarget.textContent = "Saved";
+      }, children: "Save changes" })
+    ] });
+  }
+  function MaterialsLab() {
+    const [preset, setPreset] = (0, import_react7.useState)("navigation"), [background, setBackground] = (0, import_react7.useState)("split"), [mode, setMode] = (0, import_react7.useState)("adaptive");
+    const source = (0, import_react7.useRef)(null), [move, setMove] = (0, import_react7.useState)(0), [sceneWidth, setSceneWidth] = (0, import_react7.useState)(640);
+    (0, import_react7.useEffect)(() => {
+      const observer = new ResizeObserver((entries) => setSceneWidth(entries[0].contentRect.width));
+      observer.observe(source.current);
+      return () => observer.disconnect();
+    }, []);
+    const options = { live: background === "moving" };
+    (0, import_react7.useEffect)(() => {
+      const canvas = source.current, ctx = canvas.getContext("2d");
+      let frame = 0;
+      function draw(time = 0) {
+        ctx.clearRect(0, 0, 960, 640);
+        if (background === "light" || background === "dark") {
+          ctx.fillStyle = background === "light" ? "#f4f1e9" : "#171923";
+          ctx.fillRect(0, 0, 960, 640);
+        } else if (background === "split") {
+          ctx.fillStyle = "#f4f1e9";
+          ctx.fillRect(0, 0, 480, 640);
+          ctx.fillStyle = "#171923";
+          ctx.fillRect(480, 0, 480, 640);
+        } else {
+          const offset = background === "moving" ? Math.sin(time / 2200) * 0.5 + 0.5 : 0.5;
+          const gradient = ctx.createLinearGradient(-600 + offset * 1300, 0, 600 + offset * 1300, 640);
+          gradient.addColorStop(0, "#fcf1dc");
+          gradient.addColorStop(0.5, "#647ea4");
+          gradient.addColorStop(1, "#0c1020");
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, 960, 640);
+        }
+        ctx.font = "600 25px -apple-system, sans-serif";
+        ctx.fillStyle = background === "dark" ? "#e5e8f060" : "#66708260";
+        ctx.fillText("FIELD NOTES / 027", 55, 60);
+        ctx.font = "16px -apple-system, sans-serif";
+        for (let i = 0; i < 11; i++) {
+          ctx.fillStyle = background === "dark" ? "#b5c5d82a" : "#8994a435";
+          ctx.fillRect(55, 130 + i * 37, 250 + i % 3 * 35, 8);
+          ctx.fillRect(565, 130 + i * 37, 260 - i % 4 * 25, 8);
+        }
+        if (background === "busy") {
+          for (let i = 0; i < 18; i++) {
+            ctx.fillStyle = i % 2 ? "#e2bda299" : "#3f5075aa";
+            ctx.fillRect(i * 73 % 960, i * 113 % 640, 82, 50);
+          }
+        }
+        if (background === "moving") frame = requestAnimationFrame(draw);
+      }
+      draw();
+      return () => cancelAnimationFrame(frame);
+    }, [background]);
+    const profile = glassSurfacePresets[preset], layout = layouts[preset], resolved = resolveGlassSurface(preset, layout);
+    const visualWidth = Math.min(layout.width, sceneWidth * 0.9), start = parseFloat(layout.left) / 100 * sceneWidth - (layout.transform === "none" ? 0 : visualWidth / 2);
+    const x = Math.max(12, Math.min(sceneWidth - visualWidth - 12, start + move));
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("section", { className: "materials-lab", id: "materials", "aria-label": "Material presets", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "section-title", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h2", { children: "One material. Twelve purposes." }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "Explore shape, depth, and content-aware appearance." })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "materials-workbench", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "preset-list", role: "group", "aria-label": "Surface presets", children: Object.entries(glassSurfacePresets).map(([key, p]) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", "aria-pressed": key === preset, onClick: () => setPreset(key), children: p.label }, key)) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "preset-preview", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(GlassMediaScene, { source, sourceVersion: background, variant: profile.variant, appearance: mode, media: options, className: "preset-scene", "aria-label": "Preset preview", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("canvas", { ref: source, width: 960, height: 640, style: { position: "absolute", inset: 0, width: "100%", height: "100%" } }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "prism-media-controls", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassSurface, { preset, className: "preset-glass", "data-testid": "preset-glass", style: { position: "absolute", ...layout, left: x, transform: "none", maxWidth: "90%", padding: ["button", "selection", "floating-action"].includes(preset) ? 0 : 18 }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SurfaceContent, { preset }) }, preset) })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "preview-options", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { children: [
+              "Backdrop ",
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { "aria-label": "Preset backdrop", value: background, onChange: (e) => setBackground(e.target.value), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "split", children: "Light / dark" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "light", children: "Light" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "dark", children: "Dark" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "busy", children: "Detailed" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "moving", children: "Moving light" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { children: [
+              "Appearance ",
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { "aria-label": "Preset appearance", value: mode, onChange: (e) => setMode(e.target.value), children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "adaptive", children: "Adaptive" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "light", children: "Light" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "dark", children: "Dark" })
+              ] })
+            ] }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { children: [
+              "Position ",
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { "aria-label": "Glass position", type: "range", min: -110, max: 110, value: move, onChange: (e) => setMove(e.target.valueAsNumber) })
+            ] })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "preset-description", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: profile.label }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: profile.description }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("code", { children: `<GlassSurface preset="${preset}" appearance="adaptive" />` }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("dl", { children: [
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("dt", { children: "Curvature" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("dd", { children: resolved.optics.curvature })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("dt", { children: "Refraction" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("dd", { children: [
+                  resolved.optics.strength.toFixed(1),
+                  " px"
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("dt", { children: "Diffusion" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("dd", { children: [
+                  resolved.material.blur.toFixed(1),
+                  " px"
+                ] })
+              ] }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("dt", { children: "Adaptation" }),
+                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("dd", { children: profile.variant === "clear" ? "Clear \xB7 static" : profile.adaptation === "ambient" ? "Stable labels" : "Light \u2194 dark" })
+              ] })
+            ] })
+          ] })
+        ] })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(DomBackdropExample, {})
+    ] });
+  }
+  function DomBackdropExample() {
+    const [dark, setDark] = (0, import_react7.useState)(false);
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "dom-example", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: "On your page, too." }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "Scroll the content beneath the floating bar, or change the page background." }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("button", { type: "button", onClick: () => setDark(!dark), children: "Change page background" })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "dom-scroll", "data-dark": dark, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "dom-bar", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassSurface, { preset: "navigation", appearance: "adaptive", "data-testid": "dom-adaptive", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "sample-nav", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("strong", { children: "Reading list" }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "\u2022\u2022\u2022" })
+        ] }) }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "dom-chapters", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "CHAPTER ONE" }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h4", { children: "Room to focus." }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "A floating surface can follow the content beneath it. This example uses ordinary page content." })
+          ] }),
+          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("small", { children: "CHAPTER TWO" }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h4", { children: "A different atmosphere." }),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "As the background changes, the foreground stays legible." })
+          ] })
+        ] })
+      ] })
+    ] });
+  }
+
+  // demo/library.tsx
+  var import_react9 = __toESM(require_react(), 1);
+  var import_client = __toESM(require_client(), 1);
+  var import_jsx_runtime8 = __toESM(require_jsx_runtime(), 1);
   function PlaybackIcon({ playing }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("svg", { viewBox: "0 0 64 64", fill: "currentColor", "aria-hidden": "true", children: playing ? /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "15", y: "10", width: "12", height: "44", rx: "2.5" }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("rect", { x: "37", y: "10", width: "12", height: "44", rx: "2.5" })
-    ] }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M23 11c-2-1.2-4 .2-4 2.5v37c0 2.3 2 3.7 4 2.5l31-18.5c2-1.2 2-3.8 0-5z" }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("svg", { viewBox: "0 0 64 64", fill: "currentColor", "aria-hidden": "true", children: playing ? /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "15", y: "10", width: "12", height: "44", rx: "2.5" }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("rect", { x: "37", y: "10", width: "12", height: "44", rx: "2.5" })
+    ] }) : /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M23 11c-2-1.2-4 .2-4 2.5v37c0 2.3 2 3.7 4 2.5l31-18.5c2-1.2 2-3.8 0-5z" }) });
   }
   function SkipIcon({ forward = false }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("svg", { viewBox: "0 0 64 64", fill: "none", "aria-hidden": "true", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("g", { transform: forward ? "translate(64 0) scale(-1 1)" : void 0, children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "M12 30a22 22 0 1 1 7 18", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round" }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: "m5 24 7 11 7-11", fill: "currentColor", stroke: "currentColor", strokeLinejoin: "round", strokeWidth: "2" })
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("svg", { viewBox: "0 0 64 64", fill: "none", "aria-hidden": "true", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("g", { transform: forward ? "translate(64 0) scale(-1 1)" : void 0, children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "M12 30a22 22 0 1 1 7 18", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round" }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: "m5 24 7 11 7-11", fill: "currentColor", stroke: "currentColor", strokeLinejoin: "round", strokeWidth: "2" })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("text", { x: "33", y: "40", fill: "currentColor", textAnchor: "middle", fontFamily: "system-ui,sans-serif", fontSize: "24", fontWeight: "450", children: "15" })
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("text", { x: "33", y: "40", fill: "currentColor", textAnchor: "middle", fontFamily: "system-ui,sans-serif", fontSize: "24", fontWeight: "450", children: "15" })
     ] });
   }
   function AlignIcon({ alignment }) {
     const shortX = alignment === "left" ? 4 : alignment === "right" ? 10 : 7;
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("svg", { viewBox: "0 0 24 24", width: "19", height: "19", fill: "none", stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("path", { d: `M4 5h16M${shortX} 10h10M4 15h16M${shortX} 20h10` }) });
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("svg", { viewBox: "0 0 24 24", width: "19", height: "19", fill: "none", stroke: "currentColor", strokeWidth: "1.8", strokeLinecap: "round", "aria-hidden": "true", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("path", { d: `M4 5h16M${shortX} 10h10M4 15h16M${shortX} 20h10` }) });
   }
   var timeLabel = (seconds) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
   function MediaExample() {
-    const video = (0, import_react7.useRef)(null), [playing, setPlaying] = (0, import_react7.useState)(false);
-    const [duration, setDuration] = (0, import_react7.useState)(0), [currentTime, setCurrentTime] = (0, import_react7.useState)(0);
-    const [variant, setVariant] = (0, import_react7.useState)("regular"), [status, setStatus] = (0, import_react7.useState)("loading");
-    const [tintLevel, setTintLevel] = (0, import_react7.useState)(0.5);
-    const options = (0, import_react7.useRef)({ onStatus: (d) => setStatus(d.state) }).current;
-    (0, import_react7.useEffect)(() => {
+    const video = (0, import_react9.useRef)(null), [playing, setPlaying] = (0, import_react9.useState)(false);
+    const [duration, setDuration] = (0, import_react9.useState)(0), [currentTime, setCurrentTime] = (0, import_react9.useState)(0);
+    const [variant, setVariant] = (0, import_react9.useState)("regular"), [status, setStatus] = (0, import_react9.useState)("loading");
+    const [tintLevel, setTintLevel] = (0, import_react9.useState)(0.5);
+    const options = (0, import_react9.useRef)({ onStatus: (d) => setStatus(d.state) }).current;
+    (0, import_react9.useEffect)(() => {
       const media = video.current;
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches) void media.play().catch(() => setPlaying(false));
     }, []);
@@ -26031,9 +26781,9 @@ void main() {
       media.currentTime = Math.max(0, Math.min(media.duration, value));
       setCurrentTime(media.currentTime);
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("section", { className: "media-example", "aria-label": "Shared media refraction", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(GlassMediaScene, { source: video, media: options, variant, tintLevel, className: "flower-player", "aria-label": "Flower video player", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("section", { className: "media-example", "aria-label": "Shared media refraction", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(GlassMediaScene, { source: video, media: options, variant, tintLevel, className: "flower-player", "aria-label": "Flower video player", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
           "video",
           {
             ref: video,
@@ -26053,13 +26803,13 @@ void main() {
             onSeeked: (event) => setCurrentTime(event.currentTarget.currentTime)
           }
         ),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "prism-media-controls", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "playback-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassButton, { shape: "circle", className: "skip-control", "aria-label": "Back 15 seconds", onClick: () => seek((video.current?.currentTime ?? 0) - 15), children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SkipIcon, {}) }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassButton, { shape: "circle", className: "play-control", "aria-label": playing ? "Pause video" : "Play video", onClick: toggle, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(PlaybackIcon, { playing }) }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassButton, { shape: "circle", className: "skip-control", "aria-label": "Forward 15 seconds", onClick: () => seek((video.current?.currentTime ?? 0) + 15), children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(SkipIcon, { forward: true }) })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "prism-media-controls", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "playback-row", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassButton, { shape: "circle", className: "skip-control", "aria-label": "Back 15 seconds", onClick: () => seek((video.current?.currentTime ?? 0) - 15), children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(SkipIcon, {}) }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassButton, { shape: "circle", className: "play-control", "aria-label": playing ? "Pause video" : "Play video", onClick: toggle, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(PlaybackIcon, { playing }) }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassButton, { shape: "circle", className: "skip-control", "aria-label": "Forward 15 seconds", onClick: () => seek((video.current?.currentTime ?? 0) + 15), children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(SkipIcon, { forward: true }) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassSurface, { shape: "capsule", className: "scrub-glass", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassSurface, { shape: "capsule", className: "scrub-glass", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
             "input",
             {
               className: "video-seek",
@@ -26077,81 +26827,82 @@ void main() {
           ) })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "media-caption", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "One video. Four lenses. Every frame stays live." }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "media-options", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "media-caption", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: "One video. Four lenses. Every frame stays live." }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "media-options", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("label", { children: [
             "Material ",
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("select", { "aria-label": "Video material", value: variant, onChange: (event) => setVariant(event.target.value), children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "clear", children: "Clear" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("option", { value: "regular", children: "Regular" })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("select", { "aria-label": "Video material", value: variant, onChange: (event) => setVariant(event.target.value), children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("option", { value: "clear", children: "Clear" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("option", { value: "regular", children: "Regular" })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("label", { className: "tint-preference", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("label", { className: "tint-preference", children: [
             "Tint ",
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("input", { type: "range", min: "0", max: "1", step: "0.05", value: tintLevel, disabled: variant === "clear", "aria-label": "Glass tint", onChange: (event) => setTintLevel(event.currentTarget.valueAsNumber) })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("input", { type: "range", min: "0", max: "1", step: "0.05", value: tintLevel, disabled: variant === "clear", "aria-label": "Glass tint", onChange: (event) => setTintLevel(event.currentTarget.valueAsNumber) })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { id: "media-status", role: "status", children: status === "ready" ? "Live refraction" : status === "paused" ? "Idle while offscreen" : status === "disabled" ? "Accessible material" : status === "fallback" || status === "error" ? "Refraction unavailable" : "Preparing media" })
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { id: "media-status", role: "status", children: status === "ready" ? "Live refraction" : status === "paused" ? "Idle while offscreen" : status === "disabled" ? "Accessible material" : status === "fallback" || status === "error" ? "Refraction unavailable" : "Preparing media" })
         ] })
       ] })
     ] });
   }
   function Library() {
-    const [count, setCount] = (0, import_react7.useState)(0), [enabled, setEnabled] = (0, import_react7.useState)(true), [volume, setVolume] = (0, import_react7.useState)(50);
-    const [dark, setDark] = (0, import_react7.useState)(false), [alignment, setAlignment] = (0, import_react7.useState)("left");
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassProvider, { appearance: dark ? "dark" : "light", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "library", "data-theme": dark ? "dark" : "light", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("header", { className: "site-header", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("a", { className: "brand", href: "#", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "brand-mark", "aria-hidden": "true" }),
+    const [count, setCount] = (0, import_react9.useState)(0), [enabled, setEnabled] = (0, import_react9.useState)(true), [volume, setVolume] = (0, import_react9.useState)(50);
+    const [dark, setDark] = (0, import_react9.useState)(false), [alignment, setAlignment] = (0, import_react9.useState)("left");
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassProvider, { appearance: dark ? "dark" : "light", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "library", "data-theme": dark ? "dark" : "light", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("header", { className: "site-header", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("a", { className: "brand", href: "#", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { className: "brand-mark", "aria-hidden": "true" }),
           "Prism Glass"
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("nav", { "aria-label": "Main navigation", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: "#components", children: "Components" }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: "./optics.html", children: "Optics" }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: "#api", children: "API" })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("nav", { "aria-label": "Main navigation", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href: "#materials", children: "Materials" }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href: "./optics.html", children: "Optics" }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href: "#api", children: "API" })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("main", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("section", { className: "library-intro", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h1", { children: "A material. A family of controls." }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("main", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("section", { className: "library-intro", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h1", { children: "A material. A family of controls." }),
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { children: [
             "Familiar controls. A lighter touch.",
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("br", {}),
             " ",
             "Calibrated against native iOS 27 materials."
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(MediaExample, {}),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("section", { id: "components", className: "component-library", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "section-title", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h2", { children: "Made for interaction." }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "One material system. Familiar, accessible controls." })
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MediaExample, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(MaterialsLab, {}),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("section", { id: "components", className: "component-library", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "section-title", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h2", { children: "Made for interaction." }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: "One material system. Familiar, accessible controls." })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "component-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { className: "component-example", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: "Button" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "example-stage", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(GlassButton, { onClick: () => setCount((value) => value + 1), children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "component-row", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("article", { className: "component-example", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "Button" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "example-stage", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(GlassButton, { onClick: () => setCount((value) => value + 1), children: [
                 "Add item ",
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { "aria-hidden": "true", children: "\uFF0B" })
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { "aria-hidden": "true", children: "\uFF0B" })
               ] }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { role: "status", id: "item-count", children: count ? `${count} ${count === 1 ? "item" : "items"} added` : "A little light with every press." })
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { role: "status", id: "item-count", children: count ? `${count} ${count === 1 ? "item" : "items"} added` : "A little light with every press." })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { className: "component-example", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: "Switch" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "example-stage switch-example", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Notifications" }),
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassSwitch, { checked: enabled, onCheckedChange: setEnabled, "aria-label": "Notifications" })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("article", { className: "component-example", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "Switch" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "example-stage switch-example", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Notifications" }),
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassSwitch, { checked: enabled, onCheckedChange: setEnabled, "aria-label": "Notifications" })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { id: "notification-value", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { id: "notification-value", children: [
                 enabled ? "On" : "Off",
                 " \xB7 A glass touch, a familiar switch."
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { className: "component-example", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: "Slider" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "example-stage", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassSlider, { value: volume, onValueChange: setVolume, "aria-label": "Volume" }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("output", { id: "volume-value", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("article", { className: "component-example", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "Slider" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { className: "example-stage", children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassSlider, { value: volume, onValueChange: setVolume, "aria-label": "Volume" }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("p", { children: [
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("output", { id: "volume-value", children: [
                   volume,
                   "%"
                 ] }),
@@ -26159,46 +26910,46 @@ void main() {
               ] })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "component-row wide-row", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { className: "component-example tabs-example", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: "Tabs" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassTabs, { "aria-label": "Library guide", items: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "component-row wide-row", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("article", { className: "component-example tabs-example", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "Tabs" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassTabs, { "aria-label": "Library guide", items: [
                 { value: "material", label: "Material", content: "Regular softens busy backgrounds. Clear lets photos and video show through, with local dimming to keep bold controls legible." },
                 { value: "motion", label: "Motion", content: "Selection moves with a spring. Press feedback responds immediately. Reduced motion removes the elastic response." },
                 { value: "accessibility", label: "Accessibility", content: "Keyboard controls, visible focus, reduced transparency, increased contrast, and forced colors are part of the same system." }
               ] })
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("article", { className: "component-example", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h3", { children: "Toolbar & popover" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "toolbar-example", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassToolbar, { "aria-label": "Text alignment", children: ["left", "center", "right"].map((value) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassButton, { shape: "rounded-rect", "aria-label": `Align ${value}`, "aria-pressed": alignment === value, onClick: () => setAlignment(value), children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(AlignIcon, { alignment: value }) }, value)) }),
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(GlassPopover, { trigger: "Display options", "aria-label": "Display options", children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h4", { children: "Display options" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "setting-row", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Dark appearance" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(GlassSwitch, { checked: dark, onCheckedChange: setDark, "aria-label": "Dark appearance" })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("article", { className: "component-example", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h3", { children: "Toolbar & popover" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "toolbar-example", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassToolbar, { "aria-label": "Text alignment", children: ["left", "center", "right"].map((value) => /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassButton, { shape: "rounded-rect", "aria-label": `Align ${value}`, "aria-pressed": alignment === value, onClick: () => setAlignment(value), children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(AlignIcon, { alignment: value }) }, value)) }),
+                /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(GlassPopover, { trigger: "Display options", "aria-label": "Display options", children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("h4", { children: "Display options" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "setting-row", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Dark appearance" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(GlassSwitch, { checked: dark, onCheckedChange: setDark, "aria-label": "Dark appearance" })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "One glass layer. Controls inside remain simple." })
+                  /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: "One glass layer. Controls inside remain simple." })
                 ] })
               ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "alignment-sample", style: { textAlign: alignment }, children: "Content stays clear." })
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { className: "alignment-sample", style: { textAlign: alignment }, children: "Content stays clear." })
             ] })
           ] })
         ] }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("section", { id: "api", className: "api-section", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("h2", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("section", { id: "api", className: "api-section", children: [
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("h2", { children: [
               "Choose the source.",
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("br", {}),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("br", {}),
               "Keep the controls."
             ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: "Use SVG for an explicit DOM source and one shared WebGL renderer for media. Your labels, buttons, and keyboard behavior remain ordinary HTML." }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "source-links", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: "https://aave.com/design/building-glass-for-the-web", children: "Aave\u2019s rendering approach \u2197" }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: "https://developer.apple.com/design/human-interface-guidelines/materials", children: "Apple\u2019s material guidance \u2197" })
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("p", { children: "Use SVG for an explicit DOM source and one shared WebGL renderer for media. Your labels, buttons, and keyboard behavior remain ordinary HTML." }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("div", { className: "source-links", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href: "https://aave.com/design/building-glass-for-the-web", children: "Aave\u2019s rendering approach \u2197" }),
+              /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("a", { href: "https://developer.apple.com/design/human-interface-guidelines/materials", children: "Apple\u2019s material guidance \u2197" })
             ] })
           ] }),
-          /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("pre", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("code", { children: `import { GlassProvider, GlassButton,
+          /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("pre", { children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("code", { children: `import { GlassProvider, GlassButton,
   GlassSwitch } from '@meapri/prism-glass/react';
 import '@meapri/prism-glass/styles.css';
 
@@ -26212,13 +26963,13 @@ import '@meapri/prism-glass/styles.css';
 </GlassProvider>` }) })
         ] })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("footer", { children: [
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "Prism Glass \xB7 Independent web implementation" }),
-        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: "TypeScript core \xB7 React components \xB7 Source-first optics" })
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("footer", { children: [
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "Prism Glass \xB7 Independent web implementation" }),
+        /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("span", { children: "TypeScript core \xB7 React components \xB7 Source-first optics" })
       ] })
     ] }) });
   }
-  (0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Library, {}));
+  (0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Library, {}));
 })();
 /*! Bundled license information:
 
@@ -26226,6 +26977,17 @@ react/cjs/react.development.js:
   (**
    * @license React
    * react.development.js
+   *
+   * Copyright (c) Meta Platforms, Inc. and affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   *)
+
+react/cjs/react-jsx-runtime.development.js:
+  (**
+   * @license React
+   * react-jsx-runtime.development.js
    *
    * Copyright (c) Meta Platforms, Inc. and affiliates.
    *
@@ -26259,17 +27021,6 @@ react-dom/cjs/react-dom-client.development.js:
   (**
    * @license React
    * react-dom-client.development.js
-   *
-   * Copyright (c) Meta Platforms, Inc. and affiliates.
-   *
-   * This source code is licensed under the MIT license found in the
-   * LICENSE file in the root directory of this source tree.
-   *)
-
-react/cjs/react-jsx-runtime.development.js:
-  (**
-   * @license React
-   * react-jsx-runtime.development.js
    *
    * Copyright (c) Meta Platforms, Inc. and affiliates.
    *
