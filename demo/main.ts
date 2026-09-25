@@ -140,34 +140,82 @@ document.querySelectorAll<HTMLButtonElement>('[role=tab]').forEach((button, inde
 new ResizeObserver(() => choose(selected)).observe(tabSource);
 $('run-tests').addEventListener('click', () => runChecks($('test-host'), $('test-results'), $('run-tests') as HTMLButtonElement));
 
-// Small independent source layers keep component labels crisp and filter bounds local.
+// Each control uses the same small source for its track and its refracted thumb.
+const setShell = (id: string, lens: { x: number; y: number; width: number; height: number }) => {
+  Object.assign($(id).style, { left: `${lens.x}px`, top: `${lens.y}px`, width: `${lens.width}px`, height: `${lens.height}px` });
+};
 const buttonSource = $('button-source');
-const buttonLens = () => lensFor('circle', { x: (buttonSource.clientWidth - 88) / 2, y: 22, width: 88, height: 88 });
-const buttonGlass = createGlass(buttonSource, getGlassPreset('button', buttonLens()));
+const buttonLens = () => lensFor('circle', { x: (buttonSource.clientWidth - 68) / 2, y: 54, width: 68, height: 68 });
+const buttonGlass = createGlass(buttonSource, { ...getGlassPreset('button', buttonLens()), strength: 9, blur: 0.25, highlight: 0.18 });
 let pressed = false;
 $('glass-button').addEventListener('click', () => {
   pressed = !pressed; $('glass-button').setAttribute('aria-pressed', String(pressed));
-  $('glass-button').innerHTML = pressed ? '✓<span>PRESSED</span>' : '＋<span>PRESS</span>';
-  buttonGlass.update({ depth: pressed ? 0.5 : 1.2, blur: pressed ? 1.5 : 0.75 });
+  $('button-value').textContent = pressed ? 'Added' : 'Add';
 });
-new ResizeObserver(() => buttonGlass.update({ lens: buttonLens() })).observe(buttonSource);
-const switchSource = $('switch-source'); let switched = false;
-const switchLens = () => lensFor('capsule', { x: switchSource.clientWidth / 2 - 70 + (switched ? 68 : 0), y: 37, width: 72, height: 58 });
-const switchGlass = createGlass(switchSource, getGlassPreset('switch', switchLens()));
-function updateSwitch() {
-  $('glass-switch').setAttribute('aria-checked', String(switched)); $('switch-value').textContent = switched ? 'On' : 'Off';
-  $('switch-fill').style.width = switched ? '75%' : '25%';
-  switchGlass.update({ lens: switchLens() });
+function buttonPressure(down: boolean) {
+  $('button-shell').style.transform = down ? 'scale(.95)' : '';
+  buttonGlass.update({ strength: down ? 4 : 9 });
 }
-$('glass-switch').addEventListener('click', () => { switched = !switched; updateSwitch(); });
-new ResizeObserver(updateSwitch).observe(switchSource);
+$('glass-button').addEventListener('pointerdown', () => buttonPressure(true));
+for (const event of ['pointerup', 'pointercancel', 'pointerleave', 'blur']) $('glass-button').addEventListener(event, () => buttonPressure(false));
+new ResizeObserver(() => buttonGlass.update({ lens: buttonLens() })).observe(buttonSource);
+
+const switchSource = $('switch-source');
+let switched = false, switchPosition = 0, switchFrame = 0;
+const switchLens = () => lensFor('capsule', { x: switchSource.clientWidth - 96 + 32 * switchPosition, y: 78, width: 40, height: 34 });
+const switchGlass = createGlass(switchSource, { ...getGlassPreset('switch', switchLens()), strength: 12, blur: 0.4, highlight: 0.18 });
+function paintSwitch() {
+  const lens = switchLens(); setShell('switch-shell', lens);
+  $('switch-fill').style.opacity = String(switchPosition);
+  switchGlass.update({ lens });
+}
+function updateSwitch(animate = true) {
+  $('glass-switch').setAttribute('aria-checked', String(switched)); $('switch-value').textContent = switched ? 'On' : 'Off';
+  cancelAnimationFrame(switchFrame);
+  const from = switchPosition, to = switched ? 1 : 0, start = performance.now();
+  if (!animate || reduced.matches) { switchPosition = to; paintSwitch(); return; }
+  const tick = (now: number) => {
+    const t = Math.min(1, (now - start) / 320);
+    // Critically damped spring, normalized to settle exactly on the endpoint.
+    const ease = (1 - (1 + 8 * t) * Math.exp(-8 * t)) / (1 - 9 * Math.exp(-8));
+    switchPosition = from + (to - from) * ease; paintSwitch();
+    if (t < 1) switchFrame = requestAnimationFrame(tick);
+  };
+  switchFrame = requestAnimationFrame(tick);
+}
+let switchDrag: { id: number; x: number; from: number; moved: boolean } | undefined;
+let skipSwitchClick = false;
+$('glass-switch').addEventListener('pointerdown', event => {
+  if (event.button !== 0) return;
+  cancelAnimationFrame(switchFrame);
+  switchDrag = { id: event.pointerId, x: event.clientX, from: switchPosition, moved: false };
+  $('glass-switch').setPointerCapture(event.pointerId);
+});
+$('glass-switch').addEventListener('pointermove', event => {
+  if (!switchDrag || switchDrag.id !== event.pointerId) return;
+  const delta = event.clientX - switchDrag.x;
+  if (Math.abs(delta) > 3) switchDrag.moved = true;
+  if (switchDrag.moved) { switchPosition = Math.max(0, Math.min(1, switchDrag.from + delta / 32)); paintSwitch(); }
+});
+$('glass-switch').addEventListener('pointerup', () => {
+  if (switchDrag?.moved) { switched = switchPosition > 0.5; skipSwitchClick = true; updateSwitch(); }
+  switchDrag = undefined;
+});
+$('glass-switch').addEventListener('pointercancel', () => { switchDrag = undefined; updateSwitch(); });
+$('glass-switch').addEventListener('click', () => {
+  if (skipSwitchClick) { skipSwitchClick = false; return; }
+  switched = !switched; updateSwitch();
+});
+new ResizeObserver(() => updateSwitch(false)).observe(switchSource);
+
 const sliderSource = $('slider-source'); let sliderValue = 50;
-const sliderLens = () => lensFor('circle', { x: 14 + (sliderSource.clientWidth - 84) * sliderValue / 100, y: 38, width: 56, height: 56 });
-const sliderGlass = createGlass(sliderSource, getGlassPreset('slider', sliderLens()));
+const sliderLens = () => lensFor('capsule', { x: 11 + (sliderSource.clientWidth - 60) * sliderValue / 100, y: 91, width: 38, height: 26 });
+const sliderGlass = createGlass(sliderSource, { ...getGlassPreset('slider', sliderLens()), strength: 3.5, blur: 0.25, highlight: 0.14 });
 function updateSlider() {
   sliderValue = Number(($('glass-slider') as HTMLInputElement).value);
-  $('slider-value').textContent = String(sliderValue); $('slider-fill').style.width = `${sliderValue}%`;
-  sliderGlass.update({ lens: sliderLens() });
+  $('slider-value').textContent = String(sliderValue);
+  $('slider-fill').style.width = `${sliderValue}%`;
+  const lens = sliderLens(); setShell('slider-shell', lens); sliderGlass.update({ lens });
 }
 $('glass-slider').addEventListener('input', updateSlider);
 new ResizeObserver(updateSlider).observe(sliderSource);
