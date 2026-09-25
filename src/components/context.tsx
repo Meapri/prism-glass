@@ -46,7 +46,9 @@ export function useTheme(props: MaterialProps) {
 export function materialStyle(theme: GlassTheme): CSSProperties {
   const material = getGlassMaterial(theme.variant, theme.appearance, theme.tintLevel);
   const [r, g, b, a] = material.tint;
-  return { '--prism-fill': theme.variant === 'clear' ? `rgb(55 55 55 / .43)` : `rgb(${r * 255} ${g * 255} ${b * 255} / ${a})`,
+  const clearAlpha = 1 - (1 - material.dimming) * (1 - a);
+  const clearReflection = a * 255 / Math.max(clearAlpha, 0.001);
+  return { '--prism-fill': theme.variant === 'clear' ? `rgb(${clearReflection} ${clearReflection} ${clearReflection} / ${clearAlpha})` : `rgb(${r * 255} ${g * 255} ${b * 255} / ${a})`,
     '--prism-blur': `${material.blur}px`, '--prism-saturation': material.saturation, '--prism-brightness': material.brightness,
     '--prism-ink': material.foreground, '--prism-solid': material.opaque } as CSSProperties;
 }
