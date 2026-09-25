@@ -30,7 +30,9 @@ test('media coordinates preserve orientation and only refract within the lens',a
   const red=pixel(original,125,65),blue=pixel(original,125,120);
   expect(red[0]).toBeGreaterThan(200);expect(red[2]).toBeLessThan(70);
   expect(blue[2]).toBeGreaterThan(200);expect(blue[0]).toBeLessThan(70);
+  const renders=await page.evaluate(()=>window.mediaFixture.getDiagnostics().renders);
   await page.evaluate(()=>window.mediaFixture.updateLens('first',{strength:36}));
+  await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().renders)).toBeGreaterThan(renders);
   const bent=PNG.sync.read(await stage.screenshot({scale:'css'}));
   let changed=0,outside=0;
   for(let y=0;y<200;y++)for(let x=0;x<320;x++){

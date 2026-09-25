@@ -38,7 +38,7 @@
     "dev": "vite",
     "typecheck": "tsc --noEmit",
     "prepack": "npm run build",
-    "test:browser": "npm run build && playwright test"
+    "test:browser": "npm run build && node scripts/test-browser.mjs"
   },
   "peerDependencies": {
     "react": ">=18"

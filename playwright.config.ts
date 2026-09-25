@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests/browser',
-  use: { baseURL: 'http://127.0.0.1:4173', screenshot: 'only-on-failure' },
+  use: { baseURL: 'http://127.0.0.1:4173', screenshot: 'only-on-failure', headless: process.env.PRISM_HEADED !== '1' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },

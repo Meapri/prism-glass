@@ -28,10 +28,16 @@ async function expectAlignedRefraction(page: Page) {
       // A filter can change text/grid antialiasing at fractional DPR positions.
       // Allow a one-pixel rasterization tolerance, never a shifted/clipped scene.
       let nearest = Infinity;
+      const low = [255, 255, 255], high = [0, 0, 0];
       for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-        nearest = Math.min(nearest, difference(i, ((y + dy) * flat.width + x + dx) * 4));
+        const j = ((y + dy) * flat.width + x + dx) * 4;
+        nearest = Math.min(nearest, difference(i, j));
+        for (let c = 0; c < 3; c++) { low[c] = Math.min(low[c], flat.data[j + c]); high[c] = Math.max(high[c], flat.data[j + c]); }
       }
-      if (nearest > 35) outside++;
+      // Fractional-DPR antialiasing can interpolate between neighboring colors
+      // rather than match one discrete pixel, particularly in Gecko on Linux.
+      const outsideLocalColors = [0, 1, 2].some(c => bent.data[i + c] < low[c] - 8 || bent.data[i + c] > high[c] + 8);
+      if (nearest > 35 && outsideLocalColors) outside++;
     }
   }
   expect(inside, 'the lens must actually refract source pixels').toBeGreaterThan(100);
