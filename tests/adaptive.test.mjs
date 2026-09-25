@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {updateGlassAdaptation,relativeLuminance,adaptGlassMaterial,summarizeBackdrop,resolveGlassSurface,glassSurfacePresets,getGlassMaterial} from '../dist/index.js';
 import {generateMaps} from '../dist/optics.js';
-const sample=luminance=>({luminance,variance:0,color:[.5,.5,.5],source:'provided',confidence:1});
+const sample=luminance=>{const c=luminance<=.0031308?12.92*luminance:1.055*luminance**(1/2.4)-.055;return {luminance,variance:0,color:[c,c,c],source:'provided',confidence:1};};
 test('adaptive appearance is stable near the boundary and accepts a sustained change',()=>{
  let state=updateGlassAdaptation(undefined,sample(.05),0,'light');assert.equal(state.appearance,'dark');
  for(let time=160;time<4000;time+=160){state=updateGlassAdaptation(state,sample(time%320?.23:.26),time,'light');assert.equal(state.appearance,'dark');}
@@ -32,4 +32,14 @@ test('surface presets scale optically, keep finite geometry, and differ in curva
  assert.ok(sheet.optics.strength>navigation.optics.strength);assert.ok(sheet.optics.bevel>navigation.optics.bevel);assert.ok(sheet.material.blur>navigation.material.blur);
  assert.notEqual(sheet.optics.curvature,navigation.optics.curvature);assert.equal(sheet.adaptation,'ambient');
  assert.throws(()=>resolveGlassSurface('constructor',{width:100,height:100}));assert.throws(()=>resolveGlassSurface('sheet',{width:NaN,height:100}));
+});
+
+test('adaptive stable panels retain readable foregrounds on opposite-tone backgrounds',()=>{
+ for(const [appearance,luminance,tintLevel]of [['dark',1,.5],['light',0,0]]){
+  const state=updateGlassAdaptation(undefined,sample(luminance),0,appearance,'ambient');
+  const material=adaptGlassMaterial(getGlassMaterial('regular',appearance,tintLevel),state);
+  const rgb=material.tint.slice(0,3).map(v=>v*material.tint[3]+luminance*(1-material.tint[3]));
+  const background=relativeLuminance(rgb),ratio=appearance==='dark'?1.05/(background+.05):(background+.05)/.05;
+  assert.ok(ratio>=4.5,`expected readable ${appearance} panel, got ${ratio}`);assert.equal(material.appearance,appearance);
+ }
 });

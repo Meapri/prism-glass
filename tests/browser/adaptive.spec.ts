@@ -12,7 +12,7 @@ test.beforeAll(async()=>{styles=await readFile('src/styles.css','utf8');script=(
  <div className="prism-media-controls"><GlassSurface data-testid="left" preset="button" style={{position:'absolute',left:20,top:20,width:110,height:44}}>Left</GlassSurface><GlassSurface data-testid="right" preset="button" style={{position:'absolute',left:185,top:20,width:110,height:44}}>Right</GlassSurface><GlassSurface data-testid="ambient" preset="menu" style={{position:'absolute',left:20,top:90,width:110,height:110}}>Stable text</GlassSurface><GlassSurface data-testid="clear" preset="media" style={{position:'absolute',left:185,top:90,width:110,height:60}}>Clear</GlassSurface></div></GlassMediaScene></>}
  const root=createRoot(document.getElementById('root'));window.unmount=()=>root.unmount();root.render(<App/>);
  `},bundle:true,jsx:'automatic',format:'iife',write:false})).outputFiles[0].text;});
-async function fixture(page:any){await page.setContent('<style>body{margin:0}#root{padding:20px}</style><div id="root"></div>');await page.addStyleTag({content:styles});await page.addScriptTag({content:script});}
+async function fixture(page:any){await page.setContent('<style>body{margin:0}#root{padding:20px}</style><div id="root"></div>');await page.addStyleTag({content:styles});await page.addScriptTag({content:script});await expect(page.getByTestId('dom')).toBeVisible();}
 test('DOM samples stationary background updates; explicit appearance overrides adaptation',async({page})=>{
  await fixture(page);const glass=page.getByTestId('dom');await expect(glass).toHaveAttribute('data-appearance','dark');await expect(glass).toHaveAttribute('data-prism-adaptation','resolved');await expect(page.getByTestId('nested')).toHaveCSS('color','rgb(255, 255, 255)');
  await page.evaluate(()=>{document.getElementById('dom')!.style.background='#fff';});await expect(glass).toHaveAttribute('data-appearance','light');
@@ -50,4 +50,12 @@ test('cross-origin image pixels fail closed without throwing or choosing a false
  await fixture(page);
  const sample=await page.evaluate(async()=>{const image=new Image();image.src='https://pixel.example.test/source.svg';await image.decode();return (window as any).sampler.media(image,{x:0,y:0,width:20,height:20},[0,0,20,20],[0,0,0]);});
  expect(sample).toBeNull();
+});
+
+test('a stable dark menu deepens its fill over a bright background',async({page})=>{
+ await page.emulateMedia({colorScheme:'dark'});await fixture(page);
+ await expect(page.getByTestId('ambient')).toHaveAttribute('data-appearance','dark');
+ await page.evaluate(()=>{const ctx=(document.getElementById('pixels')as HTMLCanvasElement).getContext('2d')!;ctx.fillStyle='#fff';ctx.fillRect(0,0,320,220);});
+ await expect.poll(async()=>{const png=PNG.sync.read(await page.locator('.scene').screenshot({scale:'css'}));return png.data[(150*png.width+35)*4];}).toBeLessThan(120);
+ await expect(page.getByTestId('ambient')).toHaveAttribute('data-appearance','dark');
 });

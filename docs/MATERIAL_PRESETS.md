@@ -41,7 +41,9 @@ Each profile defines curvature, depth, bevel, strength, diffusion, shape/radius 
 ## Framework-independent API
 
 ```ts
-import { resolveGlassSurface, glassSurfacePresets, getGlassPreset } from '@meapri/prism-glass';
+import { createGlass, resolveGlassSurface, glassSurfacePresets, getGlassPreset } from '@meapri/prism-glass';
+
+import { createMediaGlass } from '@meapri/prism-glass/media';
 
 const resolved = resolveGlassSurface('sheet', { width: 480, height: 360 });
 // resolved.lens / optics / material / elevation / adaptation
@@ -60,7 +62,7 @@ const renderer = createMediaGlass(overlayCanvas, image, {
 - `auto`: operating-system preference, preserving the existing behavior.
 - `adaptive`: each surface samples its own background. Compact Regular surfaces switch appearance; large reading surfaces retain their OS/application reading appearance and adapt tint, diffusion and shadow. Clear retains its separate static media treatment.
 
-The algorithm uses linear sRGB luminance, a 0.18–0.30 hysteresis band, time-based filtering and a 180ms candidate hold. It makes an initial choice immediately, then filters changes to avoid flashing. These thresholds are library calibration values. GPU material transitions interpolate without rendering React on every frame. Adaptive media diffusion is quantized to half-pixel steps to bound transient Gaussian texture allocation. Unchanged appearances do not repeatedly write CSS.
+The algorithm uses linear sRGB luminance, a 0.18–0.30 hysteresis band, time-based filtering and a 180ms candidate hold. It makes an initial choice immediately, then filters changes to avoid flashing. A contrast guard deepens or lightens the tint of stable reading surfaces when the sampled background would leave the foreground hard to read. Its 4.5:1 estimate uses sampled colors and variance; it is not a claim that every glyph over an arbitrary compositor surface has been contrast-audited. These thresholds are library calibration values. GPU material transitions interpolate without rendering React on every frame. Adaptive media diffusion is quantized to half-pixel steps to bound transient Gaussian texture allocation. Unchanged appearances do not repeatedly write CSS.
 
 DOM surfaces share one observer scheduler per window, pause sampling while hidden/offscreen, and remove their timer/listeners after the final subscriber leaves. Stationary background changes and CSS animation are checked at a bounded cadence. Video/canvas/image lenses share one small pixel sampler per scene, refreshed at most roughly every 120ms except explicit source/geometry invalidation. No WebGL readback, page screenshot or network image fetch is used.
 
