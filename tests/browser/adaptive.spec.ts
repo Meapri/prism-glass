@@ -59,3 +59,11 @@ test('a stable dark menu deepens its fill over a bright background',async({page}
  await expect.poll(async()=>{const png=PNG.sync.read(await page.locator('.scene').screenshot({scale:'css'}));return png.data[(150*png.width+35)*4];}).toBeLessThan(120);
  await expect(page.getByTestId('ambient')).toHaveAttribute('data-appearance','dark');
 });
+
+test('media adaptation resumes after scrolling offscreen and resizing',async({page})=>{
+ await fixture(page);await expect(page.getByTestId('left')).toHaveAttribute('data-appearance','dark');
+ await page.evaluate(()=>{document.body.style.minHeight='2400px';window.scrollTo(0,1600);});await expect(page.locator('.scene')).toHaveAttribute('data-prism-state','paused');
+ await page.setViewportSize({width:390,height:844});await page.evaluate(()=>window.scrollTo(0,0));await expect(page.locator('.scene')).toHaveAttribute('data-prism-state','ready');
+ await page.setViewportSize({width:1280,height:720});await page.evaluate(()=>{const ctx=(document.getElementById('pixels')as HTMLCanvasElement).getContext('2d')!;ctx.fillStyle='#fff';ctx.fillRect(0,0,320,220);});
+ await expect(page.getByTestId('left')).toHaveAttribute('data-appearance','light');
+});

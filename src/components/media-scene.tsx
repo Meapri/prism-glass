@@ -34,7 +34,7 @@ export function GlassMediaScene({ source, sourceVersion, media, variant = 'clear
     if (!canvas.current || !source.current) return;
     const node = root.current!, win = node.ownerDocument.defaultView!;
     const instance = createMediaGlass(canvas.current, source.current, { ...latest.current, onStatus: diagnostics => {
-      node.dataset.prismState = diagnostics.state; latest.current?.onStatus?.(diagnostics);
+      node.dataset.prismState = diagnostics.state; node.dataset.prismReason = diagnostics.reason; latest.current?.onStatus?.(diagnostics);
     } });
     controller.current = instance; context.invalidate();
     const observer = new win.ResizeObserver(context.invalidate); observer.observe(node);
@@ -47,7 +47,7 @@ export function GlassMediaScene({ source, sourceVersion, media, variant = 'clear
   }, [source, context]);
   useEffect(() => { controller.current?.refresh(); }, [sourceVersion]);
   useEffect(() => { if (media) controller.current?.update({ ...media, onStatus: diagnostics => {
-    if (root.current) root.current.dataset.prismState = diagnostics.state; latest.current?.onStatus?.(diagnostics);
+    if (root.current) { root.current.dataset.prismState = diagnostics.state; root.current.dataset.prismReason = diagnostics.reason; } latest.current?.onStatus?.(diagnostics);
   } }); }, [media]);
   const position = media?.position ?? [0.5, 0.5], background = media?.backgroundColor ?? [0, 0, 0];
   return <div {...props} ref={root} className={classes('prism-media-scene', className)} style={{

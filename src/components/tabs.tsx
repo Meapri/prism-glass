@@ -19,7 +19,7 @@ export function GlassTabs({ items, value: controlled, defaultValue, onValueChang
   const buttons = useRef<(HTMLButtonElement | null)[]>([]), theme = useTheme({ variant, appearance, tintLevel });
   const renderer = useComponentLens(root, source, { id, ...theme, enabled: !theme.nested, local: true, animate: true, transient: true,
     optics: { strength: 3, bevel: 6, blur: 0.5, saturation: 1, ...optics }, geometry: (width, height) => {
-      const cell = (width - 4) / items.length;
+      const cell = Math.max(1, width - 4) / items.length;
       const rtl = root.current && getComputedStyle(root.current).direction === 'rtl';
       return lensFor('capsule', { x: 2 + (rtl ? items.length - 1 - selected : selected) * cell, y: (height - 28) / 2, width: cell, height: 28 });
     } });

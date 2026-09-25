@@ -9,7 +9,8 @@ Date: 2026-09-25. Release: `0.3.0-alpha.1`.
 - IAB visual/interaction checks at 1280 × 720 and 390 × 844: navigation switches white/black labels with the background; menus keep their reading appearance; real HTML background changes adapt the sticky bar; the mobile preset picker and preview fit the viewport. No application console errors were observed.
 - After adding the stable-panel contrast guard, the adaptive subset passed **14/14** on Chromium/WebKit. A WebKit test fixture race was fixed by waiting for React mount before accessing the DOM; no assertion was weakened.
 - Upstream `liquid-glass-web` was read at GitHub commit `1613f8311dbc31bc2331afcfe51a143c56dd6308`; its local uncommitted changes were not incorporated. Only adaptive appearance is derived from it; see `NOTICE.md`.
-- Native Safari CI now additionally checks the preset gallery's dark→light adaptive transition. Remote run results will be recorded after completion.
+- [CI run 36119209939](https://github.com/Meapri/prism-glass/actions/runs/36119209939), source `29d4c6a`: **81/81 passed** across Chromium, Firefox and WebKit. Native Safari 26.6.2 passed SVG displacement, media materials, React controls and the adaptive preset's dark→light transition.
+- Final resize hardening: **22/22** adaptive/lifecycle tests passed on Chromium/WebKit, including offscreen suspension/resumption, viewport resizing and temporarily collapsed tab geometry. `data-prism-reason` now exposes the media renderer's pause/fallback reason on the scene.
 
 ## Previous release (`0.2.0-alpha.2`)
 

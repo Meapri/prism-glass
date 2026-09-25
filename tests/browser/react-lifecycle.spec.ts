@@ -41,3 +41,13 @@ test('RTL selection follows visual direction and keyboard navigation skips disab
   await expect.poll(()=>page.locator('.prism-tabs').evaluate(node=>parseFloat((node as HTMLElement).style.getPropertyValue('--prism-lens-x')))).toBeLessThan(5);
   const slider=page.locator('.prism-slider');await expect.poll(()=>slider.evaluate(node=>parseFloat((node as HTMLElement).style.getPropertyValue('--prism-lens-x')))).toBeGreaterThan(130);
 });
+
+
+test('a temporarily collapsed tab layout does not produce invalid optical geometry',async({page})=>{
+ const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+ await page.setContent('<div id="fixture"></div>');await page.addStyleTag({content:styles});await page.addScriptTag({content:fixtureCode});await page.evaluate(()=>(window as any).mountFixture());
+ await expect(page.getByRole('tab',{name:'First',exact:true})).toBeVisible();
+ await page.locator('.prism-tabs').evaluate(node=>{(node as HTMLElement).style.width='2px';});
+ await expect.poll(()=>page.locator('.prism-tabs').evaluate(node=>parseFloat((node as HTMLElement).style.getPropertyValue('--prism-lens-width')))).toBeLessThan(1);
+ expect(errors).toEqual([]);
+});
