@@ -33,7 +33,7 @@ Date: 2026-09-25. Scope: web component/material fidelity, not a replica of nativ
 
 **Interaction and accessibility checks**
 
-Automated Chromium/WebKit checks cover playback, seek, material switching, button/switch/range inputs, tab keys, RTL, disabled tabs, popover placement/focus return, reduced motion, increased contrast, unavailable WebGL and context restoration. IAB comparison console had no application errors. Physical iOS Safari and native press/morph timing are not established by this run.
+Automated Chromium/Firefox/WebKit CI checks (57/57) cover playback, seek, material switching, button/switch/range inputs, tab keys, RTL, disabled tabs, popover placement/focus return, reduced motion, increased contrast, unavailable WebGL and context restoration. IAB comparison/demo consoles had no application errors; mobile popover and appearance checks used 390 × 844. Native macOS Safari 26.6.2 CI also passed the SVG and new React media checks. Physical iOS Safari and native press/morph timing are not established by this run.
 
 **Implementation checklist**
 

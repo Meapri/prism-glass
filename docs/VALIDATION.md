@@ -10,7 +10,10 @@ Date: 2026-09-25. Release: `0.2.0-alpha.2`.
 - Native iOS 27 SwiftUI and live browser material/controls were compared at equal CSS sizes in both light and dark appearances. See [reference evidence](IOS27_REFERENCE.md) and the root `design-qa.md` for comparison history and limits.
 - The package builds with all core/media/React/CSS exports. The earlier alpha was also installed and exercised with React 18.3.1; the current suite uses React 19.3.0.
 - Linux CI runs headed browsers under Xvfb and uses two workers to reduce software GPU contention. Static media pixel fixtures explicitly retain their WebGL drawing buffer for deterministic capture; production rendering keeps the ordinary discardable buffer. The actual video component tests use the production context.
-- Native Safari CI checks both the SVG optical playground and the React media collection, including a paused-frame regular/clear pixel comparison. Final run results are recorded below after execution.
+- [CI run 36115073723](https://github.com/Meapri/prism-glass/actions/runs/36115073723), source `39fea2e`: **57/57 passed** across Chromium, Firefox and WebKit on Linux. Both jobs completed successfully.
+- Native macOS Safari **26.6.2** in that run passed SVG and React media checks: **3,299** refracted pixels with blur/highlights disabled, **70,099** changed pixels between paused regular/clear media, all 20 source lifecycle checks, switch state and keyboard slider input.
+- The generated `0.2.0-alpha.2` tarball installed in a clean temporary consumer, and core/media/optics/CSS exports resolved successfully. No npm registry publication was performed.
+- IAB checks confirmed regular tint adjustment, light/dark switching and popover placement at 390 × 844, with no application console errors.
 
 ## Known limits
 
