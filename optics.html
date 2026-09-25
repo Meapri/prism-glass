@@ -334,7 +334,7 @@ glass.destroy();</pre></div></section>
       tint: variant === "clear" ? [1, 1, 1, 0.125] : dark ? [0.43, 0.43, 0.44, 0.42 + tint * 0.16] : [1, 1, 1, 0.24 + tint * 0.56],
       dimming: variant === "clear" ? 0.35 : 0,
       chroma: 0,
-      blur: variant === "clear" ? 2.5 : 8 + tint * 12,
+      blur: variant === "clear" ? 1.5 : 4 + tint * 12,
       saturation: variant === "clear" ? 1.1 : dark ? 2.2 : 1.65,
       brightness: variant === "clear" ? 1.09 : 1,
       highlight: variant === "clear" ? 0.7 : dark ? 0.12 : 0.2,
@@ -342,21 +342,52 @@ glass.destroy();</pre></div></section>
       opaque: variant === "clear" || dark ? "#1c1c1e" : "#f2f2f7"
     };
   }
+  function getLensMaterial(lens, variant = "regular", appearance = "light", tintLevel = 0.5) {
+    const material = getGlassMaterial(variant, appearance, tintLevel);
+    if (variant === "regular") {
+      const circle = lens.shape === "circle" || lens.shape === "ellipse";
+      const factor = circle ? 0.8 : lens.shape === "capsule" ? 1.2 : appearance === "dark" ? 1 : 1.4;
+      material.blur = Math.min(24, material.blur * factor);
+      if (appearance === "dark" && !circle && lens.shape !== "capsule") {
+        const extent = clamp((Math.min(lens.width, lens.height) - 96) / 80, 0, 1);
+        material.tint = [0.43 - 0.05 * extent, 0.43 - 0.05 * extent, 0.44 - 0.04 * extent, material.tint[3] - 0.03 * extent];
+        material.saturation -= 0.25 * extent;
+      }
+    }
+    return material;
+  }
+  function materialOptics(lens, variant = "regular", tintLevel = 0.5, appearance = "light") {
+    const short = Math.min(lens.width, lens.height), bevel = Math.min(short / 2, 64);
+    const material = getLensMaterial(lens, variant, appearance, tintLevel);
+    return {
+      lens,
+      surface: "rim",
+      strength: variant === "clear" ? Math.min(64, short * 0.65) : Math.min(28, short * 0.3),
+      bevel,
+      ior: 1.5,
+      depth: 1,
+      curvature: clamp(bevel / 8, 2, 8),
+      blur: material.blur,
+      saturation: material.saturation,
+      blurMode: "uniform",
+      highlight: material.highlight
+    };
+  }
 
   // src/surface-presets.ts
   var profiles = {
-    navigation: { label: "Navigation", description: "Quiet refraction with continuous separation above scrolling content.", shape: "capsule", radius: 28, bevel: 7, strength: 3.5, depth: 0.7, curvature: 5.8, diffusion: 1.05, elevation: 0.6, adaptation: "flip", variant: "regular" },
-    toolbar: { label: "Toolbar", description: "A shared compact surface for a group of actions.", shape: "capsule", radius: 24, bevel: 8, strength: 4, depth: 0.8, curvature: 5.2, diffusion: 1, elevation: 0.7, adaptation: "flip", variant: "regular" },
-    "tab-bar": { label: "Tab bar", description: "A broad capsule that remains readable over changing content.", shape: "capsule", radius: 30, bevel: 10, strength: 5, depth: 0.9, curvature: 5, diffusion: 1.1, elevation: 0.85, adaptation: "flip", variant: "regular" },
-    search: { label: "Search field", description: "Restrained lensing and extra diffusion behind text input.", shape: "capsule", radius: 22, bevel: 6, strength: 3, depth: 0.65, curvature: 6, diffusion: 1.12, elevation: 0.45, adaptation: "flip", variant: "regular" },
-    button: { label: "Button", description: "A small responsive lens with a narrow rounded edge.", shape: "capsule", radius: 22, bevel: 7, strength: 5, depth: 0.9, curvature: 4, diffusion: 0.92, elevation: 0.55, adaptation: "flip", variant: "regular" },
-    "floating-action": { label: "Floating action", description: "A compact circle with a fuller curved edge and distinct elevation.", shape: "circle", radius: 32, bevel: 11, strength: 8, depth: 1.1, curvature: 3.2, diffusion: 0.88, elevation: 1, adaptation: "flip", variant: "regular" },
-    selection: { label: "Selection", description: "A shallow standalone selection surface; use simple fills when already inside glass.", shape: "capsule", radius: 18, bevel: 5, strength: 2.5, depth: 0.55, curvature: 5.8, diffusion: 0.85, elevation: 0.3, adaptation: "flip", variant: "regular" },
-    menu: { label: "Menu", description: "Thicker material, soft scattering and a stable reading surface.", shape: "rounded-rect", radius: 28, bevel: 16, strength: 10, depth: 1.25, curvature: 4.8, diffusion: 1.2, elevation: 1.5, adaptation: "ambient", variant: "regular" },
-    popover: { label: "Popover", description: "A focused floating panel with concentrated edge refraction.", shape: "rounded-rect", radius: 28, bevel: 18, strength: 11, depth: 1.35, curvature: 5.2, diffusion: 1.25, elevation: 1.7, adaptation: "ambient", variant: "regular" },
-    sidebar: { label: "Sidebar", description: "A large ambient surface with quiet center and stable label appearance.", shape: "rounded-rect", radius: 30, bevel: 20, strength: 10, depth: 1.4, curvature: 6, diffusion: 1.25, elevation: 1.25, adaptation: "ambient", variant: "regular" },
-    sheet: { label: "Sheet", description: "Substantial raised glass with the widest edge and deepest scattering.", shape: "rounded-rect", radius: 36, bevel: 24, strength: 14, depth: 1.65, curvature: 5.5, diffusion: 1.4, elevation: 2, adaptation: "ambient", variant: "regular" },
-    media: { label: "Media overlay", description: "Clear glass for bold white controls over rich imagery, with local dimming.", shape: "capsule", radius: 32, bevel: 9, strength: 7, depth: 1, curvature: 4, diffusion: 1, elevation: 0.8, adaptation: "flip", variant: "clear" }
+    navigation: { label: "Navigation", description: "Quiet refraction with continuous separation above scrolling content.", shape: "capsule", radius: 28, bevel: 44, strength: 22, depth: 0.85, curvature: 4.1, diffusion: 0.9, elevation: 0.6, adaptation: "flip", variant: "regular" },
+    toolbar: { label: "Toolbar", description: "A shared compact surface for a group of actions.", shape: "capsule", radius: 24, bevel: 48, strength: 25, depth: 0.9, curvature: 4, diffusion: 0.9, elevation: 0.7, adaptation: "flip", variant: "regular" },
+    "tab-bar": { label: "Tab bar", description: "A broad capsule that remains readable over changing content.", shape: "capsule", radius: 30, bevel: 50, strength: 28, depth: 1, curvature: 4, diffusion: 1, elevation: 0.85, adaptation: "flip", variant: "regular" },
+    search: { label: "Search field", description: "Restrained lensing and extra diffusion behind text input.", shape: "capsule", radius: 22, bevel: 44, strength: 20, depth: 0.85, curvature: 4.2, diffusion: 1, elevation: 0.45, adaptation: "flip", variant: "regular" },
+    button: { label: "Button", description: "A small responsive lens with a narrow rounded edge.", shape: "capsule", radius: 22, bevel: 50, strength: 28, depth: 1, curvature: 4, diffusion: 0.9, elevation: 0.55, adaptation: "flip", variant: "regular" },
+    "floating-action": { label: "Floating action", description: "A compact circle with a fuller curved edge and distinct elevation.", shape: "circle", radius: 32, bevel: 52, strength: 32, depth: 1.05, curvature: 3.9, diffusion: 1, elevation: 1, adaptation: "flip", variant: "regular" },
+    selection: { label: "Selection", description: "A shallow standalone selection surface; use simple fills when already inside glass.", shape: "capsule", radius: 18, bevel: 40, strength: 18, depth: 0.8, curvature: 4.2, diffusion: 0.8, elevation: 0.3, adaptation: "flip", variant: "regular" },
+    menu: { label: "Menu", description: "Thicker material, soft scattering and a stable reading surface.", shape: "rounded-rect", radius: 28, bevel: 50, strength: 30, depth: 1, curvature: 4, diffusion: 1, elevation: 1.5, adaptation: "ambient", variant: "regular" },
+    popover: { label: "Popover", description: "A focused floating panel with concentrated edge refraction.", shape: "rounded-rect", radius: 28, bevel: 50, strength: 28, depth: 1, curvature: 4, diffusion: 1, elevation: 1.7, adaptation: "ambient", variant: "regular" },
+    sidebar: { label: "Sidebar", description: "A large ambient surface with quiet center and stable label appearance.", shape: "rounded-rect", radius: 30, bevel: 54, strength: 30, depth: 1.05, curvature: 4.2, diffusion: 1.05, elevation: 1.25, adaptation: "ambient", variant: "regular" },
+    sheet: { label: "Sheet", description: "Substantial raised glass with the widest edge and deepest scattering.", shape: "rounded-rect", radius: 36, bevel: 58, strength: 34, depth: 1.15, curvature: 4, diffusion: 1.1, elevation: 2, adaptation: "ambient", variant: "regular" },
+    media: { label: "Media overlay", description: "Clear glass for bold white controls over rich imagery, with local dimming.", shape: "capsule", radius: 32, bevel: 50, strength: 64, depth: 1, curvature: 4, diffusion: 1, elevation: 0.8, adaptation: "flip", variant: "clear" }
   };
   for (const value of Object.values(profiles)) Object.freeze(value);
   var glassSurfacePresets = Object.freeze(profiles);
@@ -369,17 +400,19 @@ glass.destroy();</pre></div></section>
     finite(short, "surface size");
     const shape2 = bounds.shape ?? profile.shape;
     const lens = lensFor(shape2, { ...bounds, x: bounds.x ?? 0, y: bounds.y ?? 0, radius: bounds.radius ?? Math.min(profile.radius, short * 0.24) });
-    const material = getGlassMaterial(options.variant ?? profile.variant, options.appearance, options.tintLevel);
-    const size = clamp(Math.sqrt(short / 100), 0.65, 1.4);
+    const variant = options.variant ?? profile.variant;
+    const material = getLensMaterial(lens, variant, options.appearance, options.tintLevel);
+    const native = materialOptics(lens, variant, options.tintLevel, options.appearance);
+    const bevel = Math.min(short / 2, native.bevel * profile.bevel / 50);
     material.blur = clamp(material.blur * profile.diffusion, 0, 24);
     const optics = {
       lens,
       surface: "rim",
       ior: 1.5,
       depth: profile.depth,
-      curvature: profile.curvature,
-      strength: Math.min(profile.strength * size, short * 0.18),
-      bevel: Math.min(profile.bevel * size, short * 0.3),
+      curvature: clamp(bevel / 8 * profile.curvature / 4, 2, 8),
+      strength: Math.min(64, native.strength * profile.strength / (profile.variant === "clear" ? 64 : 28)),
+      bevel,
       blur: material.blur,
       saturation: material.saturation,
       blurMode: "uniform",
@@ -405,7 +438,7 @@ glass.destroy();</pre></div></section>
     };
     switch (preset) {
       case "button":
-        return { ...base, blur: 14, saturation: 1.65 };
+        return resolveGlassSurface("button", lens).optics;
       case "switch":
         return { ...base, strength: 5, bevel: Math.min(7, half), highlight: 0.38 };
       case "slider":
@@ -413,7 +446,7 @@ glass.destroy();</pre></div></section>
       case "tab":
         return { ...base, strength: 3, bevel: Math.min(6, half), highlight: 0.2 };
       case "panel":
-        return { ...base, blur: 14, saturation: 1.65 };
+        return resolveGlassSurface("popover", lens).optics;
       default:
         return resolveGlassSurface(preset, lens).optics;
     }
