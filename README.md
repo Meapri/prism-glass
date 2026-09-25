@@ -1,6 +1,6 @@
 # Prism Glass
 
-An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.3.0-alpha.1`; the package name is provisional and has not been published to npm.
+An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.4.0-alpha.1`; the package name is provisional and has not been published to npm.
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
 
@@ -34,13 +34,23 @@ npm run build
 npm pack
 ```
 
-This creates `meapri-prism-glass-0.3.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
+This creates `meapri-prism-glass-0.4.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
 
 ```sh
-npm install ./meapri-prism-glass-0.3.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.4.0-alpha.1.tgz
 ```
 
 The package is not published to the npm registry. Install the local tarball until a registry release is announced.
+
+## Light and motion
+
+Glass responds to contact with a localized SDR bloom, a brighter rim and weak neighboring illumination. `GlassPresence` coordinates material formation and content resolve through an interruptible exit/entry, then unmounts the surface. Native popovers animate automatically.
+
+```tsx
+<GlassPresence present={open} preset="popover">…</GlassPresence>
+```
+
+See [motion usage and official references](docs/MOTION.md), or try [the motion demo](https://meapri.github.io/prism-glass/#motion). Actual HDR output and matched-geometry merging are not implemented.
 
 ## Purpose-specific glass surfaces
 

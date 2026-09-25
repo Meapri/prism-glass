@@ -25,15 +25,17 @@ function normalizeMediaLens(input: MediaLens) {
     blurMode: input.blurMode ?? 'uniform', blur: input.blur ?? material.blur, saturation: input.saturation ?? material.saturation,
     highlight: input.highlight ?? material.highlight, chroma: input.chroma ?? material.chroma,
     dimming: input.dimming ?? material.dimming, press: input.press ?? 0, hover: input.hover ?? 0,
-    pointer: input.pointer ?? [0.5, 0.5] as const };
+    presence:input.presence??1, illumination:input.illumination??0,illuminationPointer:input.illuminationPointer??[.5,.5] as const, pointer: input.pointer ?? [0.5, 0.5] as const };
   const ranges = { strength: [0, 64], bevel: [1, 512], ior: [1, 3], depth: [0, 4], curvature: [2, 8],
-    blur: [0, 24], saturation: [0, 3], highlight: [0, 1], chroma: [0, 3], dimming: [0, 1], press: [0, 1], hover: [0, 1] } as const;
+    blur: [0, 24], saturation: [0, 3], highlight: [0, 1], chroma: [0, 3], dimming: [0, 1], press: [0, 1], hover: [0, 1], presence:[0,1],illumination:[0,1] } as const;
   for (const key of Object.keys(ranges) as (keyof typeof ranges)[]) {
     const [min, max] = ranges[key]; options[key] = clamp(finite(options[key], key), min, max);
   }
   if (!['rim', 'dome', 'concave'].includes(options.surface) || !['uniform', 'center', 'edge'].includes(options.blurMode)) throw new TypeError('Invalid optical material');
   if (options.pointer.length !== 2) throw new TypeError('pointer needs two coordinates');
   options.pointer = options.pointer.map(value => clamp(finite(value, 'pointer'), 0, 1)) as [number, number];
+  if(options.illuminationPointer.length!==2)throw new TypeError('illuminationPointer needs two coordinates');
+  options.illuminationPointer=options.illuminationPointer.map(v=>clamp(finite(v,'illuminationPointer'),0,1)) as [number,number];
   return options;
 }
 function normalizeLenses(inputs: readonly MediaLens[]) {
@@ -66,7 +68,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
   if (!['VIDEO', 'IMG', 'CANVAS'].includes(source.tagName)) throw new TypeError('Media source must be a video, image, or canvas');
   if (owners.has(canvas)) throw new Error('This canvas already has a media glass controller');
   const { lenses: initialLenses = [], ...settings } = options;
-  const copyInputs = (inputs: readonly MediaLens[]) => inputs.map(item => ({ ...item, lens: { ...item.lens }, pointer: item.pointer ? [...item.pointer] as [number, number] : undefined }));
+  const copyInputs = (inputs: readonly MediaLens[]) => inputs.map(item => ({ ...item, lens: { ...item.lens }, pointer: item.pointer ? [...item.pointer] as [number, number] : undefined, illuminationPointer:item.illuminationPointer?[...item.illuminationPointer] as [number,number]:undefined }));
   let config = normalizeOptions(settings, win.devicePixelRatio), lenses = normalizeLenses(initialLenses);
   let inputs = copyInputs(initialLenses);
   const video = source.tagName === 'VIDEO' ? source as HTMLVideoElement : undefined;
@@ -120,7 +122,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1]), gl.STATIC_DRAW);
       mediaTexture = texture();
-      for (const name of ['view', 'rect', 'radius', 'ellipse', 'surfaceSign', 'pixelRatio', 'sourceRect', 'backgroundColor', 'source', 'map', 'finish', 'diffuse', 'hasDiffuse', 'tint', 'brightness', 'strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'press', 'hover', 'pointer']) {
+      for (const name of ['view', 'rect', 'radius', 'ellipse', 'surfaceSign', 'pixelRatio', 'sourceRect', 'backgroundColor', 'source', 'map', 'finish', 'diffuse', 'hasDiffuse', 'tint', 'brightness', 'strength', 'blur', 'saturation', 'chroma', 'dimming', 'highlight', 'press', 'hover', 'pointer', 'light', 'nearLight', 'nearPointer', 'presence']) {
         uniforms.set(name, gl.getUniformLocation(program, `u_${name}`));
       }
       dirty = true;
@@ -192,7 +194,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
       diagnostic.pixels = w * h;
       gl.viewport(0, 0, w, h); clear();
-      if (!lenses.length) { cancelVideo(); status('ready', 'no-lenses'); return; }
+      if (!lenses.length || lenses.every(item=>item.presence===0)) { cancelVideo();dirty=true; status('ready', lenses.length?'no-visible-lenses':'no-lenses'); return; }
       gl.useProgram(program!); gl.bindBuffer(gl.ARRAY_BUFFER, buffer!);
       const attribute = gl.getAttribLocation(program!, 'a_position');
       gl.enableVertexAttribArray(attribute); gl.vertexAttribPointer(attribute, 2, gl.FLOAT, false, 0, 0);
@@ -257,6 +259,7 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
       }
       const active = new Set<string>();
       for (const [index,item] of lenses.entries()) {
+        if(item.presence===0)continue;
         const material=appearanceFor(item);
         // User optical overrides remain authoritative; otherwise diffusion follows the adaptive material.
         const opticalBlur=inputs[index].blur??Math.round(material.blur*2)/2;
@@ -288,6 +291,9 @@ export function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSo
         for (const name of ['strength', 'chroma', 'dimming', 'highlight', 'hover'] as const) gl.uniform1f(uniform(name), item[name]);
         gl.uniform1f(uniform('press'), config.respectPreferences && preferences.reducedMotion ? 0 : item.press);
         gl.uniform2f(uniform('pointer'), ...item.pointer);
+        const lightScale=config.respectPreferences&&preferences.reducedMotion ? .65 : 1;
+        gl.uniform1f(uniform('light'),item.press*lightScale);gl.uniform1f(uniform('nearLight'),item.illumination*lightScale);
+        gl.uniform2f(uniform('nearPointer'),...item.illuminationPointer);gl.uniform1f(uniform('presence'),item.presence);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
       diffusion?.end();

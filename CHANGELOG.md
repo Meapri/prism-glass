@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0-alpha.1
+
+- Add localized SDR contact light, soft bloom, rim response and scoped neighboring illumination across CSS/SVG and media glass.
+- Preserve visible feedback for quick taps; support pointer movement/cancellation, keyboard contact, disabled controls and cleanup.
+- Add interruptible materialization through `GlassPresence`, `present`, and a framework-independent presence controller.
+- Animate lensing, diffusion, tint/edges and content resolve separately, with optically neutral hidden media and reused optical maps.
+- Animate native popovers while retaining light dismissal, focus return and immediate input exclusion on close.
+- Honor reduced-motion and contrast preferences. Add a working light/motion playground and native Safari checks.
+
 ## 0.3.0-alpha.1
 
 - Add twelve semantic surface presets with size-aware geometry, curvature, optical depth, refraction, diffusion and elevation.

@@ -9,6 +9,7 @@ from PIL import Image, ImageChops
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait, Select
 
 server = subprocess.Popen(['node', 'scripts/serve.mjs'])
@@ -77,6 +78,26 @@ try:
     Select(driver.find_element(By.CSS_SELECTOR, '[aria-label="Preset backdrop"]')).select_by_value('light')
     wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '[data-testid="preset-glass"]').get_attribute('data-appearance') == 'light')
     print('Native Safari adaptive preset dark/light transition passed.', flush=True)
+    driver.find_element(By.CSS_SELECTOR, 'a[href="#motion"]').click()
+    wait.until(lambda d: d.find_element(By.ID, 'presence-status').text == 'Surface ready')
+    toggle = driver.find_element(By.CSS_SELECTOR, '.motion-caption > .prism-button')
+    toggle.click()
+    wait.until(lambda d: d.find_element(By.ID, 'presence-status').text == 'Surface hidden')
+    assert not driver.find_elements(By.CSS_SELECTOR, '[data-testid="motion-panel"]')
+    toggle.click()
+    wait.until(lambda d: d.find_element(By.ID, 'presence-status').text == 'Surface ready')
+    save = driver.find_element(By.CSS_SELECTOR, '.motion-actions .prism-button')
+    driver.execute_script('arguments[0].scrollIntoView({block: "center", behavior: "instant"})', save)
+    wait.until(lambda d: d.find_element(By.CSS_SELECTOR, '.motion-scene').get_attribute('data-prism-state') == 'ready')
+    driver.execute_async_script('const done=arguments[0];requestAnimationFrame(()=>requestAnimationFrame(done))')
+    rest = Image.open(io.BytesIO(save.screenshot_as_png)).convert('RGB')
+    ActionChains(driver).move_to_element(save).click_and_hold().perform()
+    wait.until(lambda d: d.execute_script("return parseFloat(getComputedStyle(arguments[0]).getPropertyValue('--prism-press'))", save) > .9)
+    lit = Image.open(io.BytesIO(save.screenshot_as_png)).convert('RGB')
+    ActionChains(driver).release().perform()
+    lit_pixels = sum(sum(pixel) > 35 for pixel in ImageChops.difference(rest, lit).getdata())
+    assert lit_pixels > 100, 'Press illumination must change rendered pixels in native Safari'
+    print('Native Safari materialize and press illumination passed. Lit pixels:', lit_pixels, flush=True)
 except Exception:
     if driver:
         Path('test-results').mkdir(exist_ok=True)

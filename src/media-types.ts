@@ -32,6 +32,11 @@ export interface MediaLens {
   dimming?: number;
   /** Touch lighting, 0–1. Changes do not rebuild the optical map. */
   press?: number;
+  /** Neighboring contact illumination, 0–1. */
+  illumination?: number;
+  illuminationPointer?: readonly [number,number];
+  /** Material formation, 0 invisible/optically neutral to 1 fully formed. */
+  presence?: number;
   hover?: number;
   pointer?: readonly [number, number];
 }

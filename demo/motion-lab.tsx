@@ -1,0 +1,19 @@
+import {useRef,useState} from 'react';
+import {GlassButton,GlassLightGroup,GlassMediaScene,GlassPresence,GlassPopover} from '../src/react.js';
+import type {GlassPresencePhase} from '../src/presence.js';
+export function MotionLab(){
+  const toggleButton=useRef<HTMLButtonElement>(null),video=useRef<HTMLVideoElement>(null),[visible,setVisible]=useState(true),[phase,setPhase]=useState<GlassPresencePhase>('entering'),[saved,setSaved]=useState(0);
+  return <section id="motion" className="motion-lab" aria-label="Glass light and motion">
+    <div className="section-title"><h2>Light follows your touch.</h2><p>Press, hold, and move. Then watch the material form.</p></div>
+    <GlassMediaScene className="motion-scene" source={video} variant="regular" appearance="dark" aria-label="Interaction preview">
+      <video ref={video} src="./assets/flower.mp4" muted playsInline preload="auto" aria-label="Still flower backdrop" onLoadedMetadata={()=>{if(video.current)video.current.currentTime=2;}}/>
+      <GlassLightGroup className="prism-media-controls">
+        <div className="motion-actions"><GlassButton preset="button" onClick={()=>setSaved(n=>n+1)}>Save</GlassButton><GlassButton preset="button" onClick={()=>setSaved(n=>n+1)}>Share</GlassButton><GlassButton preset="button" onClick={()=>setSaved(n=>n+1)}>More</GlassButton></div>
+        <GlassPresence present={visible} preset="popover" className="motion-panel" onPresenceChange={setPhase} data-testid="motion-panel">
+          <h3>Liquid Glass</h3><p>Light gathers. The surface takes shape.</p><button className="motion-close" type="button" onClick={()=>{setVisible(false);toggleButton.current?.focus();}}>Close surface</button>
+        </GlassPresence>
+      </GlassLightGroup>
+    </GlassMediaScene>
+    <div className="motion-caption"><GlassButton ref={toggleButton} onClick={()=>setVisible(v=>!v)}>{visible?'Hide glass':'Show glass'}</GlassButton><span role="status" id="presence-status">{{hidden:'Surface hidden',entering:'Materializing',shown:'Surface ready',exiting:'Dematerializing'}[phase]}</span><span>{saved?`${saved} actions activated`:'Nearby glass catches a little of the light.'}</span><GlassPopover trigger="Try a popover" aria-label="Motion popover"><h4>A native popover.</h4><p>Its material forms on open and releases on close.</p><button type="button" className="sample-action" onClick={e=>e.currentTarget.closest<HTMLElement>('[popover]')?.hidePopover()}>Done</button></GlassPopover></div>
+  </section>;
+}

@@ -21,7 +21,7 @@ npm run dev
 
 ```sh
 npm pack
-npm install ./meapri-prism-glass-0.3.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.4.0-alpha.1.tgz
 ```
 
 ## React 컴포넌트
@@ -87,3 +87,11 @@ DOM 원본에는 내부 `overflow: hidden; isolation: isolate` 레이어를 사�
 `auto`는 OS 모드, `adaptive`는 표면 뒤의 콘텐츠를 따릅니다. 작은 Regular 표면은 라이트·다크가 전환되고, 큰 메뉴·사이드바·시트는 글자색을 유지하며 틴트·확산·그림자가 적응합니다. Clear는 고정된 밝은 전경과 로컬 디밍을 유지합니다.
 
 [지원 배경, API, 제한사항](docs/MATERIAL_PRESETS.md)을 확인하세요. `/#materials` 데모에서 배경을 바꾸고 프리셋별 동작을 비교할 수 있습니다.
+
+## 눌림 발광과 등장·퇴장
+
+눌린 지점에 밝은 중심과 부드러운 빛 번짐이 생기고, 같은 `GlassLightGroup` 안의 가까운 유리에 약하게 전달됩니다. 실제 HDR 출력은 사용하지 않습니다.
+
+`<GlassPresence present={open} preset="popover">…</GlassPresence>`는 굴절·확산·경계와 콘텐츠 선명도를 함께 변화시킨 뒤 퇴장 완료 시 제거합니다. 기존 표면을 유지하려면 `GlassSurface`의 `present`를 사용하세요. 네이티브 팝오버에는 자동 적용됩니다.
+
+[공식 참고 자료, 사용법과 한계](docs/MOTION.md) · [빛과 모션 데모](https://meapri.github.io/prism-glass/#motion)

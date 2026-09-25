@@ -1,3 +1,4 @@
+import { MotionLab } from './motion-lab.js';
 import { MaterialsLab } from './materials-lab.js';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -67,10 +68,11 @@ function Library() {
   const [count, setCount] = useState(0), [enabled, setEnabled] = useState(true), [volume, setVolume] = useState(50);
   const [dark, setDark] = useState(false), [alignment, setAlignment] = useState<'left' | 'center' | 'right'>('left');
   return <GlassProvider appearance={dark ? 'dark' : 'light'}><div className="library" data-theme={dark ? 'dark' : 'light'}>
-    <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#materials">Materials</a><a href="./optics.html">Optics</a><a href="#api">API</a></nav></header>
+    <header className="site-header"><a className="brand" href="#"><span className="brand-mark" aria-hidden="true" />Prism Glass</a><nav aria-label="Main navigation"><a href="#materials">Materials</a><a href="#motion">Motion</a><a href="#api">API</a></nav></header>
     <main><section className="library-intro"><h1>A material. A family of controls.</h1><p>Familiar controls. A lighter touch.<br />{' '}Calibrated against native iOS 27 materials.</p></section>
       <MediaExample />
       <MaterialsLab />
+      <MotionLab />
       <section id="components" className="component-library"><div className="section-title"><h2>Made for interaction.</h2><p>One material system. Familiar, accessible controls.</p></div>
         <div className="component-row">
           <article className="component-example"><h3>Button</h3><div className="example-stage"><GlassButton onClick={() => setCount(value => value + 1)}>Add item <span aria-hidden="true">＋</span></GlassButton></div><p role="status" id="item-count">{count ? `${count} ${count === 1 ? 'item' : 'items'} added` : 'A little light with every press.'}</p></article>
@@ -88,7 +90,7 @@ function Library() {
           </GlassToolbar><GlassPopover trigger="Display options" aria-label="Display options"><h4>Display options</h4><div className="setting-row"><span>Dark appearance</span><GlassSwitch checked={dark} onCheckedChange={setDark} aria-label="Dark appearance" /></div><p>One glass layer. Controls inside remain simple.</p></GlassPopover></div><p className="alignment-sample" style={{ textAlign: alignment }}>Content stays clear.</p></article>
         </div>
       </section>
-      <section id="api" className="api-section"><div><h2>Choose the source.<br />Keep the controls.</h2><p>Use SVG for an explicit DOM source and one shared WebGL renderer for media. Your labels, buttons, and keyboard behavior remain ordinary HTML.</p><div className="source-links"><a href="https://aave.com/design/building-glass-for-the-web">Aave’s rendering approach ↗</a><a href="https://developer.apple.com/design/human-interface-guidelines/materials">Apple’s material guidance ↗</a></div></div>
+      <section id="api" className="api-section"><div><h2>Choose the source.<br />Keep the controls.</h2><p>Use SVG for an explicit DOM source and one shared WebGL renderer for media. Your labels, buttons, and keyboard behavior remain ordinary HTML.</p><div className="source-links"><a href="./optics.html">Optical playground ↗</a><a href="https://aave.com/design/building-glass-for-the-web">Aave’s rendering approach ↗</a><a href="https://developer.apple.com/design/human-interface-guidelines/materials">Apple’s material guidance ↗</a></div></div>
         <pre><code>{`import { GlassProvider, GlassButton,\n  GlassSwitch } from '@meapri/prism-glass/react';\nimport '@meapri/prism-glass/styles.css';\n\n<GlassProvider variant="regular">\n  <GlassButton>\n    Add item\n  </GlassButton>\n  <GlassSwitch aria-label="Notifications"\n    checked={enabled}\n    onCheckedChange={setEnabled} />\n</GlassProvider>`}</code></pre>
       </section>
     </main><footer><span>Prism Glass · Independent web implementation</span><span>TypeScript core · React components · Source-first optics</span></footer>

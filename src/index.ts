@@ -145,3 +145,6 @@ export function createGlass(source: HTMLElement, options: GlassOptions): GlassCo
 export * from './surface-presets.js';
 export * from './adaptive.js';
 export { observeGlassBackdrop, createBackdropSampler, type GlassBackdropOptions, type GlassBackdropReader } from './backdrop.js';
+
+export { glassLightAt } from './illumination.js';
+export * from './presence.js';

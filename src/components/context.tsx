@@ -8,6 +8,7 @@ import { observeGlassBackdrop, type GlassBackdropReader } from '../backdrop.js';
 import { adaptGlassMaterial, updateGlassAdaptation, type GlassAdaptiveState, type GlassAppearanceMode } from '../adaptive.js';
 import { resolveGlassSurface, type GlassSurfacePreset } from '../surface-presets.js';
 import type { GlassMaterial } from '../materials.js';
+import { createGlassPresence, glassPresenceFrame, type GlassPresencePhase } from '../presence.js';
 import type { MediaLens } from '../media-types.js';
 
 export interface GlassTheme { variant: GlassVariant; appearance: GlassAppearance; tintLevel: number; nested: boolean; adaptive: boolean; provided?:boolean }
@@ -30,6 +31,9 @@ export interface MaterialProps {
   tintLevel?: number;
   /** Explicit, decorative source pixels. With no source, the surface uses CSS material. */
   refractionTarget?: ReactNode;
+  /** Keep mounted during materialization; false removes hit/focus access immediately. */
+  present?: boolean;
+  onPresenceChange?: (phase:GlassPresencePhase)=>void;
   optics?: Partial<Omit<GlassOptions, 'lens' | 'onStatus'>>;
 }
 export const MediaContext = createContext<null | {
@@ -74,6 +78,8 @@ export interface LensSpec {
   shape?: LensShape;
   radius?: number;
   optics?: MaterialProps['optics'];
+  present?: boolean;
+  onPresenceChange?: (phase:GlassPresencePhase)=>void;
   enabled: boolean;
   nested?: boolean;
   local?: boolean;
@@ -89,10 +95,12 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
   const useMedia = Boolean(media && !spec.local && !spec.nested && !spec.enabled);
   const latest = useRef(spec); latest.current = spec;
   const refresh = useRef<() => void>(() => {});
+  const show=useRef<(visible:boolean)=>void>(()=>{});
   useEffect(() => {
     const element = root.current, target = source.current, win = element?.ownerDocument.defaultView;
     if (!element || !win) return;
     let adaptiveState: GlassAdaptiveState | undefined;
+    let presence=glassPresenceFrame(1);
     let controller: GlassController | undefined, frame = 0, time = 0, reducedMotion = false;
     let current: Lens | undefined, painted: Lens | undefined, destination: Lens | undefined;
     let velocity = { x: 0, y: 0 };
@@ -120,6 +128,12 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       for (const [key, value] of Object.entries({ x: painted.x, y: painted.y, width: painted.width, height: painted.height, radius: painted.radius })) {
         element!.style.setProperty(`--prism-lens-${key}`, `${value}px`);
       }
+      const mapped=(point:readonly[number,number])=>[Math.max(0,Math.min(1,(point[0]*element!.clientWidth-painted!.x)/painted!.width)),Math.max(0,Math.min(1,(point[1]*element!.clientHeight-painted!.y)/painted!.height))];
+      const light=mapped(interaction.pointer),near=mapped(interaction.illuminationPointer??[.5,.5]);
+      element!.style.setProperty('--prism-light-x',`${light[0]*100}%`);element!.style.setProperty('--prism-light-y',`${light[1]*100}%`);
+      element!.style.setProperty('--prism-light-near-x',`${near[0]*100}%`);element!.style.setProperty('--prism-light-near-y',`${near[1]*100}%`);
+      element!.style.setProperty('--prism-near-spread',`${24+Math.min(110,Math.hypot(painted.width,painted.height)*.45)*Math.sqrt(interaction.illumination??0)}px`);
+      element!.style.setProperty('--prism-light-spread',`${24+Math.min(110,Math.hypot(painted.width,painted.height)*.45)*Math.sqrt(interaction.press)}px`);
       if (useMedia) { media!.invalidate(); return; }
       const next=latest.current, appearance=next.adaptive&&!next.transient?adaptiveState?.appearance??next.appearance:next.appearance;
       const preset=next.preset?resolveGlassSurface(next.preset,painted,{variant:next.variant,appearance,tintLevel:next.tintLevel}):undefined;
@@ -130,8 +144,10 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       const options = { ...materialOptics(painted, next.variant, next.tintLevel, appearance), ...preset?.optics,
         blur:material.blur,saturation:material.saturation, ...next.optics, lens: painted };
       if (latest.current.transient) options.enabled = (options.enabled ?? true) && interaction.press > 0.01;
-      options.strength = (options.strength ?? 0) * (1 + interaction.press * 0.12);
-      options.highlight = Math.min(1, (options.highlight ?? 0.4) + interaction.press * 0.18);
+      options.strength = (options.strength ?? 0) * presence.lensing * (1 + interaction.press * 0.12);
+      options.blur=(options.blur??0)*presence.diffusion;
+      options.saturation=1+((options.saturation??1)-1)*presence.material;
+      options.highlight = Math.min(1, (options.highlight ?? 0.4) + interaction.press * 0.18)*presence.edge;
       if (!controller) controller = createGlass(target, options); else controller.update(options);
     }
     function tick(now: number) {
@@ -153,12 +169,14 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
     refresh.current = measure;
     const unregister = useMedia ? media!.register(spec.id, () => {
       const rect = element.getBoundingClientRect(), bounds = media!.bounds(), lens = painted ?? current ?? geometry();
-      if (!bounds || !lens || !rect.width || !rect.height || !element.isConnected || element.closest('[hidden]')) return null;
+      if (!bounds || !lens || !rect.width || !rect.height || !element.isConnected || element.closest('[hidden]') || presence.progress<=0) return null;
       return { id: latest.current.id, lens: { ...lens, x: rect.left - bounds.left + lens.x, y: rect.top - bounds.top + lens.y },
         variant: latest.current.variant, appearance: latest.current.adaptive?'adaptive':latest.current.appearance,
         fallbackAppearance:latest.current.appearance,preset:latest.current.preset,tintLevel: latest.current.tintLevel, ...latest.current.optics,
         onAppearance:state=>paintMaterial(state.material,state.elevation,state.available,state.separation),
-        press: interaction.press, hover: interaction.hover, pointer: interaction.pointer };
+        press: interaction.press, hover: interaction.hover,
+        pointer:[Math.max(0,Math.min(1,(interaction.pointer[0]*element.clientWidth-lens.x)/lens.width)),Math.max(0,Math.min(1,(interaction.pointer[1]*element.clientHeight-lens.y)/lens.height))],
+        illumination:interaction.illumination,illuminationPointer:interaction.illuminationPointer?[Math.max(0,Math.min(1,(interaction.illuminationPointer[0]*element.clientWidth-lens.x)/lens.width)),Math.max(0,Math.min(1,(interaction.illuminationPointer[1]*element.clientHeight-lens.y)/lens.height))]:[.5,.5],presence:presence.progress };
     }) : undefined;
     const backdrop=spec.adaptive&&!spec.transient&&!spec.nested&&!useMedia&&spec.variant!=='clear'?observeGlassBackdrop(element,sample=>{
       const next=latest.current;
@@ -166,14 +184,20 @@ export function useComponentLens(root: RefObject<HTMLElement | null>, source: Re
       adaptiveState=updateGlassAdaptation(adaptiveState,sample,win!.performance.now(),next.appearance,policy);
       if(current)write(current);
     },typeof spec.backdrop==='function'?{sample:spec.backdrop}:{source:spec.backdrop}):undefined;
+    const nativePopover=element.hasAttribute('popover');
+    const materialize=spec.present!==undefined||nativePopover?createGlassPresence(element,{visible:nativePopover&&element.matches(':popover-open'),manageVisibility:!nativePopover,
+      onFrame:sample=>{presence=sample;measure();if(useMedia)media!.invalidate();},onPhase:phase=>latest.current.onPresenceChange?.(phase)}):undefined;
+    show.current=visible=>materialize?.setVisible(visible);
+    const beforeToggle=(event:Event)=>materialize?.setVisible((event as ToggleEvent).newState==='open');
+    if(nativePopover)element.addEventListener('beforetoggle',beforeToggle);
     const feedback = bindGlassInteraction(element, next => { interaction = next; if (current) write(current); });
     const unsubscribe = observeGlassPreferences(win, preferences => { reducedMotion = preferences.reducedMotion; measure(); });
     const observer = new win.ResizeObserver(measure); observer.observe(element); measure();
     return () => {
-      observer.disconnect(); backdrop?.destroy(); unregister?.(); unsubscribe(); feedback.destroy(); controller?.destroy();
+      observer.disconnect();materialize?.destroy();show.current=()=>{};element.removeEventListener('beforetoggle',beforeToggle); backdrop?.destroy(); unregister?.(); unsubscribe(); feedback.destroy(); controller?.destroy();
       if (frame) win.cancelAnimationFrame(frame); refresh.current = () => {};
     };
-  }, [root, source, useMedia, media, spec.enabled, spec.nested, spec.id, spec.adaptive, spec.backdrop, spec.variant]);
-  useEffect(() => { refresh.current(); });
+  }, [root, source, useMedia, media, spec.enabled, spec.nested, spec.id, spec.adaptive, spec.backdrop, spec.variant, spec.present!==undefined]);
+  useEffect(() => { if(spec.present!==undefined)show.current(spec.present);refresh.current(); });
   return spec.nested ? 'overlay' : useMedia ? 'webgl-media' : spec.enabled ? 'svg-source' : 'css-material';
 }

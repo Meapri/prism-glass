@@ -2,7 +2,7 @@ import { forwardRef, useId, useRef, type ButtonHTMLAttributes, type InputHTMLAtt
 import { lensFor } from '../optics.js';
 import { assignRef, classes, materialStyle, useComponentLens, useControllable, useTheme, type MaterialProps } from './context.js';
 
-export interface GlassSwitchProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'value'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop'> {
+export interface GlassSwitchProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'value'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {
   checked?: boolean;
   defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
@@ -29,7 +29,7 @@ export const GlassSwitch = forwardRef<HTMLButtonElement, GlassSwitchProps>(funct
   </button>{name && checked ? <input type="hidden" name={name} value={value} disabled={props.disabled} /> : null}</>;
 });
 
-export interface GlassSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue' | 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop'> {
+export interface GlassSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue' | 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {
   value?: number;
   defaultValue?: number;
   onValueChange?: (value: number) => void;

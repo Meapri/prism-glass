@@ -4,3 +4,4 @@ export { GlassSwitch, GlassSlider, type GlassSwitchProps, type GlassSliderProps 
 export { GlassTabs, type GlassTab, type GlassTabsProps } from './tabs.js';
 export { GlassPopover, type GlassPopoverProps } from './popover.js';
 export { GlassMediaScene, type GlassMediaSceneProps } from './media-scene.js';
+export { GlassPresence, GlassLightGroup } from './presence.js';

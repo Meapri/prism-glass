@@ -21,7 +21,7 @@ test('component collection uses native controls, keyboard tabs, and a dismissibl
 test('live media uses one canvas and responds to play, pause, seek, and material changes',async({page})=>{
   await page.goto('/');await expect(page.locator('#media-status')).toHaveText('Live refraction',{timeout:15000});
   await expect(page.locator('.flower-player canvas')).toHaveCount(1);
-  const video=page.locator('video');await expect.poll(()=>video.evaluate(v=>v.readyState)).toBeGreaterThanOrEqual(2);
+  const video=page.locator('.flower-player > video');await expect.poll(()=>video.evaluate(v=>v.readyState)).toBeGreaterThanOrEqual(2);
   if(await page.getByRole('button',{name:'Play video',exact:true}).isVisible())await page.getByRole('button',{name:'Play video',exact:true}).click();
   const initial=await video.evaluate(v=>v.currentTime);await expect.poll(()=>video.evaluate(v=>v.currentTime)).not.toBe(initial);
   await page.getByRole('button',{name:'Pause video',exact:true}).click();await expect.poll(()=>video.evaluate(v=>v.paused)).toBe(true);
@@ -69,7 +69,7 @@ test('unavailable WebGL reports fallback and keeps playback controls usable',asy
   const pause=page.getByRole('button',{name:'Pause video',exact:true});
   if(await pause.isVisible())await pause.click();
   await page.getByRole('button',{name:'Play video',exact:true}).click();
-  await expect.poll(()=>page.locator('video').evaluate(v=>v.paused)).toBe(false);
+  await expect.poll(()=>page.locator('.flower-player > video').evaluate(v=>v.paused)).toBe(false);
 });
 
 test('all surface presets render and adaptive navigation follows backdrop changes',async({page})=>{

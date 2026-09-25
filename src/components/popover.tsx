@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { GlassButton, GlassSurface, type GlassSurfaceProps } from './surface.js';
 import { classes } from './context.js';
 
-export interface GlassPopoverProps extends Omit<GlassSurfaceProps, 'children' | 'title' | 'onToggle'> {
+export interface GlassPopoverProps extends Omit<GlassSurfaceProps, 'children' | 'title' | 'onToggle' | 'present'> {
   trigger: ReactNode;
   children: ReactNode;
   /** Accessible name for an icon-only trigger. */

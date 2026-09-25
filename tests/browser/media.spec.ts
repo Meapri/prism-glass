@@ -109,3 +109,15 @@ test('broad diffusion blends nearby colors and retains vertical orientation',asy
   for(let x=98;x<144;x++)maxStep=Math.max(maxStep,Math.abs(pixel(png,x,70)[1]-pixel(png,x+1,70)[1]));
   expect(maxStep).toBeLessThan(9);
 });
+
+test('materialization is optically neutral at zero and reuses its displacement map',async({page})=>{
+ await fixture(page);await page.evaluate(()=>window.mediaFixture.setLenses([]));await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().reason)).toBe('no-lenses');
+ const flat=PNG.sync.read(await page.locator('#stage').screenshot({scale:'css'}));
+ await page.evaluate(options=>window.mediaFixture.setLenses([{...options,strength:30,blur:8,presence:0}]),lens);
+ await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().reason)).toBe('no-visible-lenses');
+ const neutral=PNG.sync.read(await page.locator('#stage').screenshot({scale:'css'}));expect(neutral.data.equals(flat.data)).toBe(true);
+ await page.evaluate(()=>window.mediaFixture.updateLens('first',{presence:.5}));await expect.poll(()=>page.evaluate(()=>window.mediaFixture.getDiagnostics().reason)).toBe('webgl-media-selected');
+ const middle=await page.locator('#stage').screenshot({scale:'css'}),builds=await page.evaluate(()=>window.mediaFixture.getDiagnostics().mapBuilds);
+ await page.evaluate(()=>window.mediaFixture.updateLens('first',{presence:1}));const formed=await page.locator('#stage').screenshot({scale:'css'});
+ expect(formed.equals(middle)).toBe(false);expect(await page.evaluate(()=>window.mediaFixture.getDiagnostics().mapBuilds)).toBe(builds);
+});
