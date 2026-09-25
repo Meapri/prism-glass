@@ -2,9 +2,9 @@
 
 An independent, source-first Liquid Glass library inspired by the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.1.0-alpha.1`; the package name is provisional and has not been published to npm.
 
-The TypeScript core has **zero runtime dependencies**. The optional React adapter requires React 18+. This release is a small, real implementation, not a claim of production readiness or verified native Safari support.
+The TypeScript core has **zero runtime dependencies**. The optional React adapter requires React 18+. The refraction regression suite passes in Chromium, Firefox, WebKit, and native macOS Safari 26.6.2. This is still an alpha; see the [validation record](docs/VALIDATION.md) for the exact scope.
 
-[한국어 빠른 시작](README.ko.md)
+[한국어 빠른 시작](README.ko.md) · [Browser CI](https://github.com/Meapri/prism-glass/actions)
 
 ## What this version does
 
@@ -132,7 +132,7 @@ For an existing element, `useGlass(sourceRef, options)` returns a ref to the con
 | `respectReducedTransparency` | `true` | Disables the filter when the media preference is active |
 | `onStatus` | none | Called on state/reason transitions with a diagnostics snapshot |
 
-`update` validates synchronously and batches rendering. `refresh` schedules a render after an external content/style change. `destroy` cancels queued work and releases owned SVG definitions and blob URLs. A controller is not reusable after destruction; create a new one.
+`update` validates synchronously and batches rendering. `refresh` schedules a render after an external content/style change. `destroy` cancels queued work and releases owned SVG definitions and map image references. A controller is not reusable after destruction; create a new one.
 
 Diagnostics expose the selected rendering path and counters, **not** a verified browser capability result. `mapGenerationMs` includes CPU map generation, PNG encoding and image decoding; it is neither a GPU duration nor a frame-time measurement.
 
@@ -144,9 +144,9 @@ Diagnostics expose the selected rendering path and counters, **not** a verified 
 4. A single-interface approximation generates the offset field. This is not Apple's or Aave's proprietary shader, nor full physical ray tracing. Chromatic dispersion and spring/morph animations are not included yet.
 5. `<video>`, canvas pixels, cross-origin iframes, and arbitrary compositor layers are not promised by this SVG renderer. A direct-media WebGL renderer is a future separate module.
 6. CSS filters do **not** transform hit-test coordinates. Strong distortion can move painted text away from its logical click/selection position. Keep interactive labels in the crisp overlay, or use a mild lens.
-7. Safari behavior varies by OS, hardware, and version. The implementation includes conservative dimensions, blob map URLs, sRGB interpretation and optional ID refresh, but needs native Safari/iOS visual testing before production use. Do not equate automated WebKit with native Safari.
+7. Safari behavior varies by OS, hardware, and version. The implementation includes bounded dimensions, embedded PNG data URLs, source-aligned primitive bounds, image-load invalidation, and optional ID refresh. Native macOS Safari 26.6.2 passes the automated suite; iOS device testing remains necessary before production use. Do not equate automated WebKit with native Safari.
 8. Filters introduce stacking/containing-block effects. Plan `position: fixed`, overflow and z-index around an explicit source wrapper.
-9. Strict CSP must permit these generated optical map images (`img-src blob:`), and the application's usual style policy must permit the styles used by its integration. No images or page content are sent to a server.
+9. Strict CSP must permit these generated optical map images (`img-src data:`), and the application's usual style policy must permit the styles used by its integration. No images or page content are sent to a server.
 10. The library honors reduced transparency; the caller owns motion, focus, contrast, and readable fallback UI. `live` is an invalidation policy, not a decorative motion API. The demo respects reduced motion separately.
 11. Spatial frost blends sharp and Gaussian-blurred refracted pixels with a shape-aware mask. It is a visual approximation rather than a continuously varying blur kernel. It needs an extra map and additional composition passes; choose uniform frost when that distinction is not needed.
 
