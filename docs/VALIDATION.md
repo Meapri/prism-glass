@@ -1,6 +1,6 @@
 # Validation record
 
-Date: 2026-09-25. Release: `0.5.0-alpha.1`.
+Date: 2026-09-26 KST. Release: `0.5.0-alpha.1`.
 
 ## Component system and high-density optics
 
@@ -9,7 +9,10 @@ Date: 2026-09-25. Release: `0.5.0-alpha.1`.
 - Visual smoke: 34 component/composition scenes loaded at 402 × 812, all reported ready, no application errors or horizontal overflow.
 - Native iOS 27 references: eleven families in light and dark, plus additional button states. Captures were inspected before inclusion. The temporary app was stopped and uninstalled.
 - Final local validation: **35/35 unit tests** and **100/100 browser tests** across Chromium and WebKit passed. Includes native feature-displacement regression, packed fields, bounded allocation, elastic-map reuse, lifecycle/accessibility and the new catalog flows.
-- Remote Firefox/native Safari CI, package installation and Pages deployment are verified separately after this source commit.
+- Retina verification: the 1120 × 360 dock rendered into an actual **3360 × 1080** canvas at DPR 3, remained interactive, and emitted no application errors.
+- The `0.5.0-alpha.1` tarball installed into a clean **React 18.3.1** consumer. Core/media/React/CSS exports, 24 presets, 16-bit maps and SSR of dock/dialog/menu passed; the main suite uses React 19.3.0.
+- **Final CI passed:** [run 36150596174](https://github.com/Meapri/prism-glass/actions/runs/36150596174), code source `f16f704113c80a17db6f7bdc45b9a21a079861bd`: **35/35 unit tests**, **150/150 Chromium/Firefox/WebKit checks**, and the native macOS Safari job all succeeded.
+- Package installation and browser checks above use this same code. Subsequent verification-documentation changes do not alter library or demo behavior.
 
 ## Previous release (`0.4.0-alpha.1`)
 
