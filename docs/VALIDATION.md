@@ -1,0 +1,98 @@
+# Validation record
+
+Date: 2026-09-26 KST. Release: `0.5.0-alpha.2`.
+
+## AI guidance and installable package
+
+- `npm run test:package` passed against the actual tarball: public exports and referenced declaration files resolve, the React entry retains its client directive, core/media/optics import with no React/browser, required AI guides/recipes/licenses are present, and native captures/demo files are excluded. The compressed package is approximately **307 KB**, down from 8.79 MB in 0.5.0-alpha.1; final size is printed by the package check.
+- API metadata is generated from emitted TypeScript declarations and cross-checked against runtime exports. `npm run docs:check` detects stale generated guide/API files.
+- **React 18.3.1 + Vite 8.3.1 + TypeScript 6.0.3:** the tarball installed outside the repository, complete recipe files typechecked with `skipLibCheck: false` and checked CSS imports, and a production build succeeded. Chromium confirmed state changes, menu action, modal focus restoration, image refraction and no hydration/application errors.
+- **React 19.3.0 + Next.js 16.3.6 + TypeScript 6.0.3:** the same checks passed. The App Router Server Component imports a Prism button directly through the emitted client boundary and calls a pure core material function on the server. No source aliases, `transpilePackages`, disabled SSR or skipped typechecking were used. The Next fixture uses the framework-appropriate `ESNext` standard-library types.
+- **Core-only npm installation:** importing core/media/optics passed with no React installed. React remains an optional peer, not a hidden core dependency.
+- Consumer tests use local temporary applications and public package imports. No consumer app was deployed and no npm registry publication occurred. Browser integration checks use Chromium; this is not a claim of every framework/device combination.
+- **Final CI passed:** [run 36209851555](https://github.com/Meapri/prism-glass/actions/runs/36209851555), implementation source `48502ac88ff091f576e3cdce9957bba433d514c6`: 35/35 unit tests, 150/150 Chromium/Firefox/WebKit checks, the archive/declaration/AI-guide check, and native macOS Safari all succeeded. Later repository/source-link metadata changes passed the local archive check again; all 51 built runtime/type files remained byte-identical to both tested consumer installations.
+
+## Previous release (`0.5.0-alpha.1`)
+
+## Component system and high-density optics
+
+- Numeric field regression: 16-bit coordinate error below 0.002 CSS pixels at strength 64; packed-channel interpolation, neutral encoding and allocation limits pass.
+- Catalog interaction checks: menus/context menus, checked/disabled actions, modal focus isolation and return, sheet detents, inputs, wheel/calendar, chips, notifications and tab navigation. The completed subset passed on Chromium and WebKit.
+- Visual smoke: 34 component/composition scenes loaded at 402 × 812, all reported ready, no application errors or horizontal overflow.
+- Native iOS 27 references: eleven families in light and dark, plus additional button states. Captures were inspected before inclusion. The temporary app was stopped and uninstalled.
+- Final local validation: **35/35 unit tests** and **100/100 browser tests** across Chromium and WebKit passed. Includes native feature-displacement regression, packed fields, bounded allocation, elastic-map reuse, lifecycle/accessibility and the new catalog flows.
+- Retina verification: the 1120 × 360 dock rendered into an actual **3360 × 1080** canvas at DPR 3, remained interactive, and emitted no application errors.
+- The `0.5.0-alpha.1` tarball installed into a clean **React 18.3.1** consumer. Core/media/React/CSS exports, 24 presets, 16-bit maps and SSR of dock/dialog/menu passed; the main suite uses React 19.3.0.
+- **Final CI passed:** [run 36150596174](https://github.com/Meapri/prism-glass/actions/runs/36150596174), code source `f16f704113c80a17db6f7bdc45b9a21a079861bd`: **35/35 unit tests**, **150/150 Chromium/Firefox/WebKit checks**, and the native macOS Safari job all succeeded.
+- Package installation and browser checks above use this same code. Subsequent verification-documentation changes do not alter library or demo behavior.
+
+## Previous release (`0.4.0-alpha.1`)
+
+## Contact light and materialization
+
+- **Final CI passed:** [run 36131028211](https://github.com/Meapri/prism-glass/actions/runs/36131028211), immutable code source `26bf6a3738849304b0dc1965258eb04d5d3d5420`: **30/30 unit tests**, **120/120 browser tests** across Chromium/Firefox/WebKit, and the native macOS Safari job all succeeded.
+- Native Safari **26.6.2** verified SVG refraction, media materials, adaptive appearance, materialization and held-pointer illumination (3,375 changed contact-light pixels). No physical iOS browser pass is implied.
+- The `0.4.0-alpha.1` tarball installed in a clean temporary consumer; core/React/media/CSS exports and server rendering passed. No npm registry publication was performed.
+- The final documentation-only verification commit does not change the tested library or demo code.
+
+- `npm test`: **30/30 passed**, including light locality/bounds, optically neutral presence endpoints and Reduced Motion behavior.
+- Full local Chromium/WebKit suite: **80/80 passed**. Includes the native-image Clear refraction regression. New coverage includes contact-origin tracking, scoped neighbor light, pointer cancellation, unrelated pointer IDs, quick taps, keyboard/disabled input, actual SDR pixel changes and CSS/media light consistency.
+- Materialization tests verify exit retention plus immediate input exclusion, interruption/reversal, style ownership, popover dismissal/focus return and optically neutral hidden media with cached displacement maps. Motion fixtures also run under React StrictMode.
+- Native iOS 27 reference: a temporary `.buttonStyle(.glass)`/`.glassEffectTransition(.materialize)` app supplied a pressed still and a recorded default SwiftUI transition. The same-source entry/exit frame comparisons now record optical formation and delayed foreground sharpening. These measured web approximations do not expose Apple's private timing or HDR shader values.
+- IAB inspection confirmed the new `/#motion` demo renders, Hide/Show removes/reintroduces the panel, and no application console errors were observed.
+- Native Safari CI now includes real mouse-held illumination pixel differences and materialize Hide/Show checks. The earlier run exposed shared-window focus interference in headed CI; headed runs now use one worker, retaining production blur/cancel behavior. Final remote results are recorded after execution.
+
+- [CI run 36130032240](https://github.com/Meapri/prism-glass/actions/runs/36130032240), source `2d3396c`: **119/120 browser checks passed**; the remaining Linux WebKit failure waited for media before initiating playback. All native-image optical, contact-light and materialization checks passed. Native macOS Safari 26.6.2 also passed, including 3,376 changed contact-light pixels.
+- The motion demo now uses a lossless still of its previously paused video frame, so only the actual player creates a video decoder. The playback test starts with a real user gesture instead of relying on autoplay/preload policy. The affected library/motion subset passed **30/30** on local Chromium/WebKit after this change. The source library's optics and animation code are unchanged by this loading correction.
+
+## Previous release (`0.3.0-alpha.1`)
+
+## Adaptive material and surface preset checks
+
+- `npm test`: **27/27 passed**. Added tests for sustained appearance changes, hysteresis, invalid samples, linear luminance, background variance, large-surface policy, Clear behavior and bounded preset geometry.
+- Chromium + WebKit on macOS: **52/52 passed**. New regressions cover per-lens pixel adaptation, DOM updates, manual overrides, nested foreground inheritance, CSS gradients/alpha, unreadable background fallback, cross-origin pixel refusal, final-subscriber cleanup, static canvas texture invalidation and all twelve preset selections.
+- IAB visual/interaction checks at 1280 × 720 and 390 × 844: navigation switches white/black labels with the background; menus keep their reading appearance; real HTML background changes adapt the sticky bar; the mobile preset picker and preview fit the viewport. No application console errors were observed.
+- After adding the stable-panel contrast guard, the adaptive subset passed **14/14** on Chromium/WebKit. A WebKit test fixture race was fixed by waiting for React mount before accessing the DOM; no assertion was weakened.
+- Upstream `liquid-glass-web` was read at GitHub commit `1613f8311dbc31bc2331afcfe51a143c56dd6308`; its local uncommitted changes were not incorporated. Only adaptive appearance is derived from it; see `NOTICE.md`.
+- [CI run 36119209939](https://github.com/Meapri/prism-glass/actions/runs/36119209939), source `29d4c6a`: **81/81 passed** across Chromium, Firefox and WebKit. Native Safari 26.6.2 passed SVG displacement, media materials, React controls and the adaptive preset's dark→light transition.
+- Final resize hardening: **22/22** adaptive/lifecycle tests passed on Chromium/WebKit, including offscreen suspension/resumption, viewport resizing and temporarily collapsed tab geometry. `data-prism-reason` now exposes the media renderer's pause/fallback reason on the scene.
+
+## Previous release (`0.2.0-alpha.2`)
+
+### Checks
+
+- `npm test`: **22/22 passed** on macOS. Covers optical geometry, material/tint validation, springs, preference listeners, map generation and server rendering/imports.
+- `npm run test:browser -- --project=chromium --project=webkit`: **38/38 passed** on macOS. Covers optical pixels, real video playback/pause/seek, regular/clear switching, mobile layouts, input/keyboard behavior, RTL, popovers, StrictMode and fallbacks.
+- New Gaussian regression verifies vertical source orientation, color blending at a boundary and suppression of repeated narrow lines. Other media regressions verify displacement only inside the lens, letterboxing, cached-map/texture reuse, atomic validation, pixel budgets and context recovery.
+- Native iOS 27 SwiftUI and live browser material/controls were compared at equal CSS sizes in both light and dark appearances. See [reference evidence](IOS27_REFERENCE.md) and the root `design-qa.md` for comparison history and limits.
+- The package builds with all core/media/React/CSS exports. The earlier alpha was also installed and exercised with React 18.3.1; the current suite uses React 19.3.0.
+- Linux CI runs headed browsers under Xvfb and uses two workers to reduce software GPU contention. Static media pixel fixtures explicitly retain their WebGL drawing buffer for deterministic capture; production rendering keeps the ordinary discardable buffer. The actual video component tests use the production context.
+- [CI run 36115073723](https://github.com/Meapri/prism-glass/actions/runs/36115073723), source `39fea2e`: **57/57 passed** across Chromium, Firefox and WebKit on Linux. Both jobs completed successfully.
+- Native macOS Safari **26.6.2** in that run passed SVG and React media checks: **3,299** refracted pixels with blur/highlights disabled, **70,099** changed pixels between paused regular/clear media, all 20 source lifecycle checks, switch state and keyboard slider input.
+- The generated `0.2.0-alpha.2` tarball installed in a clean temporary consumer, and core/media/optics/CSS exports resolved successfully. No npm registry publication was performed.
+- IAB checks confirmed regular tint adjustment, light/dark switching and popover placement at 390 × 844, with no application console errors.
+
+## Known limits
+
+- The native iOS app is a **design reference**, not evidence of the web library running in physical iOS Safari.
+- Physical iPhone/iPad Safari/WebViews, native OS accessibility combinations, GPU energy/thermal behavior and sustained 60/120 FPS are not established.
+- A matching static scene does not prove Apple's private shader or native morph timing has been reproduced.
+- Local Firefox cannot start with its current profile environment; the Linux CI result is used for Firefox validation.
+- `visualSupportVerified` remains `false` intentionally: selecting a renderer is not proof of pixel correctness on an arbitrary device.
+
+## Earlier Safari work preserved
+
+The source renderer keeps normalized `objectBoundingBox` filter bounds and isolated clipped artwork. Those changes corrected page-offset refraction and preserved visible displacement in native Safari. The macOS CI optical test still requires more than 300 changed pixels with blur and highlight disabled and runs all 20 lifecycle checks. Do not replace the artwork isolation with `translateZ(0)`; native Safari previously stopped rendering the SVG effect on that layer.
+
+## Reproduce
+
+```sh
+npm ci
+npm test
+npx playwright install --with-deps chromium firefox webkit
+npm run test:browser
+node scripts/build-calibration.mjs
+node scripts/serve.mjs
+```
+
+Open `/calibration.html` for reference comparison, `/` for components, and `/optics.html` for low-level optics. Native Safari automation uses `python tests/native-safari.py` on a macOS runner with Safari Remote Automation enabled. No physical iOS pass is implied by Playwright WebKit.

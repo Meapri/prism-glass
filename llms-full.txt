@@ -1,0 +1,2398 @@
+# Prism Glass 0.5.0-alpha.2 — complete integration context
+
+Generated from the current guide, compiler declarations and checked consumer recipes. Package install status: local tarball; not registry-published.
+
+# Integrating Prism Glass with an AI coding agent
+
+Use this guide when adding `@meapri/prism-glass` to an existing application. Preserve the application's routing, data, design tokens and business actions. The demo is a reference, not an application template.
+
+## Read in this order
+
+1. `llms.txt`: version, install status and entry points.
+2. This guide: choose a rendering path and component.
+3. `api.json` or [API_REFERENCE.md](API_REFERENCE.md): exact exported names and declarations generated from this version. Follow the declaration-file path into `dist/` for complete inherited types.
+4. [Reusable recipes](../examples/recipes/README.md): complete components using only public imports, with no demo assets or source aliases.
+5. [Integration verification](INTEGRATION_TESTS.md): commands and limits of actual consumer tests.
+
+Do not invent a prop from another glass library. Type declarations and `api.json` describe this package; old screenshots and historical validation notes do not change its API.
+
+## Install and import
+
+This alpha is distributed as a local `.tgz`; it has not been published to the npm registry. Check the supplied archive and `package.json` version before writing an install command. The [source repository](https://github.com/Meapri/prism-glass) contains the package and examples. To build an archive from a checkout:
+
+```sh
+npm ci
+npm pack
+```
+
+In the consumer project, install the resulting archive by its real path. Import CSS once from the application's entry point or global layout:
+
+```tsx
+import { GlassButton, GlassSwitch } from '@meapri/prism-glass/react';
+import '@meapri/prism-glass/styles.css';
+```
+
+| Import | Use | React required? |
+| --- | --- | --- |
+| `@meapri/prism-glass` | DOM source controller, materials, presets, motion and adaptation utilities | No |
+| `@meapri/prism-glass/media` | Shared image/video/canvas renderer and media map generation | No |
+| `@meapri/prism-glass/optics` | Pure geometry and SVG optical maps | No |
+| `@meapri/prism-glass/react` | React components and hooks | React 18+ |
+| `@meapri/prism-glass/styles.css` | Component styles, separately imported | No |
+
+The package is ESM. Use public entry points, not deep imports into `src/`, `dist/` or the repository's demo. Core/media imports do not require React. The optional React adapter expects the application's React peer; it does not bundle a second React runtime. No Tailwind, icon package, CSS reset, hosted service or API key is required in the consumer.
+
+## Choose the source before styling the glass
+
+| Requested result | Integration | What is actually rendered |
+| --- | --- | --- |
+| A normal reusable glass-looking control on an existing page | `GlassButton`, `GlassSurface` etc. with CSS imported | CSS blur/tint/edge material; no arbitrary DOM refraction |
+| Refract a supplied decorative DOM layer | `refractionTarget={<DecorativeContent />}` on a supported surface/button | Inert decorative source through SVG; interactive children stay crisp |
+| Refract the existing DOM element itself | `createGlass(element, options)` or `GlassSource` | The element's own painted pixels; not an implicit page backdrop |
+| Several surfaces over one image/video/canvas | `GlassMediaScene source={ref}` or `createMediaGlass(canvas, source, options)` | One media texture and shared WebGL optical fields |
+| Standard translucent reading/content surface | `MaterialSurface` | Standard CSS material without optical lensing |
+
+`appearance="adaptive"` samples background color for legibility; it does not capture the page and is not a substitute for a refraction source. Unknown or cross-origin pixels remain unavailable. Do not use screenshots, automatic DOM cloning, `html2canvas`, a duplicated video, or fake status text to conceal a missing source.
+
+### Media composition requirements
+
+- Give the scene a nonzero explicit size or aspect ratio.
+- Mount the source `<img>`, `<video>` or `<canvas>` when the scene mounts; a late replacement of the DOM source requires remounting the scene. An image/video loading its content later is supported.
+- Put interactive children in `.prism-media-controls` and position them within the same scene. The decorative source is not a second interactive UI.
+- Use same-origin media, or set the appropriate `crossOrigin` attribute before loading media whose server permits CORS. Authentication, DRM and cross-origin iframes are not bypassed.
+- Keep source and scene untransformed. Native top-layer dialogs/popovers can receive the original `source` ref; their renderer aligns with the source element using `sourceAlignment: 'element'`.
+- Increment `sourceVersion` after repainting a static canvas. Video frames update automatically. Set `media={{live:true}}` only for continuously changing canvas pixels.
+- Read `data-prism-state` / `data-prism-reason` or `media.onStatus`. `ready` means the renderer is running, not proof of fidelity or a guaranteed frame rate.
+
+## Component selection
+
+All React exports come from `/react`. Required props below are a quick routing aid; consult the generated declarations for exact types and inherited attributes.
+
+| Need | Component(s) | Main contract |
+| --- | --- | --- |
+| Theme defaults | `GlassProvider` | `variant`, `appearance`, `tintLevel`, `dimming`, `tint`, `children` |
+| Action | `GlassButton` | Native button attributes; `onClick`, `disabled`, `loading`, `emphasis`, `intent`, `size`, `shape` |
+| Switch | `GlassSwitch` | `checked` / `defaultChecked`, `onCheckedChange`; give an accessible name |
+| Numeric range | `GlassSlider` | `value` / `defaultValue`, `onValueChange`, `min`, `max`, `step`; accessible name |
+| Segments with panels | `GlassTabs` | Required nonempty, unique `items`; `value`, `onValueChange`; item `content` creates panels |
+| App navigation tabs | `GlassTabBar` | Required `items` with `value`, `label`, `icon`; `value`, `onValueChange`, `accessory`, `minimized` |
+| Navigation / tools | `GlassNavigationBar`, `GlassToolbar`, `GlassSidebar`, `GlassInputAccessory` | Navigation title / sidebar items; caller supplies actions and route changes |
+| Surface / presence / nearby light | `GlassSurface`, `GlassPresence`, `GlassLightGroup` | Surface `preset`; presence requires `present`; light group scopes illumination, not geometry merging |
+| Chip / removable token | `GlassChip`, `GlassToken` | `selected`, `onSelectedChange`; token `onRemove` and `removeLabel` |
+| Clear dock | `GlassDock`, `GlassDockItem` | Item requires `label`; caller supplies icon children and `onClick` |
+| Text / search | `GlassTextField`, `GlassSearchField` | `value`, `onValueChange`, accessible label; search adds `onSearch` / `onCancel` |
+| Stepper / pages | `GlassStepper`, `GlassPageControl` | Stepper range and value; page control requires `count`, uses zero-based `value` |
+| Selection / wheel | `GlassSelect`, `GlassWheelPicker` | Required nonempty, unique `options`; wheel also requires `label`; values are strings |
+| Date / color | `GlassDatePicker`, `GlassColorWell` | Date value is `YYYY-MM-DD`; controlled `value` / `onValueChange` |
+| Popup | `GlassPopover` | Required `trigger` and `children`; optional `open`, `onOpenChange`, `source`, alignment |
+| Actions / submenus | `GlassMenu`, `GlassPullDownButton`, `GlassContextMenu`, `GlassEditMenu` | Required `items`; trigger for menu variants; item `onSelect`, `disabled`, `checked`, `items` |
+| Action sheet | `GlassActionSheet` | Required `trigger`, `actions`; uses a top-layer menu |
+| Modal | `GlassDialog`, `GlassAlertDialog`, `GlassSheet`, `GlassShareSheet` | Required `open`, `onOpenChange`; alert also `title`, `actions`; share also `title` |
+| Static alert surface | `GlassAlert` | Required `title`; it is not a focus-isolating modal by itself |
+| Notification / system-style composition | `GlassNotification`, `GlassWidget`, `GlassLiveActivity`, `GlassControlTile`, `GlassSnippet` | In-page UI only. Notification requires `title`, `message`; tile requires `label` |
+| Reading / layout / indicators | `MaterialSurface`, `GlassDisclosure`, `GlassScrollArea`, `GlassBackgroundExtension`, `GlassListRow`, `GlassSeparator`, `GlassProgress`, `GlassBadge` | Disclosure requires `title`; background extension requires `src`; progress accepts normalized `value` / `max` |
+
+The `64` HIG entries are a coverage inventory, not 64 exported components or implementations of OS services. This package does not deliver push notifications, install widgets, register home-screen shortcuts, start Live Activities or supply an operating-system keyboard.
+
+## State, actions and accessibility
+
+- Choose controlled state (`value`/`checked`/`selected` plus its callback) or an uncontrolled default. Do not supply an immutable controlled value and expect the control to update itself.
+- Numeric sliders/steppers use `onValueChange(number)`, switches use `onCheckedChange(boolean)`, and menus use item `onSelect()` or menu `onSelect(id)`; these are not interchangeable DOM events.
+- Dialogs/sheets are controlled. Supply `open` and `onOpenChange`. Use `returnFocusRef` pointing to the trigger, especially for Safari pointer activation; use `initialFocusRef` when a task needs a particular starting field.
+- A static `GlassAlert` does not provide modal isolation. Choose `GlassAlertDialog` for a decision that blocks background interaction.
+- Keep application side effects in caller callbacks. A share-sheet layout does not send a message, upload a file, or grant permission by itself.
+- Supply labels for icon-only buttons, switches, sliders and inputs. Preserve keyboard, focus-visible, disabled and reduced-motion/contrast behavior. Avoid lowering the opacity of the entire control to make only its material transparent.
+- `className`, `style` and native attributes are supported where declared. Prefer component props and documented CSS variables; do not rewrite internal DOM or add global CSS resets.
+
+## Material and performance choices
+
+- `regular`: default readable controls and short text. `clear`: bold controls over supplied rich media. `MaterialSurface`: content/reading plane.
+- Clear's general default has 35% local dimming. For the transparent dock recipe use `dimming={0}` and `tint={[1,1,1,0.035]}`. Foreground remains opaque; choose appropriate contrast for your own source.
+- `tintLevel` is a 0–1 Regular opacity/diffusion preference, not a general glass opacity control. `tint` is normalized RGBA; `dimming` changes the backdrop.
+- Use an existing preset before overriding optical coefficients. Explicit component props override presets. Some presets select their own variant; pass `variant="clear"` explicitly when that is the intended override.
+- Media fields use 16-bit coordinates, up to 1024px by default (2048 configurable), display DPR capped at 3 and a shared 4M field-pixel budget. SVG fields retain their separate 8-bit/512px limit. Do not use media limits as SVG limits.
+- Reuse one media scene for related lenses. Always destroy imperative controllers when their elements unmount. Do not wrap a whole scrolling application in a source filter or create an animation loop for static content.
+- A normal nested toolbar uses one glass background. Do not force every nested button into a second optical layer. `GlassDock` provides its own layered tile composition.
+
+## Next.js App Router
+
+Import the stylesheet once in `app/layout.tsx`. The published `/react` entry includes a preserved `"use client"` directive. A Server Component may render a Prism component with serializable props. Put state, event handlers and DOM refs in your own Client Component; the library boundary cannot serialize a callback created in a Server Component.
+
+```tsx
+// app/layout.tsx
+import '@meapri/prism-glass/styles.css';
+import type { ReactNode } from 'react';
+export default function Layout({ children }: { children: ReactNode }) {
+  return <html lang="en"><body>{children}</body></html>;
+}
+```
+
+```tsx
+// app/page.tsx — Server Component, no handler crosses the boundary
+import { GlassButton } from '@meapri/prism-glass/react';
+import { ControlsExample } from './ControlsExample';
+export default function Page() {
+  return <main><GlassButton>Static server-composed action</GlassButton><ControlsExample /></main>;
+}
+```
+
+Copy [ControlsExample.tsx](../examples/recipes/ControlsExample.tsx), including its client directive, for the stateful portion. Do not add `ssr:false`, disable type checking, or add `transpilePackages` simply to hide an integration error. [Next.js library-author guidance](https://nextjs.org/docs/app/getting-started/server-and-client-components#third-party-components) describes the boundary.
+
+## Common wrong turns
+
+| Symptom / wrong approach | Correct action |
+| --- | --- |
+| Glass looks like plain frosted CSS | Decide whether CSS material is sufficient. For real lensing, supply a DOM/media source and check renderer diagnostics. |
+| Invisible/collapsed media | Give the scene dimensions; mount the source; wait for its image/video pixels; inspect the reported reason. |
+| Copying the entire demo to add one button | Import the component and CSS, then provide the application's handler and state. |
+| Passing `blur`, `strength` or `resolution` directly to a button | Use declared `optics` where appropriate; media output quality belongs on `GlassMediaScene media` or `createMediaGlass` options. |
+| Inferring `GlassModal`, `GlassCard`, `blurAmount`, `intensity` etc. | These names are not the API. Check `api.json` and use `GlassDialog` / `GlassSurface` and declared props. |
+| Setting `opacity` on the control | Set `tint` / `dimming` so foreground remains readable. |
+| A changing canvas is stale | Increment `sourceVersion` or explicitly opt into `media.live`. |
+| Cleanup / StrictMode causes duplicate owners | Instantiate after mount and destroy on cleanup; do not reuse a destroyed controller. |
+| Calling a browser controller during SSR | Pure imports/geometry are safe; create DOM/WebGL controllers only after the elements mount. |
+| Treating `visualSupportVerified: false` as renderer failure | This flag deliberately does not claim universal pixel verification. Check `state` and `reason`. |
+
+## Completion criteria for an integration
+
+Typecheck and production-build the **consumer** with its real React/framework version and the actual tarball. Render the relevant route, check hydration/console errors, exercise an action and a controlled input, verify modal focus if used, and verify the intended source renderer or fallback. Record what passed; don't substitute the demo's test count for these checks.
+
+## Task prompt for another coding agent
+
+> Read this package's `llms.txt`, integration guide and generated API before editing the app. Identify the existing framework, the required controls and the actual refraction source. Compose public Prism components around the application's own state/actions; preserve its layout and accessibility. Use the exact declared props and import CSS once. Explain when the result uses CSS material versus real SVG/media refraction. Typecheck, production-build and exercise the installed package in this app, including keyboard/focus and source readiness where relevant. Report verified results and remaining limits.
+
+
+# Public API reference
+
+Generated for `@meapri/prism-glass@0.5.0-alpha.2` from emitted TypeScript declarations and checked against actual runtime exports. Do not edit by hand.
+
+Import only from the entry points below. Declaration-file paths are for reading types, not supported deep imports. JSX components, hooks and utilities are separate exports; the export count is not a component count. Inherited native React/DOM props remain defined by their declared base types.
+
+## @meapri/prism-glass
+
+Runtime exports (26): `adaptGlassMaterial`, `bindGlassInteraction`, `blendGlassMaterial`, `createBackdropSampler`, `createGlass`, `createGlassPresence`, `customizeGlassMaterial`, `getGlassMaterial`, `getGlassPreset`, `getGlassSurfaceProfile`, `getLensMaterial`, `glassLightAt`, `glassPresenceFrame`, `glassSurfacePresets`, `lensFor`, `linearChannel`, `materialOptics`, `normalizeGlassTint`, `observeGlassBackdrop`, `observeGlassPreferences`, `relativeLuminance`, `resolveGlassSurface`, `stepSpring`, `summarizeBackdrop`, `updateGlassAdaptation`, `validBackdrop`.
+
+Types entry: `./dist/index.d.ts`.
+
+### adaptGlassMaterial
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare function adaptGlassMaterial(material: GlassMaterial, state: GlassAdaptiveState): GlassMaterial;
+```
+
+### bindGlassInteraction
+
+Runtime export · declared in `dist/motion.d.ts`.
+
+```ts
+export declare function bindGlassInteraction(element: HTMLElement, onChange?: (state: GlassInteraction) => void): GlassInteractionController;
+```
+
+### blendGlassMaterial
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare function blendGlassMaterial(from: GlassMaterial, to: GlassMaterial, amount: number): GlassMaterial;
+```
+
+### BlurMode
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export type BlurMode = 'uniform' | 'center' | 'edge';
+```
+
+### createBackdropSampler
+
+Runtime export · declared in `dist/backdrop.d.ts`.
+
+```ts
+export declare function createBackdropSampler(doc: Document): {
+    begin(): void;
+    media(source: GlassMediaSource, lens: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    }, sourceRect: readonly number[], background: readonly [number, number, number]): GlassBackdropSample | null;
+    dom(element: HTMLElement, source?: Element): GlassBackdropSample | null;
+    destroy(): void;
+};
+interface Subscriber {
+    element: HTMLElement;
+    callback: (sample: GlassBackdropSample | null) => void;
+    options: GlassBackdropOptions;
+}
+```
+
+### createGlass
+
+Runtime export · declared in `dist/index.d.ts`.
+
+```ts
+export declare function createGlass(source: HTMLElement, options: GlassOptions): GlassController;
+```
+
+### createGlassPresence
+
+Runtime export · declared in `dist/presence.d.ts`.
+
+```ts
+export declare function createGlassPresence(element: HTMLElement, options?: GlassPresenceOptions): GlassPresenceController;
+```
+
+### customizeGlassMaterial
+
+Runtime export · declared in `dist/materials.d.ts`.
+
+```ts
+export declare function customizeGlassMaterial(material: GlassMaterial, options: {
+    tint?: GlassTint;
+    dimming?: number;
+}): GlassMaterial;
+```
+
+### getGlassMaterial
+
+Runtime export · declared in `dist/materials.d.ts`.
+
+```ts
+export declare function getGlassMaterial(variant?: GlassVariant, appearance?: GlassAppearance, tintLevel?: number): GlassMaterial;
+```
+
+### getGlassPreset
+
+Runtime export · declared in `dist/presets.d.ts`.
+
+```ts
+export declare function getGlassPreset(preset: GlassPreset, lens: Lens): GlassOptions;
+```
+
+### getGlassSurfaceProfile
+
+Runtime export · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export declare function getGlassSurfaceProfile(name: GlassSurfacePreset): Readonly<GlassSurfaceProfile>;
+```
+
+### getLensMaterial
+
+Runtime export · declared in `dist/materials.d.ts`.
+
+```ts
+export declare function getLensMaterial(lens: Lens, variant?: GlassVariant, appearance?: GlassAppearance, tintLevel?: number): GlassMaterial;
+```
+
+### GlassAdaptationPolicy
+
+Type only · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export type GlassAdaptationPolicy = 'flip' | 'ambient';
+```
+
+### GlassAdaptiveState
+
+Type only · declared in `dist/adaptive.d.ts`.
+
+```ts
+export interface GlassAdaptiveState {
+    appearance: GlassAppearance;
+    luminance: number;
+    variance: number;
+    color: readonly [number, number, number];
+    at: number;
+    candidate: GlassAppearance;
+    since: number;
+    available: boolean;
+}
+```
+
+### GlassAppearance
+
+Type only · declared in `dist/materials.d.ts`.
+
+```ts
+export type GlassAppearance = 'light' | 'dark';
+```
+
+### GlassAppearanceMode
+
+Type only · declared in `dist/adaptive.d.ts`.
+
+```ts
+export type GlassAppearanceMode = GlassAppearance | 'auto' | 'adaptive';
+```
+
+### GlassBackdropOptions
+
+Type only · declared in `dist/backdrop.d.ts`.
+
+```ts
+export interface GlassBackdropOptions {
+    source?: Element;
+    sample?: GlassBackdropReader;
+}
+```
+
+### GlassBackdropReader
+
+Type only · declared in `dist/backdrop.d.ts`.
+
+```ts
+export type GlassBackdropReader = () => GlassBackdropSample | null;
+```
+
+### GlassBackdropSample
+
+Type only · declared in `dist/adaptive.d.ts`.
+
+```ts
+export interface GlassBackdropSample {
+    /** Linear-light relative luminance, not gamma-encoded RGB brightness. */
+    luminance: number;
+    variance: number;
+    color: readonly [number, number, number];
+    source: 'css' | 'pixels' | 'provided';
+    confidence: number;
+}
+```
+
+### GlassController
+
+Type only · declared in `dist/types.d.ts`.
+
+```ts
+export interface GlassController {
+    update(patch: GlassPatch): void;
+    refresh(): void;
+    getDiagnostics(): GlassDiagnostics;
+    destroy(): void;
+}
+```
+
+### GlassDiagnostics
+
+Type only · declared in `dist/types.d.ts`.
+
+```ts
+export interface GlassDiagnostics {
+    state: 'loading' | 'ready' | 'disabled' | 'paused' | 'limited' | 'error' | 'destroyed';
+    reason: string;
+    renderer: 'svg-source';
+    mapBuilds: number;
+    renders: number;
+    mapGenerationMs: number;
+    sourcePixels: number;
+    mapSize: [number, number];
+    /** This reports the selected path, not pixel correctness or frame rate. */
+    visualSupportVerified: false;
+}
+```
+
+### GlassInteraction
+
+Type only · declared in `dist/motion.d.ts`.
+
+```ts
+export interface GlassInteraction {
+    press: number;
+    hover: number;
+    pointer: readonly [number, number];
+    reducedMotion: boolean;
+    illumination?: number;
+    illuminationPointer?: readonly [number, number];
+}
+```
+
+### GlassInteractionController
+
+Type only · declared in `dist/motion.d.ts`.
+
+```ts
+export interface GlassInteractionController {
+    destroy(): void;
+}
+```
+
+### glassLightAt
+
+Runtime export · declared in `dist/illumination.d.ts`.
+
+```ts
+export declare function glassLightAt(x: number, y: number, width: number, height: number, energy: number, point: readonly [number, number]): number;
+```
+
+### GlassMaterial
+
+Type only · declared in `dist/materials.d.ts`.
+
+```ts
+export interface GlassMaterial {
+    variant: GlassVariant;
+    appearance: GlassAppearance;
+    tint: readonly [number, number, number, number];
+    dimming: number;
+    chroma: number;
+    blur: number;
+    saturation: number;
+    brightness: number;
+    highlight: number;
+    foreground: string;
+    opaque: string;
+}
+```
+
+### GlassOptions
+
+Type only · declared in `dist/types.d.ts`.
+
+```ts
+export interface GlassOptions {
+    lens: Lens;
+    /** Maximum sampling offset in CSS pixels. Default 24; range 0–64. */
+    strength?: number;
+    /** Refractive index of the single-interface approximation. Default 1.5. */
+    ior?: number;
+    bevel?: number;
+    /** Rim keeps the center flat; dome curves the full lens; concave reverses the bend. */
+    surface?: SurfaceProfile;
+    /** Relative surface height. 0–4, default 1. */
+    depth?: number;
+    /** Superellipse surface exponent. 2–8, default 4. */
+    curvature?: number;
+    blur?: number;
+    /** Color diffusion/vibrancy inside the lens. 0–3, default 1. */
+    saturation?: number;
+    /** Uniform frosting, a frosted center, or a frosted rim with a clear center. */
+    blurMode?: BlurMode;
+    highlight?: number;
+    /** Longest displacement-map side; capped at 512. Independent of DPR. */
+    resolution?: number;
+    /** Safety budget for the full filtered source, including DPR squared. */
+    maxSourcePixels?: number;
+    enabled?: boolean;
+    /** Force filter-cache invalidation for self-animating DOM. Costs a repaint. */
+    live?: boolean;
+    respectReducedTransparency?: boolean;
+    /** Workaround; 'auto' enables ID refresh in WebKit. */
+    refreshFilterId?: 'auto' | 'always' | 'never';
+    onStatus?: (diagnostics: GlassDiagnostics) => void;
+}
+```
+
+### GlassPatch
+
+Type only · declared in `dist/types.d.ts`.
+
+```ts
+export type GlassPatch = Partial<Omit<GlassOptions, 'lens'>> & {
+    lens?: Partial<Lens>;
+};
+```
+
+### GlassPreferences
+
+Type only · declared in `dist/materials.d.ts`.
+
+```ts
+export interface GlassPreferences {
+    reducedMotion: boolean;
+    reducedTransparency: boolean;
+    increasedContrast: boolean;
+    forcedColors: boolean;
+    dark: boolean;
+}
+type Subscriber = (preferences: GlassPreferences) => void;
+```
+
+### GlassPresenceController
+
+Type only · declared in `dist/presence.d.ts`.
+
+```ts
+export interface GlassPresenceController {
+    setVisible(visible: boolean): void;
+    getState(): {
+        phase: GlassPresencePhase;
+        progress: number;
+    };
+    destroy(): void;
+}
+```
+
+### glassPresenceFrame
+
+Runtime export · declared in `dist/presence.d.ts`.
+
+```ts
+export declare function glassPresenceFrame(progress: number, reducedMotion?: boolean): GlassPresenceFrame;
+```
+
+### GlassPresenceFrame
+
+Type only · declared in `dist/presence.d.ts`.
+
+```ts
+export interface GlassPresenceFrame {
+    progress: number;
+    lensing: number;
+    diffusion: number;
+    material: number;
+    edge: number;
+    contentOpacity: number;
+    contentBlur: number;
+    contentScale: number;
+}
+```
+
+### GlassPresenceOptions
+
+Type only · declared in `dist/presence.d.ts`.
+
+```ts
+export interface GlassPresenceOptions {
+    visible?: boolean;
+    /** Native popovers manage their own display/top layer. */
+    manageVisibility?: boolean;
+    onFrame?: (frame: GlassPresenceFrame) => void;
+    onPhase?: (phase: GlassPresencePhase) => void;
+}
+```
+
+### GlassPresencePhase
+
+Type only · declared in `dist/presence.d.ts`.
+
+```ts
+export type GlassPresencePhase = 'hidden' | 'entering' | 'shown' | 'exiting';
+```
+
+### GlassPreset
+
+Type only · declared in `dist/presets.d.ts`.
+
+```ts
+export type GlassPreset = GlassSurfacePreset | 'switch' | 'slider' | 'tab' | 'panel';
+```
+
+### GlassSurfacePreset
+
+Type only · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export type GlassSurfacePreset = 'navigation' | 'toolbar' | 'tab-bar' | 'search' | 'button' | 'floating-action' | 'selection' | 'menu' | 'popover' | 'sidebar' | 'sheet' | 'media' | 'dock' | 'dock-item' | 'alert' | 'action-sheet' | 'notification' | 'chip' | 'widget' | 'control' | 'live-activity' | 'input-accessory' | 'edit-menu' | 'page-control';
+```
+
+### glassSurfacePresets
+
+Runtime export · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export declare const glassSurfacePresets: Readonly<Record<GlassSurfacePreset, Readonly<GlassSurfaceProfile>>>;
+```
+
+### GlassSurfaceProfile
+
+Type only · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export interface GlassSurfaceProfile {
+    label: string;
+    description: string;
+    shape: LensShape;
+    radius: number;
+    bevel: number;
+    strength: number;
+    depth: number;
+    curvature: number;
+    diffusion: number;
+    elevation: number;
+    adaptation: GlassAdaptationPolicy;
+    variant: GlassVariant;
+    tint?: GlassTint;
+    dimming?: number;
+    brightness?: number;
+}
+```
+
+### GlassSurfaceResolution
+
+Type only · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export interface GlassSurfaceResolution {
+    lens: Lens;
+    optics: GlassOptions;
+    material: GlassMaterial;
+    elevation: number;
+    adaptation: GlassAdaptationPolicy;
+}
+```
+
+### GlassTint
+
+Type only · declared in `dist/materials.d.ts`.
+
+```ts
+export type GlassTint = readonly [red: number, green: number, blue: number, opacity: number];
+```
+
+### GlassVariant
+
+Type only · declared in `dist/materials.d.ts`.
+
+```ts
+export type GlassVariant = 'regular' | 'clear';
+```
+
+### Lens
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export interface Lens {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    radius: number;
+    shape?: LensShape;
+}
+```
+
+### lensFor
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function lensFor(shape: LensShape, bounds: Omit<Lens, 'shape' | 'radius'> & {
+    radius?: number;
+}): Lens;
+```
+
+### LensShape
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export type LensShape = 'rounded-rect' | 'continuous' | 'circle' | 'capsule' | 'ellipse';
+```
+
+### linearChannel
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare const linearChannel: (value: number) => number;
+```
+
+### materialOptics
+
+Runtime export · declared in `dist/materials.d.ts`.
+
+```ts
+export declare function materialOptics(lens: Lens, variant?: GlassVariant, tintLevel?: number, appearance?: GlassAppearance): GlassOptions;
+```
+
+### normalizeGlassTint
+
+Runtime export · declared in `dist/materials.d.ts`.
+
+```ts
+export declare function normalizeGlassTint(tint: GlassTint): GlassTint;
+```
+
+### observeGlassBackdrop
+
+Runtime export · declared in `dist/backdrop.d.ts`.
+
+```ts
+export declare function observeGlassBackdrop(element: HTMLElement, callback: Subscriber['callback'], options?: GlassBackdropOptions): {
+    refresh: () => void;
+    destroy: () => void;
+};
+```
+
+### observeGlassPreferences
+
+Runtime export · declared in `dist/materials.d.ts`.
+
+```ts
+export declare function observeGlassPreferences(win: Window, callback: Subscriber): () => void;
+```
+
+### relativeLuminance
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare const relativeLuminance: (rgb: readonly number[]) => number;
+```
+
+### resolveGlassSurface
+
+Runtime export · declared in `dist/surface-presets.d.ts`.
+
+```ts
+export declare function resolveGlassSurface(preset: GlassSurfacePreset, bounds: {
+    width: number;
+    height: number;
+    x?: number;
+    y?: number;
+    radius?: number;
+    shape?: LensShape;
+}, options?: {
+    variant?: GlassVariant;
+    appearance?: GlassAppearance;
+    tintLevel?: number;
+}): GlassSurfaceResolution;
+```
+
+### SpringState
+
+Type only · declared in `dist/motion.d.ts`.
+
+```ts
+export interface SpringState {
+    value: number;
+    velocity: number;
+}
+```
+
+### stepSpring
+
+Runtime export · declared in `dist/motion.d.ts`.
+
+```ts
+export declare function stepSpring(state: SpringState, target: number, seconds: number, stiffness?: number, damping?: number): SpringState;
+```
+
+### summarizeBackdrop
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare function summarizeBackdrop(colors: readonly (readonly number[])[], source: GlassBackdropSample['source'], confidence?: number): GlassBackdropSample | null;
+```
+
+### SurfaceProfile
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export type SurfaceProfile = 'rim' | 'dome' | 'concave';
+```
+
+### updateGlassAdaptation
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare function updateGlassAdaptation(previous: GlassAdaptiveState | undefined, sample: GlassBackdropSample | null, now: number, fallback: GlassAppearance, policy?: GlassAdaptationPolicy): GlassAdaptiveState;
+```
+
+### validBackdrop
+
+Runtime export · declared in `dist/adaptive.d.ts`.
+
+```ts
+export declare function validBackdrop(sample: GlassBackdropSample | null | undefined): sample is GlassBackdropSample;
+```
+
+## @meapri/prism-glass/react
+
+Runtime exports (52): `GlassActionSheet`, `GlassAlert`, `GlassAlertDialog`, `GlassBackgroundExtension`, `GlassBadge`, `GlassButton`, `GlassChip`, `GlassColorWell`, `GlassContextMenu`, `GlassControlTile`, `GlassDatePicker`, `GlassDialog`, `GlassDisclosure`, `GlassDock`, `GlassDockItem`, `GlassEditMenu`, `GlassInputAccessory`, `GlassLightGroup`, `GlassListRow`, `GlassLiveActivity`, `GlassMediaScene`, `GlassMenu`, `GlassNavigationBar`, `GlassNotification`, `GlassPageControl`, `GlassPopover`, `GlassPresence`, `GlassProgress`, `GlassProvider`, `GlassPullDownButton`, `GlassScrollArea`, `GlassSearchField`, `GlassSelect`, `GlassSeparator`, `GlassShareSheet`, `GlassSheet`, `GlassSidebar`, `GlassSlider`, `GlassSnippet`, `GlassSource`, `GlassStepper`, `GlassSurface`, `GlassSwitch`, `GlassTabBar`, `GlassTabs`, `GlassTextField`, `GlassToken`, `GlassToolbar`, `GlassWheelPicker`, `GlassWidget`, `MaterialSurface`, `useGlass`.
+
+Types entry: `./dist/react.d.ts`.
+
+### GlassActionSheet
+
+Runtime export · declared in `dist/components/menus.d.ts`.
+
+```ts
+export declare function GlassActionSheet({ actions, cancelLabel, className, ...props }: GlassActionSheetProps): import("react").JSX.Element;
+```
+
+### GlassActionSheetProps
+
+Type only · declared in `dist/components/menus.d.ts`.
+
+```ts
+export interface GlassActionSheetProps extends Omit<GlassMenuProps, 'items' | 'layout' | 'palette'> {
+    actions: readonly GlassMenuItem[];
+    cancelLabel?: string;
+}
+```
+
+### GlassAlert
+
+Runtime export · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export declare function GlassAlert({ title, message, actions, onAction, stackActions, children, className, ...props }: GlassAlertProps): import("react").JSX.Element;
+```
+
+### GlassAlertAction
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassAlertAction {
+    label: string;
+    onSelect?: () => void;
+    intent?: 'default' | 'destructive' | 'cancel';
+    disabled?: boolean;
+    autoFocus?: boolean;
+    close?: boolean;
+}
+```
+
+### GlassAlertDialog
+
+Runtime export · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export declare const GlassAlertDialog: import("react").ForwardRefExoticComponent<GlassAlertDialogProps & import("react").RefAttributes<HTMLDialogElement>>;
+```
+
+### GlassAlertDialogProps
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassAlertDialogProps extends Omit<GlassDialogProps, 'role' | 'kind' | 'title'> {
+    title: string;
+    message?: ReactNode;
+    actions: readonly GlassAlertAction[];
+    stackActions?: boolean;
+}
+```
+
+### GlassAlertProps
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassAlertProps extends Omit<GlassSurfaceProps, 'title'> {
+    title: string;
+    message?: ReactNode;
+    actions?: readonly GlassAlertAction[];
+    onAction?: (index: number) => void;
+    stackActions?: boolean;
+}
+```
+
+### GlassBackgroundExtension
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassBackgroundExtension({ src, children, className, ...props }: HTMLAttributes<HTMLDivElement> & {
+    src: string;
+}): import("react").JSX.Element;
+```
+
+### GlassBadge
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassBadge({ count, max, dot, children, className, ...props }: GlassBadgeProps): import("react").JSX.Element | null;
+```
+
+### GlassBadgeProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassBadgeProps extends HTMLAttributes<HTMLSpanElement> {
+    count?: number;
+    max?: number;
+    dot?: boolean;
+}
+```
+
+### GlassButton
+
+Runtime export · declared in `dist/components/surface.d.ts`.
+
+```ts
+export declare const GlassButton: import("react").ForwardRefExoticComponent<GlassButtonProps & import("react").RefAttributes<HTMLButtonElement>>;
+```
+
+### GlassButtonProps
+
+Type only · declared in `dist/components/surface.d.ts`.
+
+```ts
+export interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, MaterialProps {
+    shape?: 'capsule' | 'rounded-rect' | 'continuous' | 'circle';
+    radius?: number;
+    size?: 'small' | 'regular' | 'large' | 'extra-large';
+    emphasis?: 'glass' | 'prominent' | 'plain' | 'bordered';
+    intent?: 'default' | 'destructive';
+    loading?: boolean;
+    icon?: ReactNode;
+}
+```
+
+### GlassChip
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare const GlassChip: import("react").ForwardRefExoticComponent<GlassChipProps & import("react").RefAttributes<HTMLButtonElement>>;
+```
+
+### GlassChipProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassChipProps extends Omit<GlassButtonProps, 'shape' | 'aria-pressed'> {
+    selected?: boolean;
+    defaultSelected?: boolean;
+    onSelectedChange?: (selected: boolean) => void;
+}
+```
+
+### GlassColorWell
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare const GlassColorWell: import("react").ForwardRefExoticComponent<GlassColorWellProps & import("react").RefAttributes<HTMLInputElement>>;
+```
+
+### GlassColorWellProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassColorWellProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size' | 'value' | 'defaultValue'> {
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    label?: string;
+}
+```
+
+### GlassContextMenu
+
+Runtime export · declared in `dist/components/menus.d.ts`.
+
+```ts
+export declare function GlassContextMenu({ children, items, label, layout, palette, onSelect, className, onContextMenu, onKeyDown, onPointerDown, onPointerUp, onPointerMove, onPointerCancel, ...props }: GlassContextMenuProps): import("react").JSX.Element;
+```
+
+### GlassContextMenuProps
+
+Type only · declared in `dist/components/menus.d.ts`.
+
+```ts
+export interface GlassContextMenuProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {
+    items: readonly GlassMenuItem[];
+    label?: string;
+    layout?: GlassMenuProps['layout'];
+    palette?: readonly GlassMenuItem[];
+    onSelect?: (id: string) => void;
+}
+```
+
+### GlassControlTile
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare const GlassControlTile: import("react").ForwardRefExoticComponent<GlassControlTileProps & import("react").RefAttributes<HTMLButtonElement>>;
+```
+
+### GlassControlTileProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassControlTileProps extends Omit<GlassButtonProps, 'size' | 'aria-pressed'> {
+    size?: 'small' | 'wide' | 'large';
+    selected?: boolean;
+    defaultSelected?: boolean;
+    onSelectedChange?: (selected: boolean) => void;
+    label: string;
+    subtitle?: string;
+    symbol?: ReactNode;
+}
+```
+
+### GlassDatePicker
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare function GlassDatePicker({ value: controlled, defaultValue, onValueChange, min, max, disabled, label, locale, display, className, ...props }: GlassDatePickerProps): import("react").JSX.Element;
+```
+
+### GlassDatePickerProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassDatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    min?: string;
+    max?: string;
+    disabled?: boolean;
+    label?: string;
+    locale?: string;
+    display?: 'compact' | 'inline';
+}
+```
+
+### GlassDialog
+
+Runtime export · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export declare const GlassDialog: import("react").ForwardRefExoticComponent<GlassDialogProps & import("react").RefAttributes<HTMLDialogElement>>;
+```
+
+### GlassDialogProps
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassDialogProps extends Omit<GlassSurfaceProps, 'title' | 'role' | 'present' | 'local'> {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    role?: 'dialog' | 'alertdialog';
+    dismissible?: boolean;
+    dismissOnBackdrop?: boolean;
+    kind?: 'dialog' | 'sheet';
+    initialFocusRef?: RefObject<HTMLElement | null>;
+    returnFocusRef?: RefObject<HTMLElement | null>;
+    dialogStyle?: CSSProperties;
+    dialogClassName?: string;
+    source?: RefObject<GlassMediaSource | null>;
+    sourceVersion?: string | number;
+}
+```
+
+### GlassDisclosure
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassDisclosure({ title, open: controlled, defaultOpen, onOpenChange, children, className, ...props }: GlassDisclosureProps): import("react").JSX.Element;
+```
+
+### GlassDisclosureProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassDisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'onToggle' | 'title'> {
+    title: ReactNode;
+    open?: boolean;
+    defaultOpen?: boolean;
+    onOpenChange?: (open: boolean) => void;
+}
+```
+
+### GlassDock
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassDock({ children, className, variant, dimming, tint, ...props }: GlassSurfaceProps): import("react").JSX.Element;
+```
+
+### GlassDockItem
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare const GlassDockItem: import("react").ForwardRefExoticComponent<GlassDockItemProps & import("react").RefAttributes<HTMLButtonElement>>;
+```
+
+### GlassDockItemProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassDockItemProps extends GlassButtonProps {
+    badge?: number;
+    label: string;
+}
+```
+
+### GlassEditMenu
+
+Runtime export · declared in `dist/components/menus.d.ts`.
+
+```ts
+export declare function GlassEditMenu(props: GlassMenuProps): import("react").JSX.Element;
+```
+
+### GlassInputAccessory
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassInputAccessory({ children, className, ...props }: GlassSurfaceProps): import("react").JSX.Element;
+```
+
+### GlassLightGroup
+
+Runtime export · declared in `dist/components/presence.d.ts`.
+
+```ts
+export declare function GlassLightGroup(props: HTMLAttributes<HTMLDivElement>): import("react").JSX.Element;
+```
+
+### GlassListRow
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassListRow({ children, detail, chevron, className, ...props }: HTMLAttributes<HTMLDivElement> & {
+    detail?: ReactNode;
+    chevron?: boolean;
+}): import("react").JSX.Element;
+```
+
+### GlassLiveActivity
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassLiveActivity({ presentation, leading, trailing, label, children, className, tint, ...props }: GlassLiveActivityProps): import("react").JSX.Element;
+```
+
+### GlassLiveActivityProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassLiveActivityProps extends GlassSurfaceProps {
+    presentation?: 'banner' | 'compact' | 'minimal' | 'expanded';
+    leading?: ReactNode;
+    trailing?: ReactNode;
+    label?: string;
+}
+```
+
+### GlassMediaScene
+
+Runtime export · declared in `dist/components/media-scene.d.ts`.
+
+```ts
+export declare function GlassMediaScene({ source, sourceVersion, media, variant, appearance, tintLevel, dimming, tint, children, className, style, ...props }: GlassMediaSceneProps): import("react").JSX.Element;
+```
+
+### GlassMediaSceneProps
+
+Type only · declared in `dist/components/media-scene.d.ts`.
+
+```ts
+export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance' | 'tintLevel' | 'dimming' | 'tint'> {
+    source: RefObject<GlassMediaSource | null>;
+    /** Increment after repainting a static canvas source. */
+    sourceVersion?: string | number;
+    media?: Omit<MediaGlassOptions, 'lenses'>;
+}
+```
+
+### GlassMenu
+
+Runtime export · declared in `dist/components/menus.d.ts`.
+
+```ts
+export declare function GlassMenu({ items, title, layout, palette, onSelect, orientation, className, onOpenChange, open: controlled, ...props }: GlassMenuProps): import("react").JSX.Element;
+```
+
+### GlassMenuItem
+
+Type only · declared in `dist/components/menus.d.ts`.
+
+```ts
+export interface GlassMenuItem {
+    id: string;
+    label: string;
+    icon?: ReactNode;
+    detail?: string;
+    shortcut?: string;
+    disabled?: boolean;
+    destructive?: boolean;
+    checked?: boolean;
+    kind?: 'action' | 'checkbox' | 'radio';
+    separatorBefore?: boolean;
+    keepOpen?: boolean;
+    onSelect?: () => void;
+    items?: readonly GlassMenuItem[];
+}
+```
+
+### GlassMenuProps
+
+Type only · declared in `dist/components/menus.d.ts`.
+
+```ts
+export interface GlassMenuProps extends Omit<GlassPopoverProps, 'children' | 'onSelect'> {
+    items: readonly GlassMenuItem[];
+    title?: string;
+    layout?: 'large' | 'medium' | 'small';
+    palette?: readonly GlassMenuItem[];
+    onSelect?: (id: string) => void;
+    orientation?: 'vertical' | 'horizontal';
+}
+```
+
+### GlassNavigationBar
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassNavigationBar({ title, largeTitle, leading, trailing, subtitle, children, className, variant, appearance, tintLevel, dimming, tint, preset, backdrop, refractionTarget, optics, present, onPresenceChange, ...props }: GlassNavigationBarProps): import("react").JSX.Element;
+```
+
+### GlassNavigationBarProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassNavigationBarProps extends HTMLAttributes<HTMLElement>, MaterialProps {
+    title: string;
+    largeTitle?: boolean;
+    leading?: ReactNode;
+    trailing?: ReactNode;
+    subtitle?: string;
+    children?: ReactNode;
+}
+```
+
+### GlassNotification
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassNotification({ title, message, appName, icon, time, onActivate, onDismiss, actions, expanded, className, ...props }: GlassNotificationProps): import("react").JSX.Element;
+```
+
+### GlassNotificationAction
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassNotificationAction {
+    id: string;
+    label: string;
+    onSelect: () => void;
+    destructive?: boolean;
+    disabled?: boolean;
+}
+```
+
+### GlassNotificationProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassNotificationProps extends Omit<GlassSurfaceProps, 'title'> {
+    title: string;
+    message: ReactNode;
+    appName?: string;
+    icon?: ReactNode;
+    time?: string;
+    onActivate?: () => void;
+    onDismiss?: () => void;
+    actions?: readonly GlassNotificationAction[];
+    expanded?: boolean;
+}
+```
+
+### GlassPageControl
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare function GlassPageControl({ count, value: controlled, defaultValue, onValueChange, background, appearance, variant, tint, dimming, className, style, ...props }: GlassPageControlProps): import("react").JSX.Element;
+```
+
+### GlassPageControlProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassPageControlProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>, Pick<MaterialProps, 'appearance' | 'variant' | 'tint' | 'dimming'> {
+    count: number;
+    value?: number;
+    defaultValue?: number;
+    onValueChange?: (value: number) => void;
+    background?: 'automatic' | 'prominent' | 'minimal';
+}
+```
+
+### GlassPickerOption
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassPickerOption {
+    value: string;
+    label: string;
+    disabled?: boolean;
+}
+```
+
+### GlassPopover
+
+Runtime export · declared in `dist/components/popover.d.ts`.
+
+```ts
+export declare function GlassPopover({ trigger, triggerLabel, children, onOpenChange, open: controlled, triggerProps, anchorRef, anchorPoint, align, placement, source, sourceVersion, className, ...props }: GlassPopoverProps): import("react").JSX.Element;
+```
+
+### GlassPopoverProps
+
+Type only · declared in `dist/components/popover.d.ts`.
+
+```ts
+export interface GlassPopoverProps extends Omit<GlassSurfaceProps, 'children' | 'title' | 'onToggle' | 'present'> {
+    trigger: ReactNode;
+    children: ReactNode;
+    /** Accessible name for an icon-only trigger. */
+    triggerLabel?: string;
+    onOpenChange?: (open: boolean) => void;
+    open?: boolean;
+    triggerProps?: GlassButtonProps;
+    anchorRef?: RefObject<HTMLElement | null>;
+    anchorPoint?: {
+        x: number;
+        y: number;
+    };
+    align?: 'start' | 'center' | 'end';
+    placement?: 'below' | 'overlap';
+    source?: RefObject<GlassMediaSource | null>;
+    sourceVersion?: string | number;
+}
+```
+
+### GlassPresence
+
+Runtime export · declared in `dist/components/presence.d.ts`.
+
+```ts
+export declare const GlassPresence: import("react").ForwardRefExoticComponent<GlassSurfaceProps & {
+    present: boolean;
+} & import("react").RefAttributes<HTMLDivElement>>;
+```
+
+### GlassProgress
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassProgress({ value, max, size, label, kind, className, style, ...props }: GlassProgressProps): import("react").JSX.Element;
+```
+
+### GlassProgressProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+    value?: number;
+    max?: number;
+    size?: 'small' | 'regular';
+    label?: string;
+    kind?: 'linear' | 'circular';
+}
+```
+
+### GlassProvider
+
+Runtime export · declared in `dist/components/context.d.ts`.
+
+```ts
+export declare function GlassProvider({ children, variant, appearance, tintLevel, dimming, tint }: GlassProviderProps): import("react").JSX.Element;
+```
+
+### GlassProviderProps
+
+Type only · declared in `dist/components/context.d.ts`.
+
+```ts
+export interface GlassProviderProps {
+    children: ReactNode;
+    variant?: GlassVariant;
+    appearance?: GlassAppearanceMode;
+    tintLevel?: number;
+    dimming?: number;
+    tint?: GlassTint;
+}
+```
+
+### GlassPullDownButton
+
+Runtime export · declared in `dist/components/menus.d.ts`.
+
+```ts
+export declare function GlassPullDownButton(props: GlassMenuProps): import("react").JSX.Element;
+```
+
+### GlassScrollArea
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare const GlassScrollArea: import("react").ForwardRefExoticComponent<GlassScrollAreaProps & import("react").RefAttributes<HTMLDivElement>>;
+```
+
+### GlassScrollAreaProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassScrollAreaProps extends HTMLAttributes<HTMLDivElement> {
+    edgeEffect?: 'soft' | 'hard' | 'none';
+}
+```
+
+### GlassSearchField
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare const GlassSearchField: import("react").ForwardRefExoticComponent<GlassSearchFieldProps & import("react").RefAttributes<HTMLInputElement>>;
+```
+
+### GlassSearchFieldProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassSearchFieldProps extends Omit<GlassTextFieldProps, 'type' | 'leading' | 'trailing' | 'error'>, Omit<MaterialProps, 'appearance'> {
+    onSearch?: (value: string) => void;
+    onCancel?: () => void;
+    cancelLabel?: string;
+    cancelable?: boolean;
+    floating?: boolean;
+}
+```
+
+### GlassSelect
+
+Runtime export · declared in `dist/components/menus.d.ts`.
+
+```ts
+export declare function GlassSelect({ options, value: controlled, defaultValue, onValueChange, disabled, label, triggerProps, ...props }: GlassSelectProps): import("react").JSX.Element;
+```
+
+### GlassSelectProps
+
+Type only · declared in `dist/components/menus.d.ts`.
+
+```ts
+export interface GlassSelectProps extends Omit<GlassMenuProps, 'items' | 'trigger' | 'onSelect'> {
+    options: readonly GlassPickerOption[];
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    disabled?: boolean;
+    label?: string;
+}
+```
+
+### GlassSeparator
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassSeparator({ className, ...props }: HTMLAttributes<HTMLHRElement>): import("react").JSX.Element;
+```
+
+### GlassShareItem
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassShareItem {
+    id: string;
+    label: string;
+    icon: ReactNode;
+    onSelect: () => void;
+    disabled?: boolean;
+}
+```
+
+### GlassShareSheet
+
+Runtime export · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export declare function GlassShareSheet({ title, subtitle, preview, destinations, actions, url, children, onOpenChange, ...props }: GlassShareSheetProps): import("react").JSX.Element;
+```
+
+### GlassShareSheetProps
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassShareSheetProps extends Omit<GlassSheetProps, 'title'> {
+    title: string;
+    subtitle?: string;
+    preview?: ReactNode;
+    destinations?: readonly GlassShareItem[];
+    actions?: readonly GlassShareItem[];
+    url?: string;
+}
+```
+
+### GlassSheet
+
+Runtime export · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export declare const GlassSheet: import("react").ForwardRefExoticComponent<GlassSheetProps & import("react").RefAttributes<HTMLDialogElement>>;
+```
+
+### GlassSheetDetent
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export type GlassSheetDetent = 'medium' | 'large' | number;
+```
+
+### GlassSheetProps
+
+Type only · declared in `dist/components/presentation.d.ts`.
+
+```ts
+export interface GlassSheetProps extends Omit<GlassDialogProps, 'kind' | 'title'> {
+    title?: string;
+    detents?: readonly GlassSheetDetent[];
+    detent?: GlassSheetDetent;
+    defaultDetent?: GlassSheetDetent;
+    onDetentChange?: (detent: GlassSheetDetent) => void;
+    leading?: ReactNode;
+    trailing?: ReactNode;
+    showGrabber?: boolean;
+}
+```
+
+### GlassSidebar
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassSidebar({ items, value: controlled, defaultValue, onValueChange, heading, className, ...props }: GlassSidebarProps): import("react").JSX.Element;
+```
+
+### GlassSidebarItem
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassSidebarItem {
+    value: string;
+    label: string;
+    icon?: ReactNode;
+    badge?: number;
+    disabled?: boolean;
+}
+```
+
+### GlassSidebarProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassSidebarProps extends GlassSurfaceProps {
+    items: readonly GlassSidebarItem[];
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    heading?: string;
+}
+```
+
+### GlassSlider
+
+Runtime export · declared in `dist/components/controls.d.ts`.
+
+```ts
+export declare const GlassSlider: import("react").ForwardRefExoticComponent<GlassSliderProps & import("react").RefAttributes<HTMLInputElement>>;
+```
+
+### GlassSliderProps
+
+Type only · declared in `dist/components/controls.d.ts`.
+
+```ts
+export interface GlassSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue' | 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {
+    value?: number;
+    defaultValue?: number;
+    onValueChange?: (value: number) => void;
+}
+```
+
+### GlassSnippet
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassSnippet({ children, className, ...props }: GlassSurfaceProps): import("react").JSX.Element;
+```
+
+### GlassSource
+
+Runtime export · declared in `dist/react.d.ts`.
+
+```ts
+export declare const GlassSource: import("react").ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & {
+    glass: GlassOptions;
+} & import("react").RefAttributes<HTMLDivElement>>;
+```
+
+### GlassSourceProps
+
+Type only · declared in `dist/react.d.ts`.
+
+```ts
+export type GlassSourceProps = HTMLAttributes<HTMLDivElement> & {
+    glass: GlassOptions;
+};
+```
+
+### GlassStepper
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare function GlassStepper({ value: controlled, defaultValue, onValueChange, min, max, step, disabled, label, className, onKeyDown, ...props }: GlassStepperProps): import("react").JSX.Element;
+```
+
+### GlassStepperProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassStepperProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
+    value?: number;
+    defaultValue?: number;
+    onValueChange?: (value: number) => void;
+    min?: number;
+    max?: number;
+    step?: number;
+    disabled?: boolean;
+    label?: string;
+}
+```
+
+### GlassSurface
+
+Runtime export · declared in `dist/components/surface.d.ts`.
+
+```ts
+export declare const GlassSurface: import("react").ForwardRefExoticComponent<GlassSurfaceProps & import("react").RefAttributes<HTMLDivElement>>;
+```
+
+### GlassSurfaceProps
+
+Type only · declared in `dist/components/surface.d.ts`.
+
+```ts
+export interface GlassSurfaceProps extends HTMLAttributes<HTMLDivElement>, MaterialProps {
+    shape?: LensShape;
+    radius?: number;
+    /** Keep top-layer surfaces (for example popovers) independent of a media scene. */
+    local?: boolean;
+}
+```
+
+### GlassSwitch
+
+Runtime export · declared in `dist/components/controls.d.ts`.
+
+```ts
+export declare const GlassSwitch: import("react").ForwardRefExoticComponent<GlassSwitchProps & import("react").RefAttributes<HTMLButtonElement>>;
+```
+
+### GlassSwitchProps
+
+Type only · declared in `dist/components/controls.d.ts`.
+
+```ts
+export interface GlassSwitchProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'value'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {
+    checked?: boolean;
+    defaultChecked?: boolean;
+    onCheckedChange?: (checked: boolean) => void;
+    value?: string;
+}
+```
+
+### GlassTab
+
+Type only · declared in `dist/components/tabs.d.ts`.
+
+```ts
+export interface GlassTab {
+    value: string;
+    label: ReactNode;
+    content?: ReactNode;
+    disabled?: boolean;
+}
+```
+
+### GlassTabBar
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassTabBar({ items, value: controlled, defaultValue, onValueChange, minimized, accessory, className, ...props }: GlassTabBarProps): import("react").JSX.Element;
+```
+
+### GlassTabBarItem
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassTabBarItem {
+    value: string;
+    label: string;
+    icon: ReactNode;
+    badge?: number;
+    disabled?: boolean;
+}
+```
+
+### GlassTabBarProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassTabBarProps extends GlassSurfaceProps {
+    items: readonly GlassTabBarItem[];
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    minimized?: boolean;
+    accessory?: ReactNode;
+}
+```
+
+### GlassTabs
+
+Runtime export · declared in `dist/components/tabs.d.ts`.
+
+```ts
+export declare function GlassTabs({ items, value: controlled, defaultValue, onValueChange, variant, appearance, optics, tintLevel, dimming, tint, className, ...props }: GlassTabsProps): import("react").JSX.Element;
+```
+
+### GlassTabsProps
+
+Type only · declared in `dist/components/tabs.d.ts`.
+
+```ts
+export interface GlassTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {
+    items: readonly GlassTab[];
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+}
+```
+
+### GlassTextField
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare const GlassTextField: import("react").ForwardRefExoticComponent<GlassTextFieldProps & import("react").RefAttributes<HTMLInputElement>>;
+```
+
+### GlassTextFieldProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassTextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue'>, Pick<MaterialProps, 'appearance'> {
+    label?: string;
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    clearable?: boolean;
+    leading?: ReactNode;
+    trailing?: ReactNode;
+    error?: string;
+}
+```
+
+### GlassToken
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassToken({ children, onRemove, removeLabel, disabled, className, ...props }: GlassTokenProps): import("react").JSX.Element;
+```
+
+### GlassTokenProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassTokenProps extends GlassSurfaceProps {
+    onRemove?: () => void;
+    removeLabel?: string;
+    disabled?: boolean;
+}
+```
+
+### GlassToolbar
+
+Runtime export · declared in `dist/components/surface.d.ts`.
+
+```ts
+export declare const GlassToolbar: import("react").ForwardRefExoticComponent<GlassSurfaceProps & import("react").RefAttributes<HTMLDivElement>>;
+```
+
+### GlassWheelPicker
+
+Runtime export · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export declare function GlassWheelPicker({ options, value: controlled, defaultValue, onValueChange, disabled, label, className, style, ...props }: GlassWheelPickerProps): import("react").JSX.Element;
+```
+
+### GlassWheelPickerProps
+
+Type only · declared in `dist/components/inputs.d.ts`.
+
+```ts
+export interface GlassWheelPickerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {
+    options: readonly GlassPickerOption[];
+    value?: string;
+    defaultValue?: string;
+    onValueChange?: (value: string) => void;
+    disabled?: boolean;
+    label: string;
+}
+```
+
+### GlassWidget
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare function GlassWidget({ size, renderingMode, accent, children, className, ...props }: GlassWidgetProps): import("react").JSX.Element;
+```
+
+### GlassWidgetProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface GlassWidgetProps extends GlassSurfaceProps {
+    size?: 'small' | 'medium' | 'large';
+    renderingMode?: 'full-color' | 'clear' | 'tinted';
+    accent?: readonly [number, number, number];
+}
+```
+
+### MaterialProps
+
+Type only · declared in `dist/components/context.d.ts`.
+
+```ts
+export interface MaterialProps {
+    variant?: GlassVariant;
+    appearance?: GlassAppearanceMode;
+    preset?: GlassSurfacePreset;
+    /** Explicit backdrop source or read-only sample callback for unsupported compositing. */
+    backdrop?: Element | GlassBackdropReader;
+    tintLevel?: number;
+    /** Clear material's local background darkening, 0–1. 0 keeps the clearest view; default 0.35. */
+    dimming?: number;
+    /** Optional material reflection/tint. Normalized RGBA; foreground remains opaque. */
+    tint?: GlassTint;
+    /** Explicit, decorative source pixels. With no source, the surface uses CSS material. */
+    refractionTarget?: ReactNode;
+    /** Keep mounted during materialization; false removes hit/focus access immediately. */
+    present?: boolean;
+    onPresenceChange?: (phase: GlassPresencePhase) => void;
+    optics?: Partial<Omit<GlassOptions, 'lens' | 'onStatus'>>;
+}
+```
+
+### MaterialSurface
+
+Runtime export · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export declare const MaterialSurface: import("react").ForwardRefExoticComponent<MaterialSurfaceProps & import("react").RefAttributes<HTMLDivElement>>;
+```
+
+### MaterialSurfaceProps
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export interface MaterialSurfaceProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'appearance'> {
+    material?: StandardMaterial;
+}
+```
+
+### StandardMaterial
+
+Type only · declared in `dist/components/primitives.d.ts`.
+
+```ts
+export type StandardMaterial = 'ultra-thin' | 'thin' | 'regular' | 'thick';
+```
+
+### useGlass
+
+Runtime export · declared in `dist/react.d.ts`.
+
+```ts
+export declare function useGlass(source: RefObject<HTMLElement | null>, options: GlassOptions): RefObject<GlassController | null>;
+```
+
+## @meapri/prism-glass/optics
+
+Runtime exports (8): `clamp`, `continuousContour`, `finite`, `generateMaps`, `lensFor`, `normalizeLens`, `roundedDistance`, `sampleDisplacement`.
+
+Types entry: `./dist/optics.d.ts`.
+
+### BlurMode
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export type BlurMode = 'uniform' | 'center' | 'edge';
+```
+
+### clamp
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare const clamp: (n: number, a: number, b: number) => number;
+```
+
+### continuousContour
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function continuousContour(lens: Lens, inset?: number): string;
+```
+
+### finite
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function finite(value: number, name: string): number;
+```
+
+### generateMaps
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function generateMaps(input: OpticalShape, resolution?: number): PixelMaps;
+```
+
+### Lens
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export interface Lens {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    radius: number;
+    shape?: LensShape;
+}
+```
+
+### lensFor
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function lensFor(shape: LensShape, bounds: Omit<Lens, 'shape' | 'radius'> & {
+    radius?: number;
+}): Lens;
+```
+
+### LensShape
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export type LensShape = 'rounded-rect' | 'continuous' | 'circle' | 'capsule' | 'ellipse';
+```
+
+### normalizeLens
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function normalizeLens(lens: Lens): Lens;
+```
+
+### OpticalShape
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export interface OpticalShape {
+    width: number;
+    height: number;
+    radius: number;
+    bevel: number;
+    ior: number;
+    shape?: LensShape;
+    surface?: SurfaceProfile;
+    depth?: number;
+    curvature?: number;
+    blurMode?: BlurMode;
+}
+```
+
+### PixelMaps
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export interface PixelMaps {
+    width: number;
+    height: number;
+    displacement: Uint8ClampedArray;
+    mask: Uint8ClampedArray;
+    highlight: Uint8ClampedArray;
+    frost?: Uint8ClampedArray;
+}
+```
+
+### roundedDistance
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function roundedDistance(x: number, y: number, shape: OpticalShape): number;
+```
+
+### sampleDisplacement
+
+Runtime export · declared in `dist/optics.d.ts`.
+
+```ts
+export declare function sampleDisplacement(x: number, y: number, shape: OpticalShape): {
+    dx: number;
+    dy: number;
+    mask: number;
+    shine: number;
+    frost: number;
+};
+```
+
+### SurfaceProfile
+
+Type only · declared in `dist/optics.d.ts`.
+
+```ts
+export type SurfaceProfile = 'rim' | 'dome' | 'concave';
+```
+
+## @meapri/prism-glass/media
+
+Runtime exports (2): `createMediaGlass`, `generateMediaMaps`.
+
+Types entry: `./dist/media.d.ts`.
+
+### createMediaGlass
+
+Runtime export · declared in `dist/media.d.ts`.
+
+```ts
+export declare function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSource, options?: MediaGlassOptions): MediaGlassController;
+```
+
+### generateMediaMaps
+
+Runtime export · declared in `dist/media-maps.d.ts`.
+
+```ts
+export declare function generateMediaMaps(input: OpticalShape, resolution?: number, pixelRatio?: number): MediaPixelMaps;
+```
+
+### GlassMediaSource
+
+Type only · declared in `dist/media-types.d.ts`.
+
+```ts
+export type GlassMediaSource = HTMLVideoElement | HTMLImageElement | HTMLCanvasElement;
+```
+
+### MediaGlassController
+
+Type only · declared in `dist/media-types.d.ts`.
+
+```ts
+export interface MediaGlassController {
+    setLenses(lenses: readonly MediaLens[]): void;
+    updateLens(id: string, patch: MediaLensPatch): void;
+    update(patch: Partial<Omit<MediaGlassOptions, 'lenses'>>): void;
+    refresh(): void;
+    getDiagnostics(): MediaGlassDiagnostics;
+    destroy(): void;
+}
+```
+
+### MediaGlassDiagnostics
+
+Type only · declared in `dist/media-types.d.ts`.
+
+```ts
+export interface MediaGlassDiagnostics {
+    state: 'loading' | 'ready' | 'paused' | 'disabled' | 'fallback' | 'error' | 'destroyed';
+    reason: string;
+    renderer: 'webgl-media';
+    lenses: number;
+    mapBuilds: number;
+    textureUploads: number;
+    renders: number;
+    pixels: number;
+    /** Total currently allocated optical-field pixels (two RGBA textures per pixel). */
+    mapPixels: number;
+    mapPrecision: 16;
+    visualSupportVerified: false;
+}
+```
+
+### MediaGlassOptions
+
+Type only · declared in `dist/media-types.d.ts`.
+
+```ts
+export interface MediaGlassOptions {
+    lenses?: readonly MediaLens[];
+    fit?: 'cover' | 'contain' | 'fill';
+    /** Align a separate optical plane (for example a dialog) to the source element's page bounds. */
+    sourceAlignment?: 'scene' | 'element';
+    /** Align with the visible media's object-position, normalized 0–1. */
+    position?: readonly [number, number];
+    /** RGB channels in 0–1, matching the visible media's background/letterbox. Default black. */
+    backgroundColor?: readonly [number, number, number];
+    /** Longest optical field side: default 1024, maximum 2048. Adapts to DPR and a shared 4M-pixel budget. */
+    resolution?: number;
+    /** Maximum backing-store DPR. Defaults to the display DPR, capped at 3. */
+    pixelRatio?: number;
+    maxPixels?: number;
+    enabled?: boolean;
+    /** Repaint self-animating canvas sources; video uses frame callbacks automatically. */
+    live?: boolean;
+    respectPreferences?: boolean;
+    onStatus?: (diagnostics: MediaGlassDiagnostics) => void;
+}
+```
+
+### MediaLens
+
+Type only · declared in `dist/media-types.d.ts`.
+
+```ts
+export interface MediaLens {
+    id: string;
+    lens: Lens;
+    variant?: GlassVariant;
+    appearance?: GlassAppearanceMode;
+    fallbackAppearance?: GlassAppearance;
+    preset?: GlassSurfacePreset;
+    /** Called outside React render; use to keep foreground and GPU appearance together. */
+    onAppearance?: (state: {
+        appearance: GlassAppearance;
+        material: GlassMaterial;
+        elevation: number;
+        available: boolean;
+        separation: number;
+        ambient?: readonly [number, number, number];
+    }) => void;
+    /** Web analogue of the iOS 27 appearance preference: 0 clearer, 1 more tinted. */
+    tintLevel?: number;
+    tint?: GlassTint;
+    strength?: number;
+    bevel?: number;
+    ior?: number;
+    surface?: SurfaceProfile;
+    depth?: number;
+    curvature?: number;
+    blurMode?: BlurMode;
+    blur?: number;
+    saturation?: number;
+    highlight?: number;
+    /** Chromatic fringe in CSS pixels, 0–3. */
+    chroma?: number;
+    /** Local dimming under clear controls; defaults to 0.35. Set 0 for already-dark media. */
+    dimming?: number;
+    /** Touch lighting, 0–1. Changes do not rebuild the optical map. */
+    press?: number;
+    /** Neighboring contact illumination, 0–1. */
+    illumination?: number;
+    illuminationPointer?: readonly [number, number];
+    /** Material formation, 0 invisible/optically neutral to 1 fully formed. */
+    presence?: number;
+    hover?: number;
+    pointer?: readonly [number, number];
+}
+```
+
+### MediaLensPatch
+
+Type only · declared in `dist/media-types.d.ts`.
+
+```ts
+export type MediaLensPatch = Partial<Omit<MediaLens, 'id' | 'lens'>> & {
+    lens?: Partial<Lens>;
+};
+```
+
+### MediaPixelMaps
+
+Type only · declared in `dist/media-maps.d.ts`.
+
+```ts
+export interface MediaPixelMaps {
+    width: number;
+    height: number;
+    precision: 16;
+    displacement: Uint8Array;
+    finish: Uint8Array;
+}
+```
+
+
+# Complete recipes
+
+## examples/recipes/ControlsExample.tsx
+
+```tsx
+'use client';
+
+import {useState} from 'react';
+import {GlassButton,GlassMenu,GlassProvider,GlassSlider,GlassSwitch} from '@meapri/prism-glass/react';
+
+export function ControlsExample(){
+  const [count,setCount]=useState(0);
+  const [enabled,setEnabled]=useState(true);
+  const [volume,setVolume]=useState(40);
+  const [action,setAction]=useState('No action yet');
+  return <GlassProvider variant="regular" appearance="auto">
+    <section aria-label="Example controls" style={{display:'grid',gap:20,justifyItems:'start'}}>
+      <GlassButton onClick={()=>setCount(count+1)}>Add item</GlassButton>
+      <output aria-label="Item count">{count} items</output>
+      <label style={{display:'flex',alignItems:'center',gap:16}}>
+        Notifications
+        <GlassSwitch aria-label="Notifications" checked={enabled} onCheckedChange={setEnabled}/>
+      </label>
+      <GlassSlider aria-label="Volume" value={volume} onValueChange={setVolume} min={0} max={100}/>
+      <output aria-label="Volume value">{volume}%</output>
+      <GlassMenu trigger="Actions" aria-label="Example actions" items={[
+        {id:'save',label:'Save',onSelect:()=>setAction('Saved')},
+        {id:'reset',label:'Reset count',onSelect:()=>{setCount(0);setAction('Count reset');}},
+      ]}/>
+      <p role="status">{action}</p>
+    </section>
+  </GlassProvider>;
+}
+```
+
+## examples/recipes/ConfirmExample.tsx
+
+```tsx
+'use client';
+
+import {useRef,useState} from 'react';
+import {GlassAlertDialog,GlassButton} from '@meapri/prism-glass/react';
+
+export function ConfirmExample(){
+  const trigger=useRef<HTMLButtonElement>(null);
+  const [open,setOpen]=useState(false);
+  const [removed,setRemoved]=useState(false);
+  return <section aria-label="Confirmation example">
+    <p>{removed?'Item removed':'One saved item'}</p>
+    <GlassButton ref={trigger} onClick={()=>setOpen(true)}>Review removal</GlassButton>
+    <GlassAlertDialog open={open} onOpenChange={setOpen} returnFocusRef={trigger}
+      title="Remove saved item?" message="Confirm before changing your collection."
+      actions={[
+        {label:'Cancel',intent:'cancel'},
+        {label:'Remove',intent:'destructive',onSelect:()=>setRemoved(true)},
+      ]}/>
+  </section>;
+}
+```
+
+## examples/recipes/MediaDock.tsx
+
+```tsx
+'use client';
+
+import {useRef,useState} from 'react';
+import {GlassDock,GlassDockItem,GlassMediaScene} from '@meapri/prism-glass/react';
+
+export function MediaDock({src}:{src:string}){
+  const image=useRef<HTMLImageElement>(null);
+  const [selected,setSelected]=useState('Home');
+  return <section aria-label="Image dock example">
+    <GlassMediaScene source={image} variant="clear" dimming={0} tint={[1,1,1,.035]}
+      style={{width:'100%',maxWidth:620,height:260,borderRadius:24}}>
+      <img ref={image} src={src} alt=""/>
+      <div className="prism-media-controls" style={{display:'grid',placeItems:'center',padding:16}}>
+        <GlassDock aria-label="Example dock">
+          <GlassDockItem label="Home" onClick={()=>setSelected('Home')}><span aria-hidden="true">⌂</span></GlassDockItem>
+          <GlassDockItem label="Search" onClick={()=>setSelected('Search')}><span aria-hidden="true">⌕</span></GlassDockItem>
+          <GlassDockItem label="Saved" onClick={()=>setSelected('Saved')}><span aria-hidden="true">♡</span></GlassDockItem>
+          <GlassDockItem label="More" onClick={()=>setSelected('More')}><span aria-hidden="true">···</span></GlassDockItem>
+        </GlassDock>
+      </div>
+    </GlassMediaScene>
+    <output aria-label="Dock selection">{selected}</output>
+  </section>;
+}
+```
+
+## examples/recipes/plain-media.ts
+
+```ts
+import {createMediaGlass} from '@meapri/prism-glass/media';
+
+/** Host: position:relative and explicit dimensions. Image: width/height:100%, object-fit:cover. */
+export async function mountMediaLens(host:HTMLElement,source:HTMLImageElement){
+  await source.decode();
+  if(!host.isConnected||!host.contains(source))throw new Error('Mount the source in its host first');
+  const canvas=document.createElement('canvas');
+  canvas.setAttribute('aria-hidden','true');
+  Object.assign(canvas.style,{position:'absolute',inset:'0',width:'100%',height:'100%',pointerEvents:'none'});
+  host.append(canvas);
+  try{
+    const renderer=createMediaGlass(canvas,source,{
+      fit:'cover',
+      lenses:[{id:'control',variant:'clear',dimming:0,tint:[1,1,1,.035],
+        lens:{x:24,y:24,width:160,height:56,radius:28,shape:'capsule'}}],
+    });
+    return {renderer,destroy(){renderer.destroy();canvas.remove();}};
+  }catch(error){canvas.remove();throw error;}
+}
+```
