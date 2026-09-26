@@ -12,19 +12,19 @@ These sources do not specify a Gaussian radius, refraction displacement, shader 
 
 ## Reference procedure
 
-A small [SwiftUI reference app](visual/NativeReference.swift) was built with Xcode 27.0 (27A266a), using an already installed iOS 27.0 (24A434) iPhone 18 Pro simulator. It uses `.buttonStyle(.glass)`, native Toggle/Slider/segmented Picker, `.glassEffect(.regular)` and `.glassEffect(.clear)` with no custom native blur or refraction. The clear examples have an explicit 35% black backdrop, matching the bright-media use case.
+A small [SwiftUI reference app](https://github.com/Meapri/prism-glass/blob/main/docs/visual/NativeReference.swift) was built with Xcode 27.0 (27A266a), using an already installed iOS 27.0 (24A434) iPhone 18 Pro simulator. It uses `.buttonStyle(.glass)`, native Toggle/Slider/segmented Picker, `.glassEffect(.regular)` and `.glassEffect(.clear)` with no custom native blur or refraction. The clear examples have an explicit 35% black backdrop, matching the bright-media use case.
 
 The same CC0 flower frame was supplied to SwiftUI and the web renderer. Native captures were 1206 × 2622 pixels at 3× density; the material content crop is 1206 × 2025, normalized to 402 × 675 CSS pixels. Status bars, navigation bars and simulator chrome are excluded. Web comparisons were inspected in the Codex in-app browser at the same CSS sizes. The current saved comparisons use deterministic Chromium captures at 2× runtime DPR, normalized to CSS pixels; the separate native control montage remains from the earlier comparison.
 
 Left is native SwiftUI; right is the live web implementation:
 
-![Light appearance](visual/comparison-light.jpg)
+![Light appearance](https://raw.githubusercontent.com/Meapri/prism-glass/main/docs/visual/comparison-light.jpg)
 
-![Dark appearance](visual/comparison-dark.jpg)
+![Dark appearance](https://raw.githubusercontent.com/Meapri/prism-glass/main/docs/visual/comparison-dark.jpg)
 
 The focused control comparison combines crops from separate native Form rows. Both columns use the same CSS scale; it is not a comparison of entire screen layouts.
 
-![Button, switch, slider and segmented selection](visual/comparison-controls.jpg)
+![Button, switch, slider and segmented selection](https://raw.githubusercontent.com/Meapri/prism-glass/main/docs/visual/comparison-controls.jpg)
 
 ## Optical correction in 0.4
 

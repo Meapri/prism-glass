@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { readFile,readdir } from 'node:fs/promises';
+import {publicDocuments,documentMime} from './public-documents.mjs';
 const port = Number(process.env.PORT || 4173);
 const routes = {
   '/': ['../demo/index.html', 'text/html; charset=utf-8'],
@@ -13,6 +14,7 @@ const routes = {
 for(const name of await readdir(new URL('../docs/visual/catalog/',import.meta.url)).catch(()=>[])){
   if(/^[a-z0-9-]+\.png$/.test(name))routes[`/assets/catalog/${name}`]=[`../docs/visual/catalog/${name}`,'image/png'];
 }
+for(const name of await publicDocuments())routes['/'+name]=['../'+name,documentMime(name)];
 createServer(async (req, res) => {
   const route = routes[new URL(req.url, 'http://localhost').pathname];
   if (!route || !['GET', 'HEAD'].includes(req.method)) { res.writeHead(404); res.end(); return; }

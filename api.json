@@ -1,0 +1,1448 @@
+{
+  "schemaVersion": 1,
+  "package": "@meapri/prism-glass",
+  "version": "0.5.0-alpha.2",
+  "registryPublished": false,
+  "moduleFormat": "esm",
+  "reactPeer": ">=18",
+  "cssImport": "@meapri/prism-glass/styles.css",
+  "entryPoints": [
+    {
+      "import": "@meapri/prism-glass",
+      "types": "./dist/index.d.ts",
+      "runtimeExports": [
+        "adaptGlassMaterial",
+        "bindGlassInteraction",
+        "blendGlassMaterial",
+        "createBackdropSampler",
+        "createGlass",
+        "createGlassPresence",
+        "customizeGlassMaterial",
+        "getGlassMaterial",
+        "getGlassPreset",
+        "getGlassSurfaceProfile",
+        "getLensMaterial",
+        "glassLightAt",
+        "glassPresenceFrame",
+        "glassSurfacePresets",
+        "lensFor",
+        "linearChannel",
+        "materialOptics",
+        "normalizeGlassTint",
+        "observeGlassBackdrop",
+        "observeGlassPreferences",
+        "relativeLuminance",
+        "resolveGlassSurface",
+        "stepSpring",
+        "summarizeBackdrop",
+        "updateGlassAdaptation",
+        "validBackdrop"
+      ],
+      "exports": [
+        {
+          "name": "adaptGlassMaterial",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare function adaptGlassMaterial(material: GlassMaterial, state: GlassAdaptiveState): GlassMaterial;"
+        },
+        {
+          "name": "bindGlassInteraction",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/motion.d.ts",
+          "declaration": "export declare function bindGlassInteraction(element: HTMLElement, onChange?: (state: GlassInteraction) => void): GlassInteractionController;"
+        },
+        {
+          "name": "blendGlassMaterial",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare function blendGlassMaterial(from: GlassMaterial, to: GlassMaterial, amount: number): GlassMaterial;"
+        },
+        {
+          "name": "BlurMode",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export type BlurMode = 'uniform' | 'center' | 'edge';"
+        },
+        {
+          "name": "createBackdropSampler",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/backdrop.d.ts",
+          "declaration": "export declare function createBackdropSampler(doc: Document): {\n    begin(): void;\n    media(source: GlassMediaSource, lens: {\n        x: number;\n        y: number;\n        width: number;\n        height: number;\n    }, sourceRect: readonly number[], background: readonly [number, number, number]): GlassBackdropSample | null;\n    dom(element: HTMLElement, source?: Element): GlassBackdropSample | null;\n    destroy(): void;\n};\ninterface Subscriber {\n    element: HTMLElement;\n    callback: (sample: GlassBackdropSample | null) => void;\n    options: GlassBackdropOptions;\n}"
+        },
+        {
+          "name": "createGlass",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/index.d.ts",
+          "declaration": "export declare function createGlass(source: HTMLElement, options: GlassOptions): GlassController;"
+        },
+        {
+          "name": "createGlassPresence",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/presence.d.ts",
+          "declaration": "export declare function createGlassPresence(element: HTMLElement, options?: GlassPresenceOptions): GlassPresenceController;"
+        },
+        {
+          "name": "customizeGlassMaterial",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export declare function customizeGlassMaterial(material: GlassMaterial, options: {\n    tint?: GlassTint;\n    dimming?: number;\n}): GlassMaterial;"
+        },
+        {
+          "name": "getGlassMaterial",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export declare function getGlassMaterial(variant?: GlassVariant, appearance?: GlassAppearance, tintLevel?: number): GlassMaterial;"
+        },
+        {
+          "name": "getGlassPreset",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/presets.d.ts",
+          "declaration": "export declare function getGlassPreset(preset: GlassPreset, lens: Lens): GlassOptions;"
+        },
+        {
+          "name": "getGlassSurfaceProfile",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export declare function getGlassSurfaceProfile(name: GlassSurfacePreset): Readonly<GlassSurfaceProfile>;"
+        },
+        {
+          "name": "getLensMaterial",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export declare function getLensMaterial(lens: Lens, variant?: GlassVariant, appearance?: GlassAppearance, tintLevel?: number): GlassMaterial;"
+        },
+        {
+          "name": "GlassAdaptationPolicy",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export type GlassAdaptationPolicy = 'flip' | 'ambient';"
+        },
+        {
+          "name": "GlassAdaptiveState",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export interface GlassAdaptiveState {\n    appearance: GlassAppearance;\n    luminance: number;\n    variance: number;\n    color: readonly [number, number, number];\n    at: number;\n    candidate: GlassAppearance;\n    since: number;\n    available: boolean;\n}"
+        },
+        {
+          "name": "GlassAppearance",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export type GlassAppearance = 'light' | 'dark';"
+        },
+        {
+          "name": "GlassAppearanceMode",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export type GlassAppearanceMode = GlassAppearance | 'auto' | 'adaptive';"
+        },
+        {
+          "name": "GlassBackdropOptions",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/backdrop.d.ts",
+          "declaration": "export interface GlassBackdropOptions {\n    source?: Element;\n    sample?: GlassBackdropReader;\n}"
+        },
+        {
+          "name": "GlassBackdropReader",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/backdrop.d.ts",
+          "declaration": "export type GlassBackdropReader = () => GlassBackdropSample | null;"
+        },
+        {
+          "name": "GlassBackdropSample",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export interface GlassBackdropSample {\n    /** Linear-light relative luminance, not gamma-encoded RGB brightness. */\n    luminance: number;\n    variance: number;\n    color: readonly [number, number, number];\n    source: 'css' | 'pixels' | 'provided';\n    confidence: number;\n}"
+        },
+        {
+          "name": "GlassController",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/types.d.ts",
+          "declaration": "export interface GlassController {\n    update(patch: GlassPatch): void;\n    refresh(): void;\n    getDiagnostics(): GlassDiagnostics;\n    destroy(): void;\n}"
+        },
+        {
+          "name": "GlassDiagnostics",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/types.d.ts",
+          "declaration": "export interface GlassDiagnostics {\n    state: 'loading' | 'ready' | 'disabled' | 'paused' | 'limited' | 'error' | 'destroyed';\n    reason: string;\n    renderer: 'svg-source';\n    mapBuilds: number;\n    renders: number;\n    mapGenerationMs: number;\n    sourcePixels: number;\n    mapSize: [number, number];\n    /** This reports the selected path, not pixel correctness or frame rate. */\n    visualSupportVerified: false;\n}"
+        },
+        {
+          "name": "GlassInteraction",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/motion.d.ts",
+          "declaration": "export interface GlassInteraction {\n    press: number;\n    hover: number;\n    pointer: readonly [number, number];\n    reducedMotion: boolean;\n    illumination?: number;\n    illuminationPointer?: readonly [number, number];\n}"
+        },
+        {
+          "name": "GlassInteractionController",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/motion.d.ts",
+          "declaration": "export interface GlassInteractionController {\n    destroy(): void;\n}"
+        },
+        {
+          "name": "glassLightAt",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/illumination.d.ts",
+          "declaration": "export declare function glassLightAt(x: number, y: number, width: number, height: number, energy: number, point: readonly [number, number]): number;"
+        },
+        {
+          "name": "GlassMaterial",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export interface GlassMaterial {\n    variant: GlassVariant;\n    appearance: GlassAppearance;\n    tint: readonly [number, number, number, number];\n    dimming: number;\n    chroma: number;\n    blur: number;\n    saturation: number;\n    brightness: number;\n    highlight: number;\n    foreground: string;\n    opaque: string;\n}"
+        },
+        {
+          "name": "GlassOptions",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/types.d.ts",
+          "declaration": "export interface GlassOptions {\n    lens: Lens;\n    /** Maximum sampling offset in CSS pixels. Default 24; range 0–64. */\n    strength?: number;\n    /** Refractive index of the single-interface approximation. Default 1.5. */\n    ior?: number;\n    bevel?: number;\n    /** Rim keeps the center flat; dome curves the full lens; concave reverses the bend. */\n    surface?: SurfaceProfile;\n    /** Relative surface height. 0–4, default 1. */\n    depth?: number;\n    /** Superellipse surface exponent. 2–8, default 4. */\n    curvature?: number;\n    blur?: number;\n    /** Color diffusion/vibrancy inside the lens. 0–3, default 1. */\n    saturation?: number;\n    /** Uniform frosting, a frosted center, or a frosted rim with a clear center. */\n    blurMode?: BlurMode;\n    highlight?: number;\n    /** Longest displacement-map side; capped at 512. Independent of DPR. */\n    resolution?: number;\n    /** Safety budget for the full filtered source, including DPR squared. */\n    maxSourcePixels?: number;\n    enabled?: boolean;\n    /** Force filter-cache invalidation for self-animating DOM. Costs a repaint. */\n    live?: boolean;\n    respectReducedTransparency?: boolean;\n    /** Workaround; 'auto' enables ID refresh in WebKit. */\n    refreshFilterId?: 'auto' | 'always' | 'never';\n    onStatus?: (diagnostics: GlassDiagnostics) => void;\n}"
+        },
+        {
+          "name": "GlassPatch",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/types.d.ts",
+          "declaration": "export type GlassPatch = Partial<Omit<GlassOptions, 'lens'>> & {\n    lens?: Partial<Lens>;\n};"
+        },
+        {
+          "name": "GlassPreferences",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export interface GlassPreferences {\n    reducedMotion: boolean;\n    reducedTransparency: boolean;\n    increasedContrast: boolean;\n    forcedColors: boolean;\n    dark: boolean;\n}\ntype Subscriber = (preferences: GlassPreferences) => void;"
+        },
+        {
+          "name": "GlassPresenceController",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/presence.d.ts",
+          "declaration": "export interface GlassPresenceController {\n    setVisible(visible: boolean): void;\n    getState(): {\n        phase: GlassPresencePhase;\n        progress: number;\n    };\n    destroy(): void;\n}"
+        },
+        {
+          "name": "glassPresenceFrame",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/presence.d.ts",
+          "declaration": "export declare function glassPresenceFrame(progress: number, reducedMotion?: boolean): GlassPresenceFrame;"
+        },
+        {
+          "name": "GlassPresenceFrame",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/presence.d.ts",
+          "declaration": "export interface GlassPresenceFrame {\n    progress: number;\n    lensing: number;\n    diffusion: number;\n    material: number;\n    edge: number;\n    contentOpacity: number;\n    contentBlur: number;\n    contentScale: number;\n}"
+        },
+        {
+          "name": "GlassPresenceOptions",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/presence.d.ts",
+          "declaration": "export interface GlassPresenceOptions {\n    visible?: boolean;\n    /** Native popovers manage their own display/top layer. */\n    manageVisibility?: boolean;\n    onFrame?: (frame: GlassPresenceFrame) => void;\n    onPhase?: (phase: GlassPresencePhase) => void;\n}"
+        },
+        {
+          "name": "GlassPresencePhase",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/presence.d.ts",
+          "declaration": "export type GlassPresencePhase = 'hidden' | 'entering' | 'shown' | 'exiting';"
+        },
+        {
+          "name": "GlassPreset",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/presets.d.ts",
+          "declaration": "export type GlassPreset = GlassSurfacePreset | 'switch' | 'slider' | 'tab' | 'panel';"
+        },
+        {
+          "name": "GlassSurfacePreset",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export type GlassSurfacePreset = 'navigation' | 'toolbar' | 'tab-bar' | 'search' | 'button' | 'floating-action' | 'selection' | 'menu' | 'popover' | 'sidebar' | 'sheet' | 'media' | 'dock' | 'dock-item' | 'alert' | 'action-sheet' | 'notification' | 'chip' | 'widget' | 'control' | 'live-activity' | 'input-accessory' | 'edit-menu' | 'page-control';"
+        },
+        {
+          "name": "glassSurfacePresets",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export declare const glassSurfacePresets: Readonly<Record<GlassSurfacePreset, Readonly<GlassSurfaceProfile>>>;"
+        },
+        {
+          "name": "GlassSurfaceProfile",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export interface GlassSurfaceProfile {\n    label: string;\n    description: string;\n    shape: LensShape;\n    radius: number;\n    bevel: number;\n    strength: number;\n    depth: number;\n    curvature: number;\n    diffusion: number;\n    elevation: number;\n    adaptation: GlassAdaptationPolicy;\n    variant: GlassVariant;\n    tint?: GlassTint;\n    dimming?: number;\n    brightness?: number;\n}"
+        },
+        {
+          "name": "GlassSurfaceResolution",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export interface GlassSurfaceResolution {\n    lens: Lens;\n    optics: GlassOptions;\n    material: GlassMaterial;\n    elevation: number;\n    adaptation: GlassAdaptationPolicy;\n}"
+        },
+        {
+          "name": "GlassTint",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export type GlassTint = readonly [red: number, green: number, blue: number, opacity: number];"
+        },
+        {
+          "name": "GlassVariant",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export type GlassVariant = 'regular' | 'clear';"
+        },
+        {
+          "name": "Lens",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export interface Lens {\n    x: number;\n    y: number;\n    width: number;\n    height: number;\n    radius: number;\n    shape?: LensShape;\n}"
+        },
+        {
+          "name": "lensFor",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function lensFor(shape: LensShape, bounds: Omit<Lens, 'shape' | 'radius'> & {\n    radius?: number;\n}): Lens;"
+        },
+        {
+          "name": "LensShape",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export type LensShape = 'rounded-rect' | 'continuous' | 'circle' | 'capsule' | 'ellipse';"
+        },
+        {
+          "name": "linearChannel",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare const linearChannel: (value: number) => number;"
+        },
+        {
+          "name": "materialOptics",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export declare function materialOptics(lens: Lens, variant?: GlassVariant, tintLevel?: number, appearance?: GlassAppearance): GlassOptions;"
+        },
+        {
+          "name": "normalizeGlassTint",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export declare function normalizeGlassTint(tint: GlassTint): GlassTint;"
+        },
+        {
+          "name": "observeGlassBackdrop",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/backdrop.d.ts",
+          "declaration": "export declare function observeGlassBackdrop(element: HTMLElement, callback: Subscriber['callback'], options?: GlassBackdropOptions): {\n    refresh: () => void;\n    destroy: () => void;\n};"
+        },
+        {
+          "name": "observeGlassPreferences",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/materials.d.ts",
+          "declaration": "export declare function observeGlassPreferences(win: Window, callback: Subscriber): () => void;"
+        },
+        {
+          "name": "relativeLuminance",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare const relativeLuminance: (rgb: readonly number[]) => number;"
+        },
+        {
+          "name": "resolveGlassSurface",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/surface-presets.d.ts",
+          "declaration": "export declare function resolveGlassSurface(preset: GlassSurfacePreset, bounds: {\n    width: number;\n    height: number;\n    x?: number;\n    y?: number;\n    radius?: number;\n    shape?: LensShape;\n}, options?: {\n    variant?: GlassVariant;\n    appearance?: GlassAppearance;\n    tintLevel?: number;\n}): GlassSurfaceResolution;"
+        },
+        {
+          "name": "SpringState",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/motion.d.ts",
+          "declaration": "export interface SpringState {\n    value: number;\n    velocity: number;\n}"
+        },
+        {
+          "name": "stepSpring",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/motion.d.ts",
+          "declaration": "export declare function stepSpring(state: SpringState, target: number, seconds: number, stiffness?: number, damping?: number): SpringState;"
+        },
+        {
+          "name": "summarizeBackdrop",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare function summarizeBackdrop(colors: readonly (readonly number[])[], source: GlassBackdropSample['source'], confidence?: number): GlassBackdropSample | null;"
+        },
+        {
+          "name": "SurfaceProfile",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export type SurfaceProfile = 'rim' | 'dome' | 'concave';"
+        },
+        {
+          "name": "updateGlassAdaptation",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare function updateGlassAdaptation(previous: GlassAdaptiveState | undefined, sample: GlassBackdropSample | null, now: number, fallback: GlassAppearance, policy?: GlassAdaptationPolicy): GlassAdaptiveState;"
+        },
+        {
+          "name": "validBackdrop",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/adaptive.d.ts",
+          "declaration": "export declare function validBackdrop(sample: GlassBackdropSample | null | undefined): sample is GlassBackdropSample;"
+        }
+      ]
+    },
+    {
+      "import": "@meapri/prism-glass/react",
+      "types": "./dist/react.d.ts",
+      "runtimeExports": [
+        "GlassActionSheet",
+        "GlassAlert",
+        "GlassAlertDialog",
+        "GlassBackgroundExtension",
+        "GlassBadge",
+        "GlassButton",
+        "GlassChip",
+        "GlassColorWell",
+        "GlassContextMenu",
+        "GlassControlTile",
+        "GlassDatePicker",
+        "GlassDialog",
+        "GlassDisclosure",
+        "GlassDock",
+        "GlassDockItem",
+        "GlassEditMenu",
+        "GlassInputAccessory",
+        "GlassLightGroup",
+        "GlassListRow",
+        "GlassLiveActivity",
+        "GlassMediaScene",
+        "GlassMenu",
+        "GlassNavigationBar",
+        "GlassNotification",
+        "GlassPageControl",
+        "GlassPopover",
+        "GlassPresence",
+        "GlassProgress",
+        "GlassProvider",
+        "GlassPullDownButton",
+        "GlassScrollArea",
+        "GlassSearchField",
+        "GlassSelect",
+        "GlassSeparator",
+        "GlassShareSheet",
+        "GlassSheet",
+        "GlassSidebar",
+        "GlassSlider",
+        "GlassSnippet",
+        "GlassSource",
+        "GlassStepper",
+        "GlassSurface",
+        "GlassSwitch",
+        "GlassTabBar",
+        "GlassTabs",
+        "GlassTextField",
+        "GlassToken",
+        "GlassToolbar",
+        "GlassWheelPicker",
+        "GlassWidget",
+        "MaterialSurface",
+        "useGlass"
+      ],
+      "exports": [
+        {
+          "name": "GlassActionSheet",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export declare function GlassActionSheet({ actions, cancelLabel, className, ...props }: GlassActionSheetProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassActionSheetProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export interface GlassActionSheetProps extends Omit<GlassMenuProps, 'items' | 'layout' | 'palette'> {\n    actions: readonly GlassMenuItem[];\n    cancelLabel?: string;\n}"
+        },
+        {
+          "name": "GlassAlert",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export declare function GlassAlert({ title, message, actions, onAction, stackActions, children, className, ...props }: GlassAlertProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassAlertAction",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassAlertAction {\n    label: string;\n    onSelect?: () => void;\n    intent?: 'default' | 'destructive' | 'cancel';\n    disabled?: boolean;\n    autoFocus?: boolean;\n    close?: boolean;\n}"
+        },
+        {
+          "name": "GlassAlertDialog",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export declare const GlassAlertDialog: import(\"react\").ForwardRefExoticComponent<GlassAlertDialogProps & import(\"react\").RefAttributes<HTMLDialogElement>>;"
+        },
+        {
+          "name": "GlassAlertDialogProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassAlertDialogProps extends Omit<GlassDialogProps, 'role' | 'kind' | 'title'> {\n    title: string;\n    message?: ReactNode;\n    actions: readonly GlassAlertAction[];\n    stackActions?: boolean;\n}"
+        },
+        {
+          "name": "GlassAlertProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassAlertProps extends Omit<GlassSurfaceProps, 'title'> {\n    title: string;\n    message?: ReactNode;\n    actions?: readonly GlassAlertAction[];\n    onAction?: (index: number) => void;\n    stackActions?: boolean;\n}"
+        },
+        {
+          "name": "GlassBackgroundExtension",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassBackgroundExtension({ src, children, className, ...props }: HTMLAttributes<HTMLDivElement> & {\n    src: string;\n}): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassBadge",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassBadge({ count, max, dot, children, className, ...props }: GlassBadgeProps): import(\"react\").JSX.Element | null;"
+        },
+        {
+          "name": "GlassBadgeProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassBadgeProps extends HTMLAttributes<HTMLSpanElement> {\n    count?: number;\n    max?: number;\n    dot?: boolean;\n}"
+        },
+        {
+          "name": "GlassButton",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/surface.d.ts",
+          "declaration": "export declare const GlassButton: import(\"react\").ForwardRefExoticComponent<GlassButtonProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+        },
+        {
+          "name": "GlassButtonProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/surface.d.ts",
+          "declaration": "export interface GlassButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, MaterialProps {\n    shape?: 'capsule' | 'rounded-rect' | 'continuous' | 'circle';\n    radius?: number;\n    size?: 'small' | 'regular' | 'large' | 'extra-large';\n    emphasis?: 'glass' | 'prominent' | 'plain' | 'bordered';\n    intent?: 'default' | 'destructive';\n    loading?: boolean;\n    icon?: ReactNode;\n}"
+        },
+        {
+          "name": "GlassChip",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare const GlassChip: import(\"react\").ForwardRefExoticComponent<GlassChipProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+        },
+        {
+          "name": "GlassChipProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassChipProps extends Omit<GlassButtonProps, 'shape' | 'aria-pressed'> {\n    selected?: boolean;\n    defaultSelected?: boolean;\n    onSelectedChange?: (selected: boolean) => void;\n}"
+        },
+        {
+          "name": "GlassColorWell",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare const GlassColorWell: import(\"react\").ForwardRefExoticComponent<GlassColorWellProps & import(\"react\").RefAttributes<HTMLInputElement>>;"
+        },
+        {
+          "name": "GlassColorWellProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassColorWellProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'size' | 'value' | 'defaultValue'> {\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    label?: string;\n}"
+        },
+        {
+          "name": "GlassContextMenu",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export declare function GlassContextMenu({ children, items, label, layout, palette, onSelect, className, onContextMenu, onKeyDown, onPointerDown, onPointerUp, onPointerMove, onPointerCancel, ...props }: GlassContextMenuProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassContextMenuProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export interface GlassContextMenuProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onSelect'> {\n    items: readonly GlassMenuItem[];\n    label?: string;\n    layout?: GlassMenuProps['layout'];\n    palette?: readonly GlassMenuItem[];\n    onSelect?: (id: string) => void;\n}"
+        },
+        {
+          "name": "GlassControlTile",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare const GlassControlTile: import(\"react\").ForwardRefExoticComponent<GlassControlTileProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+        },
+        {
+          "name": "GlassControlTileProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassControlTileProps extends Omit<GlassButtonProps, 'size' | 'aria-pressed'> {\n    size?: 'small' | 'wide' | 'large';\n    selected?: boolean;\n    defaultSelected?: boolean;\n    onSelectedChange?: (selected: boolean) => void;\n    label: string;\n    subtitle?: string;\n    symbol?: ReactNode;\n}"
+        },
+        {
+          "name": "GlassDatePicker",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare function GlassDatePicker({ value: controlled, defaultValue, onValueChange, min, max, disabled, label, locale, display, className, ...props }: GlassDatePickerProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassDatePickerProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassDatePickerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    min?: string;\n    max?: string;\n    disabled?: boolean;\n    label?: string;\n    locale?: string;\n    display?: 'compact' | 'inline';\n}"
+        },
+        {
+          "name": "GlassDialog",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export declare const GlassDialog: import(\"react\").ForwardRefExoticComponent<GlassDialogProps & import(\"react\").RefAttributes<HTMLDialogElement>>;"
+        },
+        {
+          "name": "GlassDialogProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassDialogProps extends Omit<GlassSurfaceProps, 'title' | 'role' | 'present' | 'local'> {\n    open: boolean;\n    onOpenChange: (open: boolean) => void;\n    role?: 'dialog' | 'alertdialog';\n    dismissible?: boolean;\n    dismissOnBackdrop?: boolean;\n    kind?: 'dialog' | 'sheet';\n    initialFocusRef?: RefObject<HTMLElement | null>;\n    returnFocusRef?: RefObject<HTMLElement | null>;\n    dialogStyle?: CSSProperties;\n    dialogClassName?: string;\n    source?: RefObject<GlassMediaSource | null>;\n    sourceVersion?: string | number;\n}"
+        },
+        {
+          "name": "GlassDisclosure",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassDisclosure({ title, open: controlled, defaultOpen, onOpenChange, children, className, ...props }: GlassDisclosureProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassDisclosureProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassDisclosureProps extends Omit<HTMLAttributes<HTMLDetailsElement>, 'onToggle' | 'title'> {\n    title: ReactNode;\n    open?: boolean;\n    defaultOpen?: boolean;\n    onOpenChange?: (open: boolean) => void;\n}"
+        },
+        {
+          "name": "GlassDock",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassDock({ children, className, variant, dimming, tint, ...props }: GlassSurfaceProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassDockItem",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare const GlassDockItem: import(\"react\").ForwardRefExoticComponent<GlassDockItemProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+        },
+        {
+          "name": "GlassDockItemProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassDockItemProps extends GlassButtonProps {\n    badge?: number;\n    label: string;\n}"
+        },
+        {
+          "name": "GlassEditMenu",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export declare function GlassEditMenu(props: GlassMenuProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassInputAccessory",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassInputAccessory({ children, className, ...props }: GlassSurfaceProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassLightGroup",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presence.d.ts",
+          "declaration": "export declare function GlassLightGroup(props: HTMLAttributes<HTMLDivElement>): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassListRow",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassListRow({ children, detail, chevron, className, ...props }: HTMLAttributes<HTMLDivElement> & {\n    detail?: ReactNode;\n    chevron?: boolean;\n}): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassLiveActivity",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassLiveActivity({ presentation, leading, trailing, label, children, className, tint, ...props }: GlassLiveActivityProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassLiveActivityProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassLiveActivityProps extends GlassSurfaceProps {\n    presentation?: 'banner' | 'compact' | 'minimal' | 'expanded';\n    leading?: ReactNode;\n    trailing?: ReactNode;\n    label?: string;\n}"
+        },
+        {
+          "name": "GlassMediaScene",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/media-scene.d.ts",
+          "declaration": "export declare function GlassMediaScene({ source, sourceVersion, media, variant, appearance, tintLevel, dimming, tint, children, className, style, ...props }: GlassMediaSceneProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassMediaSceneProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/media-scene.d.ts",
+          "declaration": "export interface GlassMediaSceneProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'variant' | 'appearance' | 'tintLevel' | 'dimming' | 'tint'> {\n    source: RefObject<GlassMediaSource | null>;\n    /** Increment after repainting a static canvas source. */\n    sourceVersion?: string | number;\n    media?: Omit<MediaGlassOptions, 'lenses'>;\n}"
+        },
+        {
+          "name": "GlassMenu",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export declare function GlassMenu({ items, title, layout, palette, onSelect, orientation, className, onOpenChange, open: controlled, ...props }: GlassMenuProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassMenuItem",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export interface GlassMenuItem {\n    id: string;\n    label: string;\n    icon?: ReactNode;\n    detail?: string;\n    shortcut?: string;\n    disabled?: boolean;\n    destructive?: boolean;\n    checked?: boolean;\n    kind?: 'action' | 'checkbox' | 'radio';\n    separatorBefore?: boolean;\n    keepOpen?: boolean;\n    onSelect?: () => void;\n    items?: readonly GlassMenuItem[];\n}"
+        },
+        {
+          "name": "GlassMenuProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export interface GlassMenuProps extends Omit<GlassPopoverProps, 'children' | 'onSelect'> {\n    items: readonly GlassMenuItem[];\n    title?: string;\n    layout?: 'large' | 'medium' | 'small';\n    palette?: readonly GlassMenuItem[];\n    onSelect?: (id: string) => void;\n    orientation?: 'vertical' | 'horizontal';\n}"
+        },
+        {
+          "name": "GlassNavigationBar",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassNavigationBar({ title, largeTitle, leading, trailing, subtitle, children, className, variant, appearance, tintLevel, dimming, tint, preset, backdrop, refractionTarget, optics, present, onPresenceChange, ...props }: GlassNavigationBarProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassNavigationBarProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassNavigationBarProps extends HTMLAttributes<HTMLElement>, MaterialProps {\n    title: string;\n    largeTitle?: boolean;\n    leading?: ReactNode;\n    trailing?: ReactNode;\n    subtitle?: string;\n    children?: ReactNode;\n}"
+        },
+        {
+          "name": "GlassNotification",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassNotification({ title, message, appName, icon, time, onActivate, onDismiss, actions, expanded, className, ...props }: GlassNotificationProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassNotificationAction",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassNotificationAction {\n    id: string;\n    label: string;\n    onSelect: () => void;\n    destructive?: boolean;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassNotificationProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassNotificationProps extends Omit<GlassSurfaceProps, 'title'> {\n    title: string;\n    message: ReactNode;\n    appName?: string;\n    icon?: ReactNode;\n    time?: string;\n    onActivate?: () => void;\n    onDismiss?: () => void;\n    actions?: readonly GlassNotificationAction[];\n    expanded?: boolean;\n}"
+        },
+        {
+          "name": "GlassPageControl",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare function GlassPageControl({ count, value: controlled, defaultValue, onValueChange, background, appearance, variant, tint, dimming, className, style, ...props }: GlassPageControlProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassPageControlProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassPageControlProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>, Pick<MaterialProps, 'appearance' | 'variant' | 'tint' | 'dimming'> {\n    count: number;\n    value?: number;\n    defaultValue?: number;\n    onValueChange?: (value: number) => void;\n    background?: 'automatic' | 'prominent' | 'minimal';\n}"
+        },
+        {
+          "name": "GlassPickerOption",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassPickerOption {\n    value: string;\n    label: string;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassPopover",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/popover.d.ts",
+          "declaration": "export declare function GlassPopover({ trigger, triggerLabel, children, onOpenChange, open: controlled, triggerProps, anchorRef, anchorPoint, align, placement, source, sourceVersion, className, ...props }: GlassPopoverProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassPopoverProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/popover.d.ts",
+          "declaration": "export interface GlassPopoverProps extends Omit<GlassSurfaceProps, 'children' | 'title' | 'onToggle' | 'present'> {\n    trigger: ReactNode;\n    children: ReactNode;\n    /** Accessible name for an icon-only trigger. */\n    triggerLabel?: string;\n    onOpenChange?: (open: boolean) => void;\n    open?: boolean;\n    triggerProps?: GlassButtonProps;\n    anchorRef?: RefObject<HTMLElement | null>;\n    anchorPoint?: {\n        x: number;\n        y: number;\n    };\n    align?: 'start' | 'center' | 'end';\n    placement?: 'below' | 'overlap';\n    source?: RefObject<GlassMediaSource | null>;\n    sourceVersion?: string | number;\n}"
+        },
+        {
+          "name": "GlassPresence",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presence.d.ts",
+          "declaration": "export declare const GlassPresence: import(\"react\").ForwardRefExoticComponent<GlassSurfaceProps & {\n    present: boolean;\n} & import(\"react\").RefAttributes<HTMLDivElement>>;"
+        },
+        {
+          "name": "GlassProgress",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassProgress({ value, max, size, label, kind, className, style, ...props }: GlassProgressProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassProgressProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassProgressProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {\n    value?: number;\n    max?: number;\n    size?: 'small' | 'regular';\n    label?: string;\n    kind?: 'linear' | 'circular';\n}"
+        },
+        {
+          "name": "GlassProvider",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/context.d.ts",
+          "declaration": "export declare function GlassProvider({ children, variant, appearance, tintLevel, dimming, tint }: GlassProviderProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassProviderProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/context.d.ts",
+          "declaration": "export interface GlassProviderProps {\n    children: ReactNode;\n    variant?: GlassVariant;\n    appearance?: GlassAppearanceMode;\n    tintLevel?: number;\n    dimming?: number;\n    tint?: GlassTint;\n}"
+        },
+        {
+          "name": "GlassPullDownButton",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export declare function GlassPullDownButton(props: GlassMenuProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassScrollArea",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare const GlassScrollArea: import(\"react\").ForwardRefExoticComponent<GlassScrollAreaProps & import(\"react\").RefAttributes<HTMLDivElement>>;"
+        },
+        {
+          "name": "GlassScrollAreaProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassScrollAreaProps extends HTMLAttributes<HTMLDivElement> {\n    edgeEffect?: 'soft' | 'hard' | 'none';\n}"
+        },
+        {
+          "name": "GlassSearchField",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare const GlassSearchField: import(\"react\").ForwardRefExoticComponent<GlassSearchFieldProps & import(\"react\").RefAttributes<HTMLInputElement>>;"
+        },
+        {
+          "name": "GlassSearchFieldProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassSearchFieldProps extends Omit<GlassTextFieldProps, 'type' | 'leading' | 'trailing' | 'error'>, Omit<MaterialProps, 'appearance'> {\n    onSearch?: (value: string) => void;\n    onCancel?: () => void;\n    cancelLabel?: string;\n    cancelable?: boolean;\n    floating?: boolean;\n}"
+        },
+        {
+          "name": "GlassSelect",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export declare function GlassSelect({ options, value: controlled, defaultValue, onValueChange, disabled, label, triggerProps, ...props }: GlassSelectProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassSelectProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/menus.d.ts",
+          "declaration": "export interface GlassSelectProps extends Omit<GlassMenuProps, 'items' | 'trigger' | 'onSelect'> {\n    options: readonly GlassPickerOption[];\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    disabled?: boolean;\n    label?: string;\n}"
+        },
+        {
+          "name": "GlassSeparator",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassSeparator({ className, ...props }: HTMLAttributes<HTMLHRElement>): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassShareItem",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassShareItem {\n    id: string;\n    label: string;\n    icon: ReactNode;\n    onSelect: () => void;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassShareSheet",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export declare function GlassShareSheet({ title, subtitle, preview, destinations, actions, url, children, onOpenChange, ...props }: GlassShareSheetProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassShareSheetProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassShareSheetProps extends Omit<GlassSheetProps, 'title'> {\n    title: string;\n    subtitle?: string;\n    preview?: ReactNode;\n    destinations?: readonly GlassShareItem[];\n    actions?: readonly GlassShareItem[];\n    url?: string;\n}"
+        },
+        {
+          "name": "GlassSheet",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export declare const GlassSheet: import(\"react\").ForwardRefExoticComponent<GlassSheetProps & import(\"react\").RefAttributes<HTMLDialogElement>>;"
+        },
+        {
+          "name": "GlassSheetDetent",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export type GlassSheetDetent = 'medium' | 'large' | number;"
+        },
+        {
+          "name": "GlassSheetProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/presentation.d.ts",
+          "declaration": "export interface GlassSheetProps extends Omit<GlassDialogProps, 'kind' | 'title'> {\n    title?: string;\n    detents?: readonly GlassSheetDetent[];\n    detent?: GlassSheetDetent;\n    defaultDetent?: GlassSheetDetent;\n    onDetentChange?: (detent: GlassSheetDetent) => void;\n    leading?: ReactNode;\n    trailing?: ReactNode;\n    showGrabber?: boolean;\n}"
+        },
+        {
+          "name": "GlassSidebar",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassSidebar({ items, value: controlled, defaultValue, onValueChange, heading, className, ...props }: GlassSidebarProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassSidebarItem",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassSidebarItem {\n    value: string;\n    label: string;\n    icon?: ReactNode;\n    badge?: number;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassSidebarProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassSidebarProps extends GlassSurfaceProps {\n    items: readonly GlassSidebarItem[];\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    heading?: string;\n}"
+        },
+        {
+          "name": "GlassSlider",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/controls.d.ts",
+          "declaration": "export declare const GlassSlider: import(\"react\").ForwardRefExoticComponent<GlassSliderProps & import(\"react\").RefAttributes<HTMLInputElement>>;"
+        },
+        {
+          "name": "GlassSliderProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/controls.d.ts",
+          "declaration": "export interface GlassSliderProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'defaultValue' | 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {\n    value?: number;\n    defaultValue?: number;\n    onValueChange?: (value: number) => void;\n}"
+        },
+        {
+          "name": "GlassSnippet",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassSnippet({ children, className, ...props }: GlassSurfaceProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassSource",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/react.d.ts",
+          "declaration": "export declare const GlassSource: import(\"react\").ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & {\n    glass: GlassOptions;\n} & import(\"react\").RefAttributes<HTMLDivElement>>;"
+        },
+        {
+          "name": "GlassSourceProps",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/react.d.ts",
+          "declaration": "export type GlassSourceProps = HTMLAttributes<HTMLDivElement> & {\n    glass: GlassOptions;\n};"
+        },
+        {
+          "name": "GlassStepper",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare function GlassStepper({ value: controlled, defaultValue, onValueChange, min, max, step, disabled, label, className, onKeyDown, ...props }: GlassStepperProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassStepperProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassStepperProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {\n    value?: number;\n    defaultValue?: number;\n    onValueChange?: (value: number) => void;\n    min?: number;\n    max?: number;\n    step?: number;\n    disabled?: boolean;\n    label?: string;\n}"
+        },
+        {
+          "name": "GlassSurface",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/surface.d.ts",
+          "declaration": "export declare const GlassSurface: import(\"react\").ForwardRefExoticComponent<GlassSurfaceProps & import(\"react\").RefAttributes<HTMLDivElement>>;"
+        },
+        {
+          "name": "GlassSurfaceProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/surface.d.ts",
+          "declaration": "export interface GlassSurfaceProps extends HTMLAttributes<HTMLDivElement>, MaterialProps {\n    shape?: LensShape;\n    radius?: number;\n    /** Keep top-layer surfaces (for example popovers) independent of a media scene. */\n    local?: boolean;\n}"
+        },
+        {
+          "name": "GlassSwitch",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/controls.d.ts",
+          "declaration": "export declare const GlassSwitch: import(\"react\").ForwardRefExoticComponent<GlassSwitchProps & import(\"react\").RefAttributes<HTMLButtonElement>>;"
+        },
+        {
+          "name": "GlassSwitchProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/controls.d.ts",
+          "declaration": "export interface GlassSwitchProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'value'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {\n    checked?: boolean;\n    defaultChecked?: boolean;\n    onCheckedChange?: (checked: boolean) => void;\n    value?: string;\n}"
+        },
+        {
+          "name": "GlassTab",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/tabs.d.ts",
+          "declaration": "export interface GlassTab {\n    value: string;\n    label: ReactNode;\n    content?: ReactNode;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassTabBar",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassTabBar({ items, value: controlled, defaultValue, onValueChange, minimized, accessory, className, ...props }: GlassTabBarProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassTabBarItem",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassTabBarItem {\n    value: string;\n    label: string;\n    icon: ReactNode;\n    badge?: number;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassTabBarProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassTabBarProps extends GlassSurfaceProps {\n    items: readonly GlassTabBarItem[];\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    minimized?: boolean;\n    accessory?: ReactNode;\n}"
+        },
+        {
+          "name": "GlassTabs",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/tabs.d.ts",
+          "declaration": "export declare function GlassTabs({ items, value: controlled, defaultValue, onValueChange, variant, appearance, optics, tintLevel, dimming, tint, className, ...props }: GlassTabsProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassTabsProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/tabs.d.ts",
+          "declaration": "export interface GlassTabsProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>, Omit<MaterialProps, 'refractionTarget' | 'preset' | 'backdrop' | 'present' | 'onPresenceChange'> {\n    items: readonly GlassTab[];\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n}"
+        },
+        {
+          "name": "GlassTextField",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare const GlassTextField: import(\"react\").ForwardRefExoticComponent<GlassTextFieldProps & import(\"react\").RefAttributes<HTMLInputElement>>;"
+        },
+        {
+          "name": "GlassTextFieldProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassTextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size' | 'value' | 'defaultValue'>, Pick<MaterialProps, 'appearance'> {\n    label?: string;\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    clearable?: boolean;\n    leading?: ReactNode;\n    trailing?: ReactNode;\n    error?: string;\n}"
+        },
+        {
+          "name": "GlassToken",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassToken({ children, onRemove, removeLabel, disabled, className, ...props }: GlassTokenProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassTokenProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassTokenProps extends GlassSurfaceProps {\n    onRemove?: () => void;\n    removeLabel?: string;\n    disabled?: boolean;\n}"
+        },
+        {
+          "name": "GlassToolbar",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/surface.d.ts",
+          "declaration": "export declare const GlassToolbar: import(\"react\").ForwardRefExoticComponent<GlassSurfaceProps & import(\"react\").RefAttributes<HTMLDivElement>>;"
+        },
+        {
+          "name": "GlassWheelPicker",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export declare function GlassWheelPicker({ options, value: controlled, defaultValue, onValueChange, disabled, label, className, style, ...props }: GlassWheelPickerProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassWheelPickerProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/inputs.d.ts",
+          "declaration": "export interface GlassWheelPickerProps extends Omit<HTMLAttributes<HTMLDivElement>, 'defaultValue' | 'onChange'> {\n    options: readonly GlassPickerOption[];\n    value?: string;\n    defaultValue?: string;\n    onValueChange?: (value: string) => void;\n    disabled?: boolean;\n    label: string;\n}"
+        },
+        {
+          "name": "GlassWidget",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare function GlassWidget({ size, renderingMode, accent, children, className, ...props }: GlassWidgetProps): import(\"react\").JSX.Element;"
+        },
+        {
+          "name": "GlassWidgetProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface GlassWidgetProps extends GlassSurfaceProps {\n    size?: 'small' | 'medium' | 'large';\n    renderingMode?: 'full-color' | 'clear' | 'tinted';\n    accent?: readonly [number, number, number];\n}"
+        },
+        {
+          "name": "MaterialProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/context.d.ts",
+          "declaration": "export interface MaterialProps {\n    variant?: GlassVariant;\n    appearance?: GlassAppearanceMode;\n    preset?: GlassSurfacePreset;\n    /** Explicit backdrop source or read-only sample callback for unsupported compositing. */\n    backdrop?: Element | GlassBackdropReader;\n    tintLevel?: number;\n    /** Clear material's local background darkening, 0–1. 0 keeps the clearest view; default 0.35. */\n    dimming?: number;\n    /** Optional material reflection/tint. Normalized RGBA; foreground remains opaque. */\n    tint?: GlassTint;\n    /** Explicit, decorative source pixels. With no source, the surface uses CSS material. */\n    refractionTarget?: ReactNode;\n    /** Keep mounted during materialization; false removes hit/focus access immediately. */\n    present?: boolean;\n    onPresenceChange?: (phase: GlassPresencePhase) => void;\n    optics?: Partial<Omit<GlassOptions, 'lens' | 'onStatus'>>;\n}"
+        },
+        {
+          "name": "MaterialSurface",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export declare const MaterialSurface: import(\"react\").ForwardRefExoticComponent<MaterialSurfaceProps & import(\"react\").RefAttributes<HTMLDivElement>>;"
+        },
+        {
+          "name": "MaterialSurfaceProps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export interface MaterialSurfaceProps extends HTMLAttributes<HTMLDivElement>, Pick<MaterialProps, 'appearance'> {\n    material?: StandardMaterial;\n}"
+        },
+        {
+          "name": "StandardMaterial",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/components/primitives.d.ts",
+          "declaration": "export type StandardMaterial = 'ultra-thin' | 'thin' | 'regular' | 'thick';"
+        },
+        {
+          "name": "useGlass",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/react.d.ts",
+          "declaration": "export declare function useGlass(source: RefObject<HTMLElement | null>, options: GlassOptions): RefObject<GlassController | null>;"
+        }
+      ]
+    },
+    {
+      "import": "@meapri/prism-glass/optics",
+      "types": "./dist/optics.d.ts",
+      "runtimeExports": [
+        "clamp",
+        "continuousContour",
+        "finite",
+        "generateMaps",
+        "lensFor",
+        "normalizeLens",
+        "roundedDistance",
+        "sampleDisplacement"
+      ],
+      "exports": [
+        {
+          "name": "BlurMode",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export type BlurMode = 'uniform' | 'center' | 'edge';"
+        },
+        {
+          "name": "clamp",
+          "kind": "const",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare const clamp: (n: number, a: number, b: number) => number;"
+        },
+        {
+          "name": "continuousContour",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function continuousContour(lens: Lens, inset?: number): string;"
+        },
+        {
+          "name": "finite",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function finite(value: number, name: string): number;"
+        },
+        {
+          "name": "generateMaps",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function generateMaps(input: OpticalShape, resolution?: number): PixelMaps;"
+        },
+        {
+          "name": "Lens",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export interface Lens {\n    x: number;\n    y: number;\n    width: number;\n    height: number;\n    radius: number;\n    shape?: LensShape;\n}"
+        },
+        {
+          "name": "lensFor",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function lensFor(shape: LensShape, bounds: Omit<Lens, 'shape' | 'radius'> & {\n    radius?: number;\n}): Lens;"
+        },
+        {
+          "name": "LensShape",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export type LensShape = 'rounded-rect' | 'continuous' | 'circle' | 'capsule' | 'ellipse';"
+        },
+        {
+          "name": "normalizeLens",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function normalizeLens(lens: Lens): Lens;"
+        },
+        {
+          "name": "OpticalShape",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export interface OpticalShape {\n    width: number;\n    height: number;\n    radius: number;\n    bevel: number;\n    ior: number;\n    shape?: LensShape;\n    surface?: SurfaceProfile;\n    depth?: number;\n    curvature?: number;\n    blurMode?: BlurMode;\n}"
+        },
+        {
+          "name": "PixelMaps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export interface PixelMaps {\n    width: number;\n    height: number;\n    displacement: Uint8ClampedArray;\n    mask: Uint8ClampedArray;\n    highlight: Uint8ClampedArray;\n    frost?: Uint8ClampedArray;\n}"
+        },
+        {
+          "name": "roundedDistance",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function roundedDistance(x: number, y: number, shape: OpticalShape): number;"
+        },
+        {
+          "name": "sampleDisplacement",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export declare function sampleDisplacement(x: number, y: number, shape: OpticalShape): {\n    dx: number;\n    dy: number;\n    mask: number;\n    shine: number;\n    frost: number;\n};"
+        },
+        {
+          "name": "SurfaceProfile",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/optics.d.ts",
+          "declaration": "export type SurfaceProfile = 'rim' | 'dome' | 'concave';"
+        }
+      ]
+    },
+    {
+      "import": "@meapri/prism-glass/media",
+      "types": "./dist/media.d.ts",
+      "runtimeExports": [
+        "createMediaGlass",
+        "generateMediaMaps"
+      ],
+      "exports": [
+        {
+          "name": "createMediaGlass",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/media.d.ts",
+          "declaration": "export declare function createMediaGlass(canvas: HTMLCanvasElement, source: GlassMediaSource, options?: MediaGlassOptions): MediaGlassController;"
+        },
+        {
+          "name": "generateMediaMaps",
+          "kind": "function",
+          "typeOnly": false,
+          "declarationFile": "dist/media-maps.d.ts",
+          "declaration": "export declare function generateMediaMaps(input: OpticalShape, resolution?: number, pixelRatio?: number): MediaPixelMaps;"
+        },
+        {
+          "name": "GlassMediaSource",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/media-types.d.ts",
+          "declaration": "export type GlassMediaSource = HTMLVideoElement | HTMLImageElement | HTMLCanvasElement;"
+        },
+        {
+          "name": "MediaGlassController",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/media-types.d.ts",
+          "declaration": "export interface MediaGlassController {\n    setLenses(lenses: readonly MediaLens[]): void;\n    updateLens(id: string, patch: MediaLensPatch): void;\n    update(patch: Partial<Omit<MediaGlassOptions, 'lenses'>>): void;\n    refresh(): void;\n    getDiagnostics(): MediaGlassDiagnostics;\n    destroy(): void;\n}"
+        },
+        {
+          "name": "MediaGlassDiagnostics",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/media-types.d.ts",
+          "declaration": "export interface MediaGlassDiagnostics {\n    state: 'loading' | 'ready' | 'paused' | 'disabled' | 'fallback' | 'error' | 'destroyed';\n    reason: string;\n    renderer: 'webgl-media';\n    lenses: number;\n    mapBuilds: number;\n    textureUploads: number;\n    renders: number;\n    pixels: number;\n    /** Total currently allocated optical-field pixels (two RGBA textures per pixel). */\n    mapPixels: number;\n    mapPrecision: 16;\n    visualSupportVerified: false;\n}"
+        },
+        {
+          "name": "MediaGlassOptions",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/media-types.d.ts",
+          "declaration": "export interface MediaGlassOptions {\n    lenses?: readonly MediaLens[];\n    fit?: 'cover' | 'contain' | 'fill';\n    /** Align a separate optical plane (for example a dialog) to the source element's page bounds. */\n    sourceAlignment?: 'scene' | 'element';\n    /** Align with the visible media's object-position, normalized 0–1. */\n    position?: readonly [number, number];\n    /** RGB channels in 0–1, matching the visible media's background/letterbox. Default black. */\n    backgroundColor?: readonly [number, number, number];\n    /** Longest optical field side: default 1024, maximum 2048. Adapts to DPR and a shared 4M-pixel budget. */\n    resolution?: number;\n    /** Maximum backing-store DPR. Defaults to the display DPR, capped at 3. */\n    pixelRatio?: number;\n    maxPixels?: number;\n    enabled?: boolean;\n    /** Repaint self-animating canvas sources; video uses frame callbacks automatically. */\n    live?: boolean;\n    respectPreferences?: boolean;\n    onStatus?: (diagnostics: MediaGlassDiagnostics) => void;\n}"
+        },
+        {
+          "name": "MediaLens",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/media-types.d.ts",
+          "declaration": "export interface MediaLens {\n    id: string;\n    lens: Lens;\n    variant?: GlassVariant;\n    appearance?: GlassAppearanceMode;\n    fallbackAppearance?: GlassAppearance;\n    preset?: GlassSurfacePreset;\n    /** Called outside React render; use to keep foreground and GPU appearance together. */\n    onAppearance?: (state: {\n        appearance: GlassAppearance;\n        material: GlassMaterial;\n        elevation: number;\n        available: boolean;\n        separation: number;\n        ambient?: readonly [number, number, number];\n    }) => void;\n    /** Web analogue of the iOS 27 appearance preference: 0 clearer, 1 more tinted. */\n    tintLevel?: number;\n    tint?: GlassTint;\n    strength?: number;\n    bevel?: number;\n    ior?: number;\n    surface?: SurfaceProfile;\n    depth?: number;\n    curvature?: number;\n    blurMode?: BlurMode;\n    blur?: number;\n    saturation?: number;\n    highlight?: number;\n    /** Chromatic fringe in CSS pixels, 0–3. */\n    chroma?: number;\n    /** Local dimming under clear controls; defaults to 0.35. Set 0 for already-dark media. */\n    dimming?: number;\n    /** Touch lighting, 0–1. Changes do not rebuild the optical map. */\n    press?: number;\n    /** Neighboring contact illumination, 0–1. */\n    illumination?: number;\n    illuminationPointer?: readonly [number, number];\n    /** Material formation, 0 invisible/optically neutral to 1 fully formed. */\n    presence?: number;\n    hover?: number;\n    pointer?: readonly [number, number];\n}"
+        },
+        {
+          "name": "MediaLensPatch",
+          "kind": "type",
+          "typeOnly": true,
+          "declarationFile": "dist/media-types.d.ts",
+          "declaration": "export type MediaLensPatch = Partial<Omit<MediaLens, 'id' | 'lens'>> & {\n    lens?: Partial<Lens>;\n};"
+        },
+        {
+          "name": "MediaPixelMaps",
+          "kind": "interface",
+          "typeOnly": true,
+          "declarationFile": "dist/media-maps.d.ts",
+          "declaration": "export interface MediaPixelMaps {\n    width: number;\n    height: number;\n    precision: 16;\n    displacement: Uint8Array;\n    finish: Uint8Array;\n}"
+        }
+      ]
+    }
+  ],
+  "presetNames": [
+    "navigation",
+    "toolbar",
+    "tab-bar",
+    "search",
+    "button",
+    "floating-action",
+    "selection",
+    "menu",
+    "popover",
+    "sidebar",
+    "sheet",
+    "media",
+    "dock",
+    "dock-item",
+    "alert",
+    "action-sheet",
+    "notification",
+    "chip",
+    "widget",
+    "control",
+    "live-activity",
+    "input-accessory",
+    "edit-menu",
+    "page-control"
+  ],
+  "contracts": {
+    "sourceRequiredForRefraction": true,
+    "withoutSource": "css-material",
+    "reactEntryHasClientDirective": true,
+    "svg": {
+      "maximumMapSide": 512,
+      "coordinateBits": 8
+    },
+    "media": {
+      "defaultMaximumMapSide": 1024,
+      "maximumMapSide": 2048,
+      "coordinateBits": 16,
+      "maximumDisplayDpr": 3,
+      "sharedFieldPixelBudget": 4000000
+    },
+    "osServiceRegistration": false
+  }
+}

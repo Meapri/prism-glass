@@ -1,6 +1,6 @@
 {
   "name": "@meapri/prism-glass",
-  "version": "0.5.0-alpha.1",
+  "version": "0.5.0-alpha.2",
   "description": "Source-first liquid glass for DOM and media, with a TypeScript core and accessible React controls.",
   "type": "module",
   "license": "MIT",
@@ -10,10 +10,16 @@
   "files": [
     "dist",
     "README.md",
+    "README.ko.md",
+    "CHANGELOG.md",
     "LICENSE",
     "NOTICE.md",
-    "docs",
-    "README.ko.md"
+    "llms.txt",
+    "llms-full.txt",
+    "api.json",
+    "docs/*.md",
+    "docs/LUCIDE_LICENSE.txt",
+    "examples/recipes"
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -34,16 +40,28 @@
       "types": "./dist/media.d.ts",
       "import": "./dist/media.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": {
+      "types": "./dist/styles.css.d.ts",
+      "default": "./dist/styles.css"
+    },
+    "./llms.txt": "./llms.txt",
+    "./llms-full.txt": "./llms-full.txt",
+    "./api.json": "./api.json",
+    "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "tsc && node scripts/build.mjs",
+    "build": "node scripts/build.mjs",
     "build:pages": "npm run build && node scripts/build-pages.mjs",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs && node scripts/check-package.mjs",
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "prepack": "npm run build",
-    "test:browser": "npm run build && node scripts/test-browser.mjs"
+    "prepack": "npm run build:lib",
+    "test:browser": "npm run build && node scripts/test-browser.mjs",
+    "build:lib": "node scripts/build-library.mjs",
+    "build:demo": "node scripts/build-demo.mjs",
+    "docs:check": "node scripts/generate-ai-docs.mjs --check",
+    "test:package": "npm run build:lib && node scripts/check-package.mjs",
+    "test:consumers": "npm run build:lib && node scripts/test-consumers.mjs"
   },
   "peerDependencies": {
     "react": ">=18"

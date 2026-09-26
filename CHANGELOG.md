@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.0-alpha.2
+
+- Add versioned AI entry points (`llms.txt`, `llms-full.txt`, `api.json`), a task-oriented integration guide, exact generated export/type references and public-import consumer recipes.
+- Separate library packaging from demo/site builds. Exclude native screenshots and demo assets from the installable archive while retaining them on the comparison site.
+- Preserve the React entry's client directive for App Router consumers, keep core/media/optics React-free, and add an explicit side-effect CSS declaration.
+- Add archive/declaration/export checks and isolated React 18/Vite and React 19/Next.js consumer fixtures with typechecks, production builds, hydration and interaction checks.
+
+## 0.5.0-alpha.1
+
+- Add the 64-entry iOS HIG coverage catalog, reusable input/menu/dialog/sheet/navigation/system-style compositions and 24 material presets.
+- Add transparent Clear dock customization and continuous-corner approximation calibrated from native reference captures.
+- Increase media optical-field density, pack displacement in 16 bits, support display DPR up to 3 by default, and bound/cache field allocations during elastic interactions.
+
 ## 0.4.0-alpha.1
 
 - Correct overly weak refraction: use native-image-fitted rounded optical fields and reduce Clear diffusion from 2.5 to 1.5; separate Regular diffusion by shape/appearance.

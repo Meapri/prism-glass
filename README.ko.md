@@ -2,6 +2,12 @@
 
 Aave의 공개 렌더링 방식과 Apple의 Liquid Glass 디자인 원칙을 바탕으로 만든 웹 라이브러리입니다. TypeScript 코어와 선택형 React 컴포넌트를 제공합니다. npm에는 아직 공개하지 않았습니다.
 
+**AI에게 도입을 맡길 때:** [llms.txt](llms.txt)를 먼저 읽게 하세요. [사용 가이드](docs/AI_INTEGRATION.md), [실제 타입에서 생성한 API](docs/API_REFERENCE.md), [복사해서 쓰는 예제](examples/recipes/README.md)로 연결됩니다. [llms-full.txt](llms-full.txt)는 가이드·API·예제를 한 파일로 모았습니다. 모두 패키지에도 포함됩니다.
+
+다른 AI에게는 다음처럼 요청하면 됩니다.
+
+> https://meapri.github.io/prism-glass/llms.txt 를 읽고 현재 앱에 Prism Glass를 적용해줘. 실제 export와 타입을 확인하고, CSS 재질인지 원본을 지정한 굴절인지 먼저 구분해. 기존 상태·이벤트·접근성을 유지하고, 데모를 복사하지 말고 공개 컴포넌트를 조합해. 사용 중인 프레임워크에서 타입 검사·실제 빌드·상호작용까지 검증해.
+
 [공개 데모](https://meapri.github.io/prism-glass/) · [iOS 27 컴포넌트 전체 목록](https://meapri.github.io/prism-glass/catalog.html) · [광학 실험실](https://meapri.github.io/prism-glass/optics.html)
 
 ## 실행
@@ -22,8 +28,10 @@ npm run dev
 
 ```sh
 npm pack
-npm install ./meapri-prism-glass-0.5.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.5.0-alpha.2.tgz
 ```
+
+`npm pack`은 라이브러리·타입·CSS·AI 가이드만 빌드하며 참고 스크린샷과 데모를 설치 파일에 넣지 않습니다. 전체 데모 빌드는 `npm run build`, 외부 앱 설치·타입·빌드·브라우저 검사는 `npm run test:consumers`입니다. Next.js에서는 전역 레이아웃에 CSS를 한 번 import하고, 상태·이벤트·DOM ref는 Client Component에서 만드세요.
 
 ## React 컴포넌트
 

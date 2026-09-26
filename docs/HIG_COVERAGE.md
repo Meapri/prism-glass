@@ -10,7 +10,7 @@ Standard materials stay in the content plane without optical refraction. Charts,
 
 ## Reference and fidelity
 
-- Native source: [NativeCatalogReference.swift](visual/NativeCatalogReference.swift), Xcode 27.0, iOS 27.0 simulator. Reference scenes use real SwiftUI controls and the same CC0 source frame. Captures are cropped below the system status bar to 402 × 812 CSS pixels.
+- Native source: [NativeCatalogReference.swift](https://github.com/Meapri/prism-glass/blob/main/docs/visual/NativeCatalogReference.swift), Xcode 27.0, iOS 27.0 simulator. Reference scenes use real SwiftUI controls and the same CC0 source frame. Captures are cropped below the system status bar to 402 × 812 CSS pixels.
 - Native light/dark photo captures cover buttons, input controls, wheel/calendar, navigation/toolbars, tab bars, alerts, action sheets, popovers, sheets, menus and standard materials. The reference column shows the native base state; switching live states does not imply a matching native capture exists for every combination. A manifest prevents fabricated or missing image references.
 - Native layer geometry informed button sizes, visual/hit-box separation, continuous corners, alert dimensions, menu placement and sheet layout. Continuous corners use a fitted generalized rounded rectangle, not Apple's private path generator.
 - The Clear dock follows the user's transparency reference: 0 local dimming, a 3.5% white reflection, broad refraction and thin edge lighting. The runtime uses generic icons.

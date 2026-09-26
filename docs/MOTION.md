@@ -82,8 +82,8 @@ Try the live examples at `/#motion`: hold and move over Save/Share/More, toggle 
 
 Native iOS 27 is the top row; Chromium is the bottom row. These are the same background crop and 310 × 176 surface with a 28px corner radius. Native frames are sampled from the simulator recording on a 60fps grid; time zero is aligned to the first optical change (within one recorded frame). Web frames sample the actual renderer and foreground frame function at the corresponding controller progress. This compares appearance at known times; the browser interaction suite separately verifies real-time entry, exit and interruption.
 
-![Materialization comparison](visual/comparison-materialize.jpg)
+![Materialization comparison](https://raw.githubusercontent.com/Meapri/prism-glass/main/docs/visual/comparison-materialize.jpg)
 
-![Dematerialization comparison](visual/comparison-dematerialize.jpg)
+![Dematerialization comparison](https://raw.githubusercontent.com/Meapri/prism-glass/main/docs/visual/comparison-dematerialize.jpg)
 
 The previous content-scale animation is removed. Remaining differences include text rasterization, fine edge lighting and context-dependent native color adaptation. The comparison is not a claim of identical proprietary compositing.

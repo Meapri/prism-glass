@@ -1,8 +1,10 @@
 # Prism Glass
 
-An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.5.0-alpha.1`; the package name is provisional and has not been published to npm.
+An independent, source-first Liquid Glass library with materials calibrated against native **iOS 27** and the rendering architecture described in Aave's **Building Glass for the Web**. Version `0.5.0-alpha.2`; the package name is provisional and has not been published to npm.
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
+
+**For AI coding agents:** start with [llms.txt](llms.txt), then the [integration guide](docs/AI_INTEGRATION.md), [generated API reference](docs/API_REFERENCE.md) and [copyable consumer recipes](examples/recipes/README.md). [api.json](api.json) is checked against real exports. [llms-full.txt](llms-full.txt) contains the guide, signatures and complete recipes in one file. These files also ship in the package and are [available on the site](https://meapri.github.io/prism-glass/llms.txt).
 
 [Live demo](https://meapri.github.io/prism-glass/) · [iOS 27 component catalog](https://meapri.github.io/prism-glass/catalog.html) · [한국어 빠른 시작](README.ko.md)
 
@@ -10,7 +12,7 @@ See the [native iOS 27 comparison and measured defaults](docs/IOS27_REFERENCE.md
 
 ## What this version does
 
-- Refracts the **actual DOM inside a source element** through a rounded rectangle, circle, capsule or ellipse, using ordinary CSS `filter` and SVG `feDisplacementMap`.
+- Refracts the **actual DOM inside a source element** through a rounded rectangle, fitted continuous corner, circle, capsule or ellipse, using ordinary CSS `filter` and SVG `feDisplacementMap`.
 - Keeps the same DOM nodes and event listeners. There is no page screenshot or automatic DOM cloning.
 - Preserves the original source outside the lens through a mask/composite stage.
 - Provides rim/dome/concave surfaces, depth and curvature controls, uniform/center/edge frost, and configurable edge highlights.
@@ -30,17 +32,20 @@ From a checkout of this repository:
 
 ```sh
 npm ci
-npm run build
 npm pack
 ```
 
-This creates `meapri-prism-glass-0.5.0-alpha.1.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
+This creates `meapri-prism-glass-0.5.0-alpha.2.tgz`. Install that file in your application, or use the supplied tarball if you downloaded the release archive:
 
 ```sh
-npm install ./meapri-prism-glass-0.5.0-alpha.1.tgz
+npm install ./meapri-prism-glass-0.5.0-alpha.2.tgz
 ```
 
 The package is not published to the npm registry. Install the local tarball until a registry release is announced.
+
+`npm pack` runs `build:lib`: library JavaScript, declarations, CSS and generated AI guidance only. It does not build the demo or ship native reference images. Use `npm run build` for library plus demo, and `npm run test:consumers` to install the actual tarball into isolated React/Vite and Next.js applications.
+
+For Next.js App Router, import the CSS in the root layout. The `/react` entry retains its client directive; put your event handlers, state and DOM refs in a Client Component. See the [complete Next.js integration instructions](docs/AI_INTEGRATION.md#nextjs-app-router).
 
 ## Light and motion
 
@@ -91,7 +96,7 @@ import '@meapri/prism-glass/styles.css';
 
 **Rendering is explicit.** `refractionTarget` is decorative, caller-owned content rendered in an inert optical layer. Without a target or media scene, a surface uses CSS blur/tint (`data-prism-renderer="css-material"`), not a claim of refracting arbitrary DOM behind it. The low-level `GlassSource` still filters the original DOM directly. Use `GlassSurface local` for a surface that should opt out of an enclosing media scene; popovers do this automatically.
 
-Use `regular` for general controls and text. Use `clear` over rich media with bold, bright foreground controls. Clear media lenses default to local 35% dimming; set a lower `dimming` in the low-level media API only when the underlying content already provides contrast. Keep variants consistent within a group. [Design decisions and limits](docs/LIQUID_GLASS.md).
+Use `regular` for general controls and text. Use `clear` over rich media with bold, bright foreground controls. Clear media lenses default to local 35% dimming; React material props and the media API both accept `dimming`. The transparent dock uses `dimming={0}` and `tint={[1,1,1,.035]}`; check foreground contrast against your source. Keep variants consistent within a group. [Design decisions and limits](docs/LIQUID_GLASS.md).
 
 ### A shared media scene
 
@@ -252,7 +257,7 @@ Diagnostics expose the selected rendering path and counters, **not** a verified 
 
 1. Use a small, mounted, untransformed source wrapper without an existing CSS filter. In-place filtering rasterizes the full source even when the lens is small. Do not wrap an entire scrolling app.
 2. The SVG core owns one lens per DOM source. The separate media renderer supports up to 64 lenses on one video/image/canvas source; keep surfaces in one plane and avoid overlapping/nested glass.
-3. Rounded rectangles, circles, capsules and ellipses are supported; arbitrary SVG paths and polygons are not. Lens positions are not automatically aligned with unrelated fixed/sticky elements or transformed ancestors.
+3. Rounded rectangles, fitted continuous corners, circles, capsules and ellipses are supported; arbitrary SVG paths and polygons are not. Lens positions are not automatically aligned with unrelated fixed/sticky elements or transformed ancestors.
 4. A single-interface approximation generates the offset field. This is not Apple's or Aave's proprietary shader, nor full physical ray tracing. Media lenses support a small chromatic fringe, and React selections use springs. Arbitrary shape merging and OS-level morphing are outside this release.
 5. `<video>`, canvas pixels, cross-origin iframes, and arbitrary compositor layers are not promised by this SVG renderer. Use the separate `/media` renderer for direct video, image, or canvas pixels. It requires same-origin media or an appropriate CORS response.
 6. CSS filters do **not** transform hit-test coordinates. Strong distortion can move painted text away from its logical click/selection position. Keep interactive labels in the crisp overlay, or use a mild lens.
@@ -266,7 +271,7 @@ Diagnostics expose the selected rendering path and counters, **not** a verified 
 
 The component library is published at [meapri.github.io/prism-glass](https://meapri.github.io/prism-glass/), with the [optical playground](https://meapri.github.io/prism-glass/optics.html) alongside it.
 
-`npm run build:pages` assembles `pages-dist/` with `index.html`, `optics.html`, the local CC0 video, and `.nojekyll`. Relative asset/navigation URLs support the repository subpath. Publish this directory to the root of the `gh-pages` branch, which is the configured Pages source. Updating `main` alone does not republish this branch-based demo.
+`npm run build:pages` assembles the component/optics/catalog pages, media/reference assets and public AI documentation in `pages-dist/`. Relative URLs support the repository subpath. Publish this directory to the root of the `gh-pages` branch, which is the configured Pages source. Updating `main` alone does not republish this branch-based demo. The site's reference images are deliberately excluded from the npm archive.
 
 ## Development
 
