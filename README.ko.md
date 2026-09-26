@@ -2,13 +2,29 @@
 
 Aave의 공개 렌더링 방식과 Apple의 Liquid Glass 디자인 원칙을 바탕으로 만든 웹 라이브러리입니다. TypeScript 코어와 선택형 React 컴포넌트를 제공합니다. npm에는 아직 공개하지 않았습니다.
 
-**AI에게 도입을 맡길 때:** [llms.txt](llms.txt)를 먼저 읽게 하세요. [사용 가이드](docs/AI_INTEGRATION.md), [실제 타입에서 생성한 API](docs/API_REFERENCE.md), [복사해서 쓰는 예제](examples/recipes/README.md)로 연결됩니다. [llms-full.txt](llms-full.txt)는 가이드·API·예제를 한 파일로 모았습니다. 모두 패키지에도 포함됩니다.
-
-다른 AI에게는 다음처럼 요청하면 됩니다.
-
-> https://meapri.github.io/prism-glass/llms.txt 를 읽고 현재 앱에 Prism Glass를 적용해줘. 실제 export와 타입을 확인하고, CSS 재질인지 원본을 지정한 굴절인지 먼저 구분해. 기존 상태·이벤트·접근성을 유지하고, 데모를 복사하지 말고 공개 컴포넌트를 조합해. 사용 중인 프레임워크에서 타입 검사·실제 빌드·상호작용까지 검증해.
-
 [공개 데모](https://meapri.github.io/prism-glass/) · [iOS 27 컴포넌트 전체 목록](https://meapri.github.io/prism-glass/catalog.html) · [광학 실험실](https://meapri.github.io/prism-glass/optics.html)
+
+## AI 코딩 에이전트용 문서
+
+AI에게 [공개 시작 가이드](https://meapri.github.io/prism-glass/llms.txt)를 전달하세요. 가이드·API·예제를 한꺼번에 읽히려면 [전체 문서](https://meapri.github.io/prism-glass/llms-full.txt)를 사용하면 됩니다.
+
+| 문서 | 내용 |
+| --- | --- |
+| [llms.txt](llms.txt) | 현재 버전, 설치 상태, 읽는 순서와 핵심 제약 |
+| [사용 가이드](docs/AI_INTEGRATION.md) | 설치, 렌더러·컴포넌트 선택, 상태·이벤트, 접근성, Next.js 사용법과 흔한 실수 |
+| [생성된 API 문서](docs/API_REFERENCE.md) | 현재 버전의 실제 export와 TypeScript 선언 |
+| [api.json](api.json) | AI가 구조적으로 읽을 수 있는 진입점·export·타입 위치·렌더링 규칙 |
+| [바로 쓰는 예제](examples/recipes/README.md) | 조작부, 확인 모달, 이미지 독바, 프레임워크 독립형 미디어 연동 |
+| [외부 앱 검증](docs/INTEGRATION_TESTS.md) | Vite·Next.js에서 실제 패키지 설치, 타입 검사, 빌드와 브라우저 조작 결과 |
+| [llms-full.txt](llms-full.txt) | 사용 가이드·API·전체 예제를 합친 단일 문서 |
+
+문서와 예제는 설치 패키지에도 포함됩니다. API 목록은 빌드된 타입 선언에서 생성하고 실제 런타임 export와 대조합니다.
+
+다른 AI에게 아래 요청을 복사해 전달하면 됩니다.
+
+> [https://meapri.github.io/prism-glass/llms.txt](https://meapri.github.io/prism-glass/llms.txt)를 읽고 현재 앱에 Prism Glass를 적용해줘. 실제 export와 타입을 확인하고, CSS 재질인지 원본을 지정한 굴절인지 먼저 구분해. 기존 상태·이벤트·접근성을 유지하고 공개 컴포넌트를 조합해. 사용 중인 프레임워크에서 타입 검사·실제 빌드·상호작용까지 검증해.
+
+**사용 전 확인:** 원본 없이 쓰는 컴포넌트는 CSS 재질이며, 실제 굴절에는 DOM·이미지·영상·캔버스 원본 지정이 필요합니다. 현재는 npm 레지스트리 공개 전인 로컬 `.tgz` 알파이므로 [사용 가이드](docs/AI_INTEGRATION.md)에 따라 설치하세요.
 
 ## 실행
 

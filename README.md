@@ -4,11 +4,31 @@ An independent, source-first Liquid Glass library with materials calibrated agai
 
 The TypeScript core has **zero runtime dependencies**. The optional React components require React 18+. This is an alpha; see the [validation record](docs/VALIDATION.md) for the browsers and flows actually checked.
 
-**For AI coding agents:** start with [llms.txt](llms.txt), then the [integration guide](docs/AI_INTEGRATION.md), [generated API reference](docs/API_REFERENCE.md) and [copyable consumer recipes](examples/recipes/README.md). [api.json](api.json) is checked against real exports. [llms-full.txt](llms-full.txt) contains the guide, signatures and complete recipes in one file. These files also ship in the package and are [available on the site](https://meapri.github.io/prism-glass/llms.txt).
-
 [Live demo](https://meapri.github.io/prism-glass/) · [iOS 27 component catalog](https://meapri.github.io/prism-glass/catalog.html) · [한국어 빠른 시작](README.ko.md)
 
 See the [native iOS 27 comparison and measured defaults](docs/IOS27_REFERENCE.md). Aave informs the renderer; native SwiftUI and Apple guidance are the visual target.
+
+## Documentation for AI coding agents
+
+Give your coding agent the [public AI entry point](https://meapri.github.io/prism-glass/llms.txt). For a single document containing the guide, API signatures and complete examples, use [the full context file](https://meapri.github.io/prism-glass/llms-full.txt).
+
+| Document | Purpose |
+| --- | --- |
+| [llms.txt](llms.txt) | Start here: current version, installation status, reading order and essential constraints |
+| [Integration guide](docs/AI_INTEGRATION.md) | Installation, renderer/component selection, state and events, accessibility, Next.js boundaries and common mistakes |
+| [Generated API reference](docs/API_REFERENCE.md) | Exact public exports and TypeScript declarations for this version |
+| [api.json](api.json) | Machine-readable entry points, exports, declaration origins and rendering contracts |
+| [Copyable recipes](examples/recipes/README.md) | Working controls, modal confirmation, an image-backed dock and plain TypeScript media integration |
+| [Consumer verification](docs/INTEGRATION_TESTS.md) | Actual tarball installation, strict typechecks, production builds and browser interactions in Vite and Next.js |
+| [llms-full.txt](llms-full.txt) | The integration guide, API reference and all recipes in one file |
+
+These documents and recipes also ship in the installable package. API metadata is generated from emitted declarations and checked against real runtime exports.
+
+Copy this request into your coding agent:
+
+> Read [https://meapri.github.io/prism-glass/llms.txt](https://meapri.github.io/prism-glass/llms.txt) and integrate Prism Glass into this application. Check the actual exports and types, and choose between CSS material and refraction with an explicit source. Compose public components around the application's existing state, actions and accessibility. Verify the installed package with this application's typecheck, production build and real interactions.
+
+**Rendering contract:** CSS material works without a source. Actual SVG/media refraction requires explicit DOM, image, video or canvas content. The package is currently a local-tarball alpha, not an npm registry release. See the [integration guide](docs/AI_INTEGRATION.md) before choosing an installation or rendering approach.
 
 ## What this version does
 
