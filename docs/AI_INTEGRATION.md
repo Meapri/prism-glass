@@ -14,7 +14,7 @@ Do not invent a prop from another glass library. Type declarations and `api.json
 
 ## Install and import
 
-This alpha is distributed as a local `.tgz`; it has not been published to the npm registry. Check the supplied archive and `package.json` version before writing an install command. To build an archive from a checkout:
+This alpha is distributed as a local `.tgz`; it has not been published to the npm registry. Check the supplied archive and `package.json` version before writing an install command. The [source repository](https://github.com/Meapri/prism-glass) contains the package and examples. To build an archive from a checkout:
 
 ```sh
 npm ci

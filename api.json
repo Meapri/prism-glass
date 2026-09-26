@@ -2,6 +2,8 @@
   "schemaVersion": 1,
   "package": "@meapri/prism-glass",
   "version": "0.5.0-alpha.2",
+  "repository": "https://github.com/Meapri/prism-glass",
+  "homepage": "https://meapri.github.io/prism-glass/",
   "registryPublished": false,
   "moduleFormat": "esm",
   "reactPeer": ">=18",

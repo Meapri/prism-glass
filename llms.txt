@@ -4,6 +4,8 @@
 
 Package: `@meapri/prism-glass`, version `0.5.0-alpha.2`, ESM, React >=18 for the React adapter. This alpha is not published to the npm registry; install the supplied tarball. Core/media/optics do not require React.
 
+[Source repository](https://github.com/Meapri/prism-glass) · [Project site](https://meapri.github.io/prism-glass/)
+
 ## Start here
 
 - [Integration guide](docs/AI_INTEGRATION.md): renderer selection, exact import paths, state, accessibility, Next.js boundaries and common mistakes.

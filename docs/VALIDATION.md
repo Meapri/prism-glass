@@ -10,7 +10,7 @@ Date: 2026-09-26 KST. Release: `0.5.0-alpha.2`.
 - **React 19.3.0 + Next.js 16.3.6 + TypeScript 6.0.3:** the same checks passed. The App Router Server Component imports a Prism button directly through the emitted client boundary and calls a pure core material function on the server. No source aliases, `transpilePackages`, disabled SSR or skipped typechecking were used. The Next fixture uses the framework-appropriate `ESNext` standard-library types.
 - **Core-only npm installation:** importing core/media/optics passed with no React installed. React remains an optional peer, not a hidden core dependency.
 - Consumer tests use local temporary applications and public package imports. No consumer app was deployed and no npm registry publication occurred. Browser integration checks use Chromium; this is not a claim of every framework/device combination.
-- Library rendering/interaction behavior is unchanged from 0.5.0-alpha.1; package and documentation checks supplement the preceding 150-test cross-browser/native Safari run. Current CI status is recorded when the packaging commit completes.
+- **Final CI passed:** [run 36209851555](https://github.com/Meapri/prism-glass/actions/runs/36209851555), implementation source `48502ac88ff091f576e3cdce9957bba433d514c6`: 35/35 unit tests, 150/150 Chromium/Firefox/WebKit checks, the archive/declaration/AI-guide check, and native macOS Safari all succeeded. Later repository/source-link metadata changes passed the local archive check again; all 51 built runtime/type files remained byte-identical to both tested consumer installations.
 
 ## Previous release (`0.5.0-alpha.1`)
 
